@@ -1,0 +1,860 @@
+{
+  "version": "0.1.0",
+  "generated_at": "2025-12-05T12:45:27Z",
+  "root": "C:/projects/iori-spec/docs",
+  "nodes": [
+    {
+      "id": "ARCH-900",
+      "kind": "architecture",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "ARCH-900: iori-spec Tooling Core — Python Package Architecture",
+      "role": "arch",
+      "file": "architecture/ARCH-900_tooling_core.md",
+      "llm_brief": "- role: このドキュメントは、`iori-spec` の **Python 実装レベルの箱（パッケージ構成と依存関係）** を定義する\n  アーキテクチャ仕様です。\n- llm_action: あなた（LLM）は、`iori-spec` の CLI コマンドや IF 実装コードを生成するとき、\n  この ARCH-900 を **「どのモジュールに何を書くか」「どのレイヤに依存してよいか」** を判断するための\n  ガイドラインとして参照してください。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "if": [
+          "IF-910",
+          "IF-920",
+          "IF-930",
+          "IF-940",
+          "IF-950",
+          "IF-960",
+          "IF-970"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901",
+          "DATA-902",
+          "DATA-904",
+          "DATA-905",
+          "DATA-906",
+          "DATA-907",
+          "DATA-910"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-910"
+        ],
+        "inputs": [
+          "reference/iori_spec_config.yaml",
+          "reference/spec_section_schema.yaml"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "data_contracts/DATA-910_iori_spec_config.md",
+          "interfaces/IF-910_spec_index_builder.md",
+          "interfaces/IF-920_lint_core.md",
+          "interfaces/IF-930_trace_lint.md",
+          "interfaces/IF-940_search_specs.md",
+          "interfaces/IF-950_impact_analyzer.md",
+          "interfaces/IF-960_context_builder.md",
+          "interfaces/IF-970_prompt_bundle_builder.md"
+        ],
+        "see_also": [
+          "dev-plan.md",
+          "reference/iori_spec_guide.md"
+        ]
+      },
+      "hash": "527c0fe79fba772081c556cf4aa9bc1b8c18f70a6fd56a208fdf332692451424",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 54
+      }
+    },
+    {
+      "id": "DATA-900",
+      "kind": "data_contracts",
+      "scope": "tooling.spec_index",
+      "status": "draft",
+      "spec_title": "DATA-900: Spec Index — spec_index.json",
+      "role": "data",
+      "file": "data_contracts/DATA-900_spec_index.md",
+      "llm_brief": "- role: このファイルは、`iori-spec` が管理する仕様群をノードとして一覧化した **spec カタログ（インデックス）のデータ契約**です。\n- llm_action: `iori-spec index` コマンドや、それに相当する Python モジュールを **設計・実装・リファクタリングする際の「出力フォーマット仕様」**として、この data_contract を参照してください。spec_index.json を直接生成するのではなく、「ここに定義された構造に厳密に従うコード」を作ることが目的です。",
+      "summary": "- `spec_index.json` は、`iori-spec` リポジトリ内の ID 付き仕様ファイルをすべてノードとして列挙する **インデックスファイル**である。\n- 各ノードは、\n  - `id / kind / scope / status / spec_title / role / file`\n  - `trace`（REQ / IF / DATA / TEST / TASK の論理関係）\n  - `dp`（IF⇄DATA のビルド依存関係）",
+      "trace": null,
+      "dp": null,
+      "doc": {
+        "read_next": [
+          "DATA-901"
+        ],
+        "see_also": [
+          "reference/iori_spec_guide.md",
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "4291d8a3b5ac3d109610790db3a16595c1a2485ce3bded51ee9b42fe332788ae",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 30
+      }
+    },
+    {
+      "id": "DATA-901",
+      "kind": "data_contracts",
+      "scope": "tooling.section_schema",
+      "status": "draft",
+      "spec_title": "DATA-901: Spec Section Schema — spec_section_schema.yaml",
+      "role": "data",
+      "file": "data_contracts/DATA-901_spec_section_schema.md",
+      "llm_brief": "- role: このファイルは、`kind` ごとに「どのセクション見出しを必須とするか」「どのセクションを LLM 用コンテキストとして抽出するか」に加えて、**各セクションの意図・記載内容・LLM への指示（ヒント）** を定義するセクションスキーマの data_contract です。\n- llm_action: `iori-spec lint` や `iori-spec context` など、仕様書の構造チェックやコンテキスト抽出を行うモジュール、あるいは将来の scaffold/prompt 系モジュールを **設計・実装・変更するとき**に、このスキーマを参照してください。`spec_section_schema.yaml` 自体を生成するのではなく、「ここに定義されたルール（構造 + 意味）を読み取り適用するコード」を書くことが目的です。",
+      "summary": "- `spec_section_schema.yaml` は、kind ごとに **「どの見出しが必須か」「どの見出しを LLM に渡すか」** に加え、\n  **「各セクションの意図・記載すべき内容・LLM への指示」** を定義するための YAML ファイルである。\n- `rules[]` にセクションルールを 1 件ずつ定義し、\n  - `heading.level` / `heading.text` で見出しを特定し、\n  - `required` / `multiple` / `tool_source` / `order` で振る舞いを指定し、",
+      "trace": {
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900"
+        ],
+        "see_also": [
+          "reference/iori_spec_guide.md",
+          "impl_notes/spec_template.md"
+        ]
+      },
+      "hash": "a0cc6f76215b43c28b790a392999829e01c21287ac489e6f2152e4bc7b756b9f",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 32
+      }
+    },
+    {
+      "id": "DATA-904",
+      "kind": "data_contracts",
+      "scope": "tooling.search",
+      "status": "draft",
+      "spec_title": "DATA-904: Search Result — SearchHit List (JSON)",
+      "role": "data",
+      "file": "data_contracts/DATA-904_search_result.md",
+      "llm_brief": "- role: このファイルは、`iori-spec search` コマンドや IF-940（Search Specs）が生成する  \n  **「検索結果（SearchHit の一覧）」のデータ構造**を定義する data_contract です。\n- llm_action: あなた（LLM）は IF-940 を実装するとき、この data_contract を  \n  **「search コマンドの JSON 出力／Python 戻り値のフォーマット」**として参照し、  \n  ここで定義されたフィールドを持つ `SearchHit` の配列を返すコードを書いてください。",
+      "summary": "- search_result.json は **SearchHit の配列**として表現される。\n- 各 SearchHit は少なくとも：\n\n  - `id` / `file` / `kind` / `scope` / `role`\n  - `spec_title`",
+      "trace": {
+        "if": [
+          "IF-940"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-904"
+        ],
+        "produced_by": [
+          "IF-940"
+        ],
+        "consumes": [
+          "DATA-900"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "interfaces/IF-940_search_specs.md"
+        ],
+        "see_also": [
+          "DATA-902_lint_result.md",
+          "DATA-905_context_bundle.md",
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "f31fe5b8ec195c54d85732a2b76756e7f4562c0122fccd95e0f5d426949139f8",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 36
+      }
+    },
+    {
+      "id": "DATA-905",
+      "kind": "data_contracts",
+      "scope": "tooling.context",
+      "status": "draft",
+      "spec_title": "DATA-905: Context Bundle — Spec IDs → LLM Context Bundle (JSON)",
+      "role": "data",
+      "file": "data_contracts/DATA-905_context_bundle.md",
+      "llm_brief": "- role: このファイルは、`iori-spec context` コマンドや IF-960（Context Builder）が生成する  \n  **「LLM に渡すためのコンテキストバンドル」のデータ構造**を定義する data_contract です。\n- llm_action: あなた（LLM）は IF-960 を実装するとき、この data_contract を  \n  **「context コマンドの JSON 出力／Python 戻り値のフォーマット」**として参照し、  \n  ここで定義された構造を持つ `ContextBundle` オブジェクトを返すコードを書いてください。",
+      "summary": "- **ContextBundle** は「どの ID（seed_ids）を起点に」「どの戦略・条件で」\n  「どの spec のどのセクションを」「どれくらいのトークン量で」LLM に渡すかを表現する。\n- 構造は：\n\n  - `ContextBundle` … 全体のメタ情報＋ `items[]`",
+      "trace": {
+        "if": [
+          "IF-960"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-905"
+        ],
+        "produced_by": [
+          "IF-960"
+        ],
+        "consumes": [
+          "DATA-900",
+          "DATA-901"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "DATA-901",
+          "interfaces/IF-960_context_builder.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "672221ce8f50462a0381cd92b9047f8e7542f610255ccc420e7eb58171e2629b",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 37
+      }
+    },
+    {
+      "id": "DATA-906",
+      "kind": "data_contracts",
+      "scope": "tooling.impact",
+      "status": "draft",
+      "spec_title": "DATA-906: Impact Report — Changed IDs → Impacted Specs (JSON)",
+      "role": "data",
+      "file": "data_contracts/DATA-906_impact_report.md",
+      "llm_brief": "- role: このファイルは、`iori-spec impact` コマンドや IF-950（Impact Analyzer）が生成する  \n  **「影響範囲レポート（ImpactReport）」のデータ構造**を定義する data_contract です。\n- llm_action: あなた（LLM）は IF-950 を実装するとき、この data_contract を  \n  **「impact コマンドの JSON 出力／Python 戻り値のフォーマット」**として参照し、  \n  ここで定義された構造を持つ `ImpactReport` オブジェクトを返すコードを書いてください。",
+      "summary": "- **ImpactReport** は、「どの ID の変更を起点に」「どの方向・距離で」\n  「どの spec が影響を受けるとみなされるか」を一覧するレポート。\n- 構造は：\n\n  - `ImpactReport` … 実行条件＋ `nodes[]`",
+      "trace": {
+        "if": [
+          "IF-950"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-906"
+        ],
+        "produced_by": [
+          "IF-950"
+        ],
+        "consumes": [
+          "DATA-900"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "interfaces/IF-950_impact_analyzer.md"
+        ],
+        "see_also": [
+          "DATA-902_lint_result.md",
+          "DATA-905_context_bundle.md",
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "524d6dfae697d2b929e7b8f8fa2eae14ae5d9e254ca6c38c199a605650ee3126",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 36
+      }
+    },
+    {
+      "id": "DATA-907",
+      "kind": "data_contracts",
+      "scope": "tooling.prompt",
+      "status": "draft",
+      "spec_title": "DATA-907: Prompt Bundle — ContextBundle → LLM Prompt Bundle (JSON)",
+      "role": "data",
+      "file": "data_contracts/DATA-907_prompt_bundle.md",
+      "llm_brief": "- role: このファイルは、IF-970（Prompt Bundle Builder）が生成する  \n  **「LLM にそのまま渡せるプロンプト構造（PromptBundle）」のデータ構造**を定義する data_contract です。\n- llm_action: あなた（LLM）は IF-970 を実装するとき、この data_contract を  \n  **「prompt コマンドの JSON 出力／Python 戻り値のフォーマット」**として参照し、  \n  ここで定義された構造を持つ `PromptBundle` オブジェクトを返すコードを書いてください。",
+      "summary": "- **PromptBundle** は「どの preset で、どんな system / user メッセージと、\n  どの spec コンテキスト（Markdown）を LLM に渡すか」を表現する。\n- 構造は：\n\n  - `PromptBundle` … 全体のメタ情報＋ system / user / context_markdown / context_items",
+      "trace": {
+        "if": [
+          "IF-970"
+        ],
+        "data": [
+          "DATA-905"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-907"
+        ],
+        "produced_by": [
+          "IF-970"
+        ],
+        "consumes": [
+          "DATA-905"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-905_context_bundle.md",
+          "interfaces/IF-970_prompt_bundle_builder.md"
+        ],
+        "see_also": [
+          "interfaces/IF-960_context_builder.md",
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "96a31e3099a244c5536e192df020a907dd79659e6425988d2df429f45acfb395",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 35
+      }
+    },
+    {
+      "id": "DATA-910",
+      "kind": "data_contracts",
+      "scope": "tooling.config",
+      "status": "draft",
+      "spec_title": "DATA-910: iori_spec_config — Project-wide Config (YAML)",
+      "role": "data",
+      "file": "data_contracts/DATA-910_iori_spec_config.md",
+      "llm_brief": "- role: このファイルは、`reference/iori_spec_config.yaml` の **構造と意味** を定義する\n  data_contract です。  \n- llm_action: あなた（LLM）は、`IF-910 / IF-920 / IF-960 / IF-970` などを実装するとき、\n  この data_contract を **「設定ファイルのスキーマ」** として参照し、\n  Python で `IoriSpecConfig` 的なデータクラス／型を定義して読み書きしてください。",
+      "summary": "- `iori_spec_config.yaml` は、仕様ツール全体の **パス・kind/scope・プリセット** を機械可読に定義する SSOT である。\n- IF-910/920/960/970 などすべてのコマンドは、この設定を経由して入出力先や許容値を決定する。\n- 人間向けの地図（README_SPEC 等）は補助であり、正式な値の定義は常に本 config に従う。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910",
+          "IF-920",
+          "IF-960",
+          "IF-970"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901",
+          "DATA-905",
+          "DATA-907"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-910"
+        ],
+        "inputs": [
+          "reference/iori_spec_config.yaml"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900_spec_index.md",
+          "DATA-901_spec_section_schema.md",
+          "interfaces/IF-910_spec_index_builder.md",
+          "interfaces/IF-920_lint_core.md",
+          "interfaces/IF-960_context_builder.md",
+          "interfaces/IF-970_prompt_bundle_builder.md"
+        ],
+        "see_also": [
+          "reference/iori_spec_guide.md"
+        ]
+      },
+      "hash": "16d2d335ae3349f1d90490ca889e09b8842b9cdcbc6de037172fec373a33f482",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 41
+      }
+    },
+    {
+      "id": "IF-900",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-900: iori-spec CLI — Command-Line Interface",
+      "role": "if",
+      "file": "interfaces/IF-900_tooling_cli.md",
+      "llm_brief": "- role: この IF は、`iori-spec` CLI の **サブコマンド構成・オプション・入出力・Exit Code** を定義します。\n- llm_action: あなた（LLM）は、`iori_spec.cli` や `iori_spec.commands.*` を実装するとき、\n  この IF-900 を **「CLI レイヤの仕様」** として参照し、\n  - ここで定義されたコマンド名・オプション名\n  - `--format json` 時の DATA-9xx 対応",
+      "summary": "- `iori-spec` の CLI エントリポイントとして、index/lint/trace-lint/search/impact/context/prompt を提供する。\n- すべてのコマンドが DATA-910 を起点に環境を解決し、DATA-9xx を入出力として扱う。\n\n---",
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "if": [
+          "IF-910",
+          "IF-920",
+          "IF-930",
+          "IF-940",
+          "IF-950",
+          "IF-960",
+          "IF-970"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901",
+          "DATA-902",
+          "DATA-904",
+          "DATA-905",
+          "DATA-906",
+          "DATA-907",
+          "DATA-910"
+        ]
+      },
+      "dp": {
+        "produced_by": [
+          "IF-900"
+        ],
+        "consumes": [
+          "DATA-910"
+        ],
+        "inputs": [
+          "reference/iori_spec_config.yaml"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "architecture/ARCH-900_tooling_core.md",
+          "data_contracts/DATA-910_iori_spec_config.md",
+          "interfaces/IF-910_spec_index_builder.md",
+          "interfaces/IF-920_lint_core.md",
+          "interfaces/IF-930_trace_lint.md",
+          "interfaces/IF-940_search_specs.md",
+          "interfaces/IF-950_impact_analyzer.md",
+          "interfaces/IF-960_context_builder.md",
+          "interfaces/IF-970_prompt_bundle_builder.md"
+        ],
+        "see_also": [
+          "dev-plan.md",
+          "reference/iori_spec_guide.md"
+        ]
+      },
+      "hash": "32e8e63315743bf568fabc64ca112f76483afb58500503e4964c2047161ccc4b",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 55
+      }
+    },
+    {
+      "id": "IF-910",
+      "kind": "interfaces",
+      "scope": "tooling.spec_index",
+      "status": "draft",
+      "spec_title": "IF-910: Spec Index Builder — Markdown Specs → spec_index.json",
+      "role": "if",
+      "file": "interfaces/IF-910_spec_index_builder.md",
+      "llm_brief": "- role: この IF は、`--root` 以下の Markdown 仕様ファイル群から `DATA-900` で定義された `spec_index.json` を生成する **インデックスビルダー・モジュールの振る舞い**を定義します。\n- llm_action: あなた（LLM）はこの IF を読み、DATA-900 の data_contract を満たす `spec_index.json` を生成する **Python モジュール／CLI サブコマンド（`iori-spec index`）のコード**を書いてください。spec_index.json を直接出力するのではなく、「こう振る舞う index ビルダーを実装する」ことがゴールです。",
+      "summary": "- Markdown 仕様群を走査し、front matter と本文から ID / kind / scope / trace / dp / doc を抽出して DATA-900 を構築する。\n- DATA-901 を利用できる場合は `llm_brief` / summary も抽出する。\n\n---",
+      "trace": {
+        "data": [
+          "DATA-900",
+          "DATA-901"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-900"
+        ],
+        "consumes": [
+          "DATA-901"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "DATA-901"
+        ],
+        "see_also": [
+          "reference/iori_spec_guide.md"
+        ]
+      },
+      "hash": "d6bdf24e5feaa0e8968a8ce467297bc1a98feb5045b59552dbd485bcc88aff8d",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 33
+      }
+    },
+    {
+      "id": "IF-920",
+      "kind": "interfaces",
+      "scope": "tooling.lint",
+      "status": "draft",
+      "spec_title": "IF-920: Lint Core — frontmatter / sections / ids",
+      "role": "if",
+      "file": "interfaces/IF-920_lint_core.md",
+      "llm_brief": "- role: この IF は、`iori-spec` の仕様ファイル群に対して行う **構造・メタ情報 lint（frontmatter / sections / ids）** のコアロジックを定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-900 / DATA-901 を読み、`iori-spec lint` コマンドの中核となる **Python モジュール（lint コア）** を設計・実装してください。仕様ファイルそのものや `spec_index.json` / `spec_section_schema.yaml` を入力として、ここで定義されたルールに従って lint 結果を返すコードを書くことが目的です。",
+      "summary": "- Markdown 仕様の front matter・見出し・ID を静的検査し、FM-xxx / SEC-xxx / ID-xxx ルールで Issue を返す。\n- 有効な kind/scope は DATA-910 を参照し、必須セクションは DATA-901 を基準にする。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900",
+          "DATA-901"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml",
+          "Markdown specs (*.md)"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "DATA-901",
+          "reference/iori_spec_guide.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "25e6b943aa8524a11a8b6033e15635e978afd3fe6389f903d6579007af584d68",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 35
+      }
+    },
+    {
+      "id": "IF-930",
+      "kind": "interfaces",
+      "scope": "tooling.lint.trace",
+      "status": "draft",
+      "spec_title": "IF-930: Trace Lint — REQ / IF / DATA / TEST Coverage",
+      "role": "if",
+      "file": "interfaces/IF-930_trace_lint.md",
+      "llm_brief": "- role: この IF は、`spec_index.json`（DATA-900）を入力として、REQ / IF / DATA / TEST / TASK 間の **トレーサビリティ（つながり具合）の健全性を検査する trace lint のコアロジック**を定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-900 を読み、`iori-spec trace-lint` コマンドの中核となる **Python モジュール（trace lint コア）** を設計・実装してください。仕様ファイル群を直接読むのではなく、「SpecIndex（DATA-900）を読み込んでトレースグラフを検査し、LintIssue の一覧を返す」コードを書くことが目的です。",
+      "summary": "- SpecIndex から G_trace を構築し、REQ ⇔ IF/DATA/TEST のリンク不足・存在しない ID 参照・孤立ノードを検出する lint を定義する。\n- TASK は coverage 判定の対象外（警告のみ）とし、開発タスクの参考情報として扱う。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910",
+          "IF-920"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "interfaces/IF-920_lint_core.md",
+          "reference/iori_spec_guide.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "5a5870035d35b692ba74f4ace6dfb2905af9c3eda5c7e615212eccea796eba76",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 32
+      }
+    },
+    {
+      "id": "IF-940",
+      "kind": "interfaces",
+      "scope": "tooling.search",
+      "status": "draft",
+      "spec_title": "IF-940: Search Specs — spec_index.json → ID Candidates",
+      "role": "if",
+      "file": "interfaces/IF-940_search_specs.md",
+      "llm_brief": "- role: この IF は、`spec_index.json`（DATA-900）を入力として、仕様 ID・タイトル・スコープなどをキーワードで検索し、**ID 候補（SearchHit の一覧）**を返す search モジュールの振る舞いを定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-900 を読み、`iori-spec search` コマンドの中核となる **Python モジュール（search コア）** を設計・実装してください。仕様ファイルそのものを全文検索するのではなく、「SpecIndex（DATA-900）のメタ情報だけを使って ID 候補を返す」コードを書くことが目的です。",
+      "summary": "- SpecIndex の id/spec_title/scope/llm_brief/summary を対象にシンプルな検索を行い、SearchHit 配列（DATA-904）を返す。\n- kinds/scopes/roles/limit などのフィルタと、text/table/json 出力をサポートする。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "interfaces/IF-910_spec_index_builder.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "fb89b095367ab2e032c4c38ca9e52d3a24cc34b8d135835a616ea4391a57346f",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 30
+      }
+    },
+    {
+      "id": "IF-950",
+      "kind": "interfaces",
+      "scope": "tooling.impact",
+      "status": "draft",
+      "spec_title": "IF-950: Impact Analyzer — Changed IDs → Impacted Specs",
+      "role": "if",
+      "file": "interfaces/IF-950_impact_analyzer.md",
+      "llm_brief": "- role: この IF は、`spec_index.json`（DATA-900）を入力として、  \n  **「どの REQ / IF / DATA / TEST / TASK を変更したら、どの spec が影響を受けるか」**を計算する  \n  **Impact Analyzer（影響範囲分析モジュール）の振る舞い**を定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-900 を読み、`iori-spec impact` コマンドの中核となる  \n  **Python モジュール（impact コア）** を設計・実装してください。",
+      "summary": "- SpecIndex から G_trace/G_dp/G_doc を組み合わせ、指定 ID からの近傍ノードを BFS で列挙する impact 分析のインターフェイスを定義する。\n- 方向（upstream/downstream/both）や距離、roles、docリンクの有無で探索範囲を制御し、ImpactReport（DATA-906）を生成する。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910",
+          "IF-930"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-905"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "interfaces/IF-910_spec_index_builder.md",
+          "interfaces/IF-930_trace_lint.md",
+          "interfaces/IF-960_context_builder.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "2d4c64db660cd6ec27f6b2ee13ce86d4c082b6fedcecf11fd26f9fb03c883d4b",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 34
+      }
+    },
+    {
+      "id": "IF-960",
+      "kind": "interfaces",
+      "scope": "tooling.context",
+      "status": "draft",
+      "spec_title": "IF-960: Context Builder — Spec IDs → LLM Context Bundle",
+      "role": "if",
+      "file": "interfaces/IF-960_context_builder.md",
+      "llm_brief": "- role: この IF は、`spec_index.json`（DATA-900）と `spec_section_schema.yaml`（DATA-901）を入力として、  \n  1つ以上の **種 ID（seed_ids）** から「LLM に渡すべき最小限かつ十分なコンテキスト」を組み立てる **コンテキストビルダー**の振る舞いを定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-900 / DATA-901 を読み、`iori-spec context` コマンドの中核となる **Python モジュール（context コア）** を設計・実装してください。  \n  仕様そのものを直接要約するのではなく、「どの spec / セクションを選び、どの順番で LLM に渡すか」を決めるコードを書くことが目的です。",
+      "summary": "- SpecIndex を起点に seed ID と近傍 ID を決定し、セクションスキーマに従って本文を抽出・整形した ContextBundle（DATA-905）を生成する。\n- 探索範囲（radius/roles/docリンク）と抽出ルールを切り替え可能にする。\n\n---",
+      "trace": {
+        "if": [
+          "IF-910",
+          "IF-920",
+          "IF-930"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900",
+          "DATA-901"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-900",
+          "DATA-901",
+          "interfaces/IF-910_spec_index_builder.md",
+          "reference/iori_spec_guide.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "5005366e1320735cc1209d03010b5db4435a2160acde034d5ee2cf411dcf2bed",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 37
+      }
+    },
+    {
+      "id": "IF-970",
+      "kind": "interfaces",
+      "scope": "tooling.prompt",
+      "status": "draft",
+      "spec_title": "IF-970: Prompt Bundle Builder — ContextBundle → LLM Prompt Bundle",
+      "role": "if",
+      "file": "interfaces/IF-970_prompt_bundle_builder.md",
+      "llm_brief": "- role: この IF は、ContextBundle（DATA-905）を入力として、  \n  **「LLM にそのまま投げられるプロンプト構造（PromptBundle）」** を組み立てる  \n  Prompt Builder の振る舞いを定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-905 を読み、  \n  `build_prompt_bundle(context_bundle, preset=...) -> PromptBundle` のような",
+      "summary": "- ContextBundle を入力に、preset/language/extra_instruction に応じた PromptBundle（DATA-907）を構築する。\n- system/user/context_markdown を組み立て、LLM 呼び出しに直接渡せる形を定義する。\n\n---",
+      "trace": {
+        "if": [
+          "IF-960"
+        ],
+        "data": [
+          "DATA-905"
+        ]
+      },
+      "dp": {
+        "produced_by": [
+          "IF-970"
+        ],
+        "consumes": [
+          "DATA-905"
+        ],
+        "inputs": [
+          "iori_spec_config.yaml"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "DATA-905_context_bundle.md",
+          "interfaces/IF-960_context_builder.md",
+          "reference/iori_spec_guide.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "9b502855242dddf904a3d57aafe1d6d26223365208d2ce0e6558dfc802332fdd",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 35
+      }
+    },
+    {
+      "id": "REF-102",
+      "kind": "reference",
+      "scope": "meta",
+      "status": "draft",
+      "spec_title": "iori-spec Section Guide",
+      "role": "ref",
+      "file": "reference/iori_spec_section_guide.md",
+      "llm_brief": "iori-spec で扱う仕様セクションの意味・粒度・書き分け方をまとめたリファレンス。`spec_section_schema.yaml` の機械可読な定義を、人間と LLM が運用する際の実用的なガイドとして補完する。",
+      "summary": null,
+      "trace": null,
+      "dp": null,
+      "doc": null,
+      "hash": "7e7ab67c3595a172ddda6aa32d9da8dc3d8a2305e486c74a8edfab21226a50e5",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 7
+      }
+    },
+    {
+      "id": "REF-101",
+      "kind": "reference",
+      "scope": "meta",
+      "status": "review",
+      "spec_title": "Spec Section Schema",
+      "role": "ref",
+      "file": "reference/spec_section_schema.md",
+      "llm_brief": null,
+      "summary": null,
+      "trace": null,
+      "dp": null,
+      "doc": null,
+      "hash": "daf1523bd13b80868d28ac61fb5bd853ec4546750fd6c2cac0e34b3e28fb099c",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 7
+      }
+    },
+    {
+      "id": "REQ-800",
+      "kind": "requirements",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "REQ-800: iori-spec CLI — Core Tooling Requirements",
+      "role": "req",
+      "file": "requirements/REQ-800_tooling_cli.md",
+      "llm_brief": "- role: このドキュメントは、`iori-spec` CLI ツールが満たすべき  \n  **ユーザー視点の要求（Requirements）** を定義します。\n- llm_action: あなた（LLM）は、`interfaces/IF-9xx_*.md` や `data_contracts/DATA-9xx_*.md` を  \n  実装・修正するとき、この REQ を **上位のゴール** として参照し、  \n  ここに書かれた振る舞い・制約を壊さないようにしてください。",
+      "summary": null,
+      "trace": {
+        "if": [
+          "IF-910",
+          "IF-920",
+          "IF-930",
+          "IF-940",
+          "IF-950",
+          "IF-960",
+          "IF-970"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901",
+          "DATA-902",
+          "DATA-904",
+          "DATA-905",
+          "DATA-906",
+          "DATA-907",
+          "DATA-910"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-900",
+          "DATA-902",
+          "DATA-904",
+          "DATA-905",
+          "DATA-906",
+          "DATA-907"
+        ],
+        "consumes": [
+          "DATA-901",
+          "DATA-910"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "dev-plan.md",
+          "DATA-910_iori_spec_config.md",
+          "interfaces/IF-910_spec_index_builder.md",
+          "interfaces/IF-920_lint_core.md",
+          "interfaces/IF-930_trace_lint.md",
+          "interfaces/IF-940_search_specs.md",
+          "interfaces/IF-950_impact_analyzer.md",
+          "interfaces/IF-960_context_builder.md",
+          "interfaces/IF-970_prompt_bundle_builder.md"
+        ],
+        "see_also": [
+          "reference/iori_spec_guide.md"
+        ]
+      },
+      "hash": "d340fdf1a0e3bcb48bd90a7cd1cf8f32688310e4455c3c24275e51c06f9241c2",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 57
+      }
+    }
+  ]
+}
