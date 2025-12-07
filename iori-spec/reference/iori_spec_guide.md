@@ -47,6 +47,7 @@ status: review        # draft / review / stable
 - LLM に渡すときは `LLM_BRIEF` と合わせて、必要なセクションを最小限に抜粋する（全文貼りを避ける）。
 - lint で指摘された場合は、本書と `spec_section_schema.yaml` を突き合わせて heading 不足を補う。
 - ID 追加・命名を行うときは、`vocab` の kind/scope に合致するかと重複の有無を確認する。
+- コアと拡張を分けたい場合は、拡張ノードの front matter に `extension: true` を付ける。trace lint は拡張の未トレース/孤立を WARN 扱いとし、`extension` が無いものはすべてコア扱い（ERROR 対象）とする。
 
 ## 4. ID 空間とファイル対応
 
@@ -62,6 +63,7 @@ status: review        # draft / review / stable
 
 - `artifacts/traceability_map.md` は `iori-spec trace report` が front matter の `trace.*` と SpecIndex から生成するビュー（手書きしない）。
 - IF や DATA を新規作成・変更した場合は、`trace.*` を更新し、必要に応じて Traceability Map を再生成する。
+- 拡張機能（`extension: true`）のノードも trace report には出力してよいが、カバレッジ判定は WARN に緩和する。
 
 ## 5. 参照順ルール（タスク別フロー）
 
