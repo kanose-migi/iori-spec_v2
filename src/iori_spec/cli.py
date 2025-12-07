@@ -326,7 +326,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--trace-map",
         dest="trace_map",
         help="Path to traceability map markdown "
-             "(default: requirements/traceability_map.md under root).",
+             "(default: artifacts/traceability_map.md under root).",
     )
     p_trace.add_argument(
         "--glob",

@@ -68,8 +68,10 @@ iori-spec の仕様ツリー全体の「入口」。どこに何があるか、�
 
 ## 7. よく使うコマンド（概要）
 - セットアップ: `python -m pip install -e .`（リポジトリ直下で実行し、CLI を有効化）。  
-- lint: `iori-spec lint` — front matter / sections / ids のチェック（標準配置なら config 自動検出）。  
-- trace: `iori-spec trace` — front matter の `trace.*` に基づくトレース健全性チェック。必要なら `trace report` で Traceability Map（ビュー）を生成。  
-- index: `iori-spec index` — SpecIndex（DATA-900）の再生成。デフォルトで `artifacts/spec_index.json` に書き出す。  
-- context: `iori-spec context REQ-800` — 特定 ID 近傍のコンテキスト抽出。  
+- index: `iori-spec index` — SpecIndex（DATA-900）を再生成（デフォルトで `artifacts/spec_index.json`）。  
+- trace lint / report: `iori-spec trace lint` で `trace.*` を検証し、必要に応じて `trace report` で `artifacts/traceability_map.md` を再生成（ビュー、手書き禁止）。  
+- lint: `iori-spec lint` — front matter / sections / ids の構造チェック。  
+- search / show: `iori-spec search "<query>"` で候補 ID を探索し、`show <ID>` で主要セクションを短く確認。  
+- impact / context: `iori-spec impact REQ-800 --max-depth 2` で近傍 ID を列挙し、`context REQ-800 --radius 1` で LLM 用コンテキストを束ねる。  
+- scaffold: `iori-spec new <kind> --id ...` で REQ/IF/DATA/TEST/TASK のスケルトンを生成（必要に応じて活用）。  
 - 共通オプション: 標準配置でない場合は `--config <path>` を明示。`--root` でプロジェクトルート、`--glob` で対象ファイルのパターンを上書きできる。

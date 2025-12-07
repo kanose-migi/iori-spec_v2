@@ -98,6 +98,7 @@ scope: client.query_engine           # 【必須】この仕様が属する領�
 id: IF-200                           # 【必須】このファイルで定義する ID。原則「1ファイル1ID」の前提で、index / trace のノード名になる。
 spec_title: "Query Engine — digits→segments" # 【必須】人間＆LLM 向けタイトル。H1 見出し（`# {spec_title}`）と重複するが、ツールは front matter 側を信頼する。
 status: review                       # 【必須】仕様の成熟度。draft / review / stable など。lint の厳しさや、LLM にどこまで信頼させるかのヒントに使う。
+extension: true                      # 【任意】拡張機能として扱う場合に指定。trace lint は未トレース等を WARN 扱いに緩和。
 
 # ---- 要求トレースグラフ（G_trace）用の情報 ----
 trace:                               # 【必須（ID キャリア kind のみ）】REQ / IF / DATA / TEST / TASK との「論理的な関係」を宣言するブロック。
@@ -402,7 +403,7 @@ doc:
     - REQ-101
     - REQ-102
   see_also:
-    - requirements/traceability_map.md
+    - artifacts/traceability_map.md
 ```
 
 - ファイルパス or ID の配列。
@@ -610,7 +611,7 @@ v1 では次の項目を core として扱う：
   ## READ_NEXT
 
   - 非機能要件 → `requirements/nonfunctional.md`
-  - トレースマップ → `requirements/traceability_map.md`
+- トレースマップ → `artifacts/traceability_map.md`
   - …（3〜5件程度）
   ```
 
@@ -955,6 +956,3 @@ CLI コマンドや API 等、外部から呼び出されるインターフェ�
      のいずれか（または両者の組み合わせ）を、その時点のユースケースに応じて再設計する。」
 - [ ] `spec_structure_and_traceability.md` 側にも、`scope` をメイン軸とすること、  
   および axis を scope 側で扱うか tags 側で扱うかは将来の検討事項であることを簡潔に記載する。
-
-
-

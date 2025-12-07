@@ -4,13 +4,15 @@ scope: tooling.prompt
 id: DATA-907
 spec_title: "DATA-907: Prompt Bundle — ContextBundle → LLM Prompt Bundle (JSON)"
 status: draft
+extension: true
 
 trace:
-  req: []        # 例: REQ-8xx_prompt_bundle などを後で紐付け
+  req:
+    - REQ-810     # Prompt bundle 拡張要求
   if:
-    - IF-970     # Prompt Bundle Builder — ContextBundle → LLM Prompt Bundle
+    - IF-970      # Prompt Bundle Builder — ContextBundle → LLM Prompt Bundle
   data:
-    - DATA-905   # 入力: Context Bundle
+    - DATA-905    # 入力: Context Bundle
   test: []
   task: []
 
@@ -305,6 +307,4 @@ doc:
 - PromptBundle から OpenAI などの message 形式に変換する
   **IF-975: provider_prompt_adapter** のような IF を定義し、
   「PromptBundle → model-specific messages」の責務を切り分ける。
-
-
 

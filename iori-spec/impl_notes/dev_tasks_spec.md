@@ -67,7 +67,7 @@ status: draft | review | stable
 
 * ただし、
 
-  * `requirements/traceability_map.md` の REQ↔IF/DATA/TEST のトレーサビリティには **含めない**。
+  * `artifacts/traceability_map.md` の REQ↔IF/DATA/TEST のトレーサビリティには **含めない**。
   * `trace` コマンドの「未トレース ID チェック」の対象にも **含めない**。
 
 * つまり、TASK-xxx は
@@ -189,6 +189,5 @@ status: draft
   * requirements / interfaces / data_contracts / tests のいずれかへ「昇格」させることを検討する。
 
 ---
-
 
 

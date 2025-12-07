@@ -476,7 +476,7 @@ LLM にとっても「読めたら嬉しいけど、必須スキーマではな�
     ## READ_NEXT
 
     - 非機能要件 → `requirements/nonfunctional.md`
-    - トレースマップ → `requirements/traceability_map.md`
+    - トレースマップ → `artifacts/traceability_map.md`
     - …（3〜5件程度）
     ```
 
@@ -1043,6 +1043,5 @@ core spec（steering / requirements / architecture / interface / data_contract /
 
 [ ] 表形式でまとめるべき？
     Kind、MUST/SHOULD、セクション名、is IDキャリア、has File単位ID、has Block単位ID、
-
 
 

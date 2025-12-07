@@ -15,14 +15,12 @@ trace:
     - IF-940       # search
     - IF-950       # impact
     - IF-960       # context
-    - IF-970       # prompt (拡張)
   data:
     - DATA-900     # spec_index
     - DATA-901     # spec_section_schema
     - DATA-904     # search_result
     - DATA-905     # context_bundle
     - DATA-906     # impact_report
-    - DATA-907     # prompt_bundle
     - DATA-910     # iori_spec_config
   test: []
   task: []
@@ -46,7 +44,6 @@ doc:
     - interfaces/IF-940_search_specs.md
     - interfaces/IF-950_impact_analyzer.md
     - interfaces/IF-960_context_builder.md
-    - interfaces/IF-970_prompt_bundle_builder.md
   see_also:
     - dev-plan.md
     - reference/iori_spec_guide.md
@@ -86,7 +83,6 @@ doc:
 - interfaces/IF-940_search_specs.md
 - interfaces/IF-950_impact_analyzer.md
 - interfaces/IF-960_context_builder.md
-- interfaces/IF-970_prompt_bundle_builder.md
 - reference/iori_spec_guide.md
 
 ---
@@ -94,7 +90,7 @@ doc:
 ## 1. このドキュメントの役割
 
 - iori-spec の Python 実装を「どのレイヤに何を書くか」「依存方向はどうするか」の観点で定義する。
-- REQ-800 を満たすためのコマンド群（index/lint/search/impact/context/prompt）の箱組みを示し、IF / DATA 実装時の配置ガイドとする。
+- REQ-800 を満たすためのコマンド群（index / trace lint|report / lint / search / show / impact / context / scaffold / tasks）の箱組みを示し、IF / DATA 実装時の配置ガイドとする。
 - 追加のコマンドやモジュールを導入する際に、既存レイヤとの整合性チェックリストとして使う。
 
 ---
@@ -120,7 +116,7 @@ doc:
 ## 1. アーキテクチャのゴール
 
 1. 仕様セットごとに `iori-spec` CLI を導入しやすくすること。
-2. index / lint / search / impact / context / prompt という **MUST コマンド**を、  
+2. index / lint / trace lint / trace report / search / show / impact / context という **MUST/SHOULD コマンド**を、  
    共通の SpecIndex / Config / SectionSchema の上に素直に載せること。
 3. LLM と協調しやすいように、
    - 単純で予測しやすいパッケージ構造
@@ -130,7 +126,7 @@ doc:
 このために、`iori-spec` の Python 実装を次の 3 レイヤに分ける。
 
 - Foundation Layer: 低レベルユーティリティ・データ型
-- Core Layer: IF 実装（index / lint / search / impact / context / prompt の本体）
+- Core Layer: IF 実装（index / lint / trace lint / trace report / search / show / impact / context の本体）
 - CLI Layer: CLI エントリポイントとサブコマンド定義
 
 ---
@@ -162,7 +158,6 @@ iori_spec/
     search.py              # IF-940: search_specs
     impact.py              # IF-950: impact_analyzer
     context_builder.py     # IF-960: context_builder
-    prompt_builder.py      # IF-970: prompt_bundle_builder（拡張）
 
     commands/
       __init__.py
@@ -172,7 +167,6 @@ iori_spec/
       search_cmd.py          # CLI サブコマンド: search
       impact_cmd.py          # CLI サブコマンド: impact
       context_cmd.py         # CLI サブコマンド: context
-      prompt_cmd.py          # CLI サブコマンド: prompt（拡張）
 
   cli.py                   # `iori-spec` エントリ（argparse/typer/click など）
 
@@ -299,16 +293,6 @@ iori_spec/
   - 出力:
 
     - `ContextBundle`（DATA-905）
-- `prompt_builder.py`（IF-970）
-
-  - 入力:
-
-    - `ContextBundle`
-    - preset / language / extra_instruction
-  - 出力:
-
-    - `PromptBundle` (DATA-907)
-
 依存ルール:
 
 - これらの IF 実装は、**相互に強く依存しない**。
@@ -349,9 +333,6 @@ iori_spec/
 - `context_cmd.py`
 
   - `core.context_builder.build_context_bundle()` を呼び出し。
-- `prompt_cmd.py`
-
-  - `core.prompt_builder.build_prompt_bundle()` を呼び出し。
 
 依存ルール:
 
@@ -395,12 +376,7 @@ SpecIndex (DATA-900)  ←── IF-910 (indexer)
     ├─→ IF-930 (trace_linter) ──→ LintResult（スキーマは将来 DATA-9xx として定義予定）
     ├─→ IF-940 (search) ──→ SearchHit[] (DATA-904)
     ├─→ IF-950 (impact) ──→ ImpactReport (DATA-906)
-    └─→ IF-960 (context_builder)
-             │
-             └─→ ContextBundle (DATA-905)
-                      │
-                      └─→ IF-970 (prompt_builder)
-                               └─→ PromptBundle (DATA-907)
+    └─→ IF-960 (context_builder) ──→ ContextBundle (DATA-905)
 ```
 
 - すべての矢印は core レイヤ内の関数呼び出しに対応する。
@@ -420,7 +396,6 @@ SpecIndex (DATA-900)  ←── IF-910 (indexer)
 - `SearchError`
 - `ImpactError`
 - `ContextError`
-- `PromptError`
 
 commands レイヤでは、これらを捕捉して Exit Code にマッピングする：
 

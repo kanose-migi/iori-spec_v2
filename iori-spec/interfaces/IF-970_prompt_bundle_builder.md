@@ -4,20 +4,22 @@ scope: tooling.prompt
 id: IF-970
 spec_title: "IF-970: Prompt Bundle Builder — ContextBundle → LLM Prompt Bundle"
 status: draft
+extension: true
 
 trace:
-  req: []        # 例: REQ-8xx_prompt_bundle などを後で紐付け
+  req:
+    - REQ-810    # Prompt bundle 拡張要求
   if:
     - IF-960     # Context Builder — Spec IDs → LLM Context Bundle
   data:
     - DATA-905   # 入力: Context Bundle
+    - DATA-907   # 出力: Prompt Bundle
   test: []
   task: []
 
 dp:
   produces:
-    # 将来的に DATA-907_prompt_bundle として data_contract 化するが、
-    # 本 IF 時点では「論理的な PromptBundle」を定義する。
+    - DATA-907   # PromptBundle（拡張）
   produced_by:
     - IF-970
   consumes:
@@ -386,6 +388,4 @@ PromptContextItem の構造：
 - `preset` を外部 YAML / JSON で定義し、
 
   - iori-spec のユーザーが自分好みのプロンプトテンプレートを追加・差し替えできるようにする。
-
-
 

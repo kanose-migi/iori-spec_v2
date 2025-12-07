@@ -14,14 +14,12 @@ trace:
     - IF-940    # search
     - IF-950    # impact
     - IF-960    # context
-    - IF-970    # prompt bundle (拡張)
   data:
     - DATA-900  # spec_index
     - DATA-901  # spec_section_schema
     - DATA-904  # search_result
     - DATA-905  # context_bundle
     - DATA-906  # impact_report
-    - DATA-907  # prompt_bundle
     - DATA-910  # iori_spec_config
   test: []
   task: []
@@ -32,7 +30,6 @@ dp:
     - DATA-904
     - DATA-905
     - DATA-906
-    - DATA-907
   produced_by: []
   consumes:
     - DATA-901
@@ -49,7 +46,6 @@ doc:
     - interfaces/IF-940_search_specs.md
     - interfaces/IF-950_impact_analyzer.md
     - interfaces/IF-960_context_builder.md
-    - interfaces/IF-970_prompt_bundle_builder.md
   see_also:
     - reference/iori_spec_guide.md
 ---
@@ -73,20 +69,19 @@ doc:
 - `interfaces/IF-940_search_specs.md`（search）
 - `interfaces/IF-950_impact_analyzer.md`（impact）
 - `interfaces/IF-960_context_builder.md`（context）
-- `interfaces/IF-970_prompt_bundle_builder.md`（prompt）
 - `data_contracts/DATA-900_spec_index.md` / `DATA-901_spec_section_schema.md` ほか
 
 ## 1. このドキュメントの役割
 
 - `iori-spec` CLI の **プロダクトとしての要求事項** をまとめる。
-- 個別の IF（index / lint / search / impact / context / prompt）に対して、何のために存在するか、どのレベルまで実用的に動く必要があるかを上位レイヤから規定する。
+- 個別の IF（index / lint / trace / search / impact / context / show / graph / scaffold / tasks）に対して、何のために存在するか、どのレベルまで実用的に動く必要があるかを上位レイヤから規定する。
 - Traceability: 本 REQ-800 は、IF-910 / 920 / 930 / 940 / 950 / 960 / 970 の「親」として機能する。
 
 ## 2. 範囲（Scope）と前提
 
 ### 2.1 対象
 - `iori-spec` Python パッケージが提供する **CLI コマンド群**。
-- 特に、次のコアコマンドを対象とする：`index` / `lint` / `trace` / `search` / `impact` / `context` / （拡張）`prompt`
+- 特に、次のコアコマンドを対象とする：`index` / `trace lint` / `trace report` / `lint` / `search` / `show` / `impact` / `context` / `new|scaffold` / `tasks list|report`（graph export/neighbors は NICE TO HAVE）
 
 ### 2.2 非対象
 - LLM API の呼び出し自体（OpenAI / Anthropic などのクライアント実装）。
@@ -109,7 +104,7 @@ doc:
 
 ## 6. Acceptance Criteria
 - 必須 heading（LLM_BRIEF / USAGE / READ_NEXT / 1〜3 / 4 / 6）が存在し、requirements 用スキーマの lint に通ること。
-- コアコマンド（index / lint / trace / search / impact / context / prompt）が本 REQ の機能要件を満たし、対応 IF / DATA / TEST と整合すること。
+- コアコマンド（index / trace lint / trace report / lint / search / show / impact / context / new|scaffold / tasks）が本 REQ の機能要件を満たし、対応 IF / DATA / TEST と整合すること。
 - JSON 出力が対応する DATA-9xx schema に準拠し、CI で安定的に扱えること。
 - front matter の `trace.*` で、本 REQ が対象 IF / DATA から参照されること（必要に応じて trace report でビューを生成）。
 
@@ -192,14 +187,6 @@ doc:
 3. **R-CONTEXT-03**: トークン上限の目安  
    - `--max-tokens` を指定した場合、ざっくりとしたトークン見積もりによって過剰なコンテキストを避ける努力をすること（厳密でなくてよい）。
 
-### 9.7 prompt コマンド（REQ → IF-970 / DATA-907）
-
-1. **R-PROMPT-01**: PromptBundle の生成  
-   - `iori-spec prompt` は ContextBundle（DATA-905）を入力として、LLM にそのまま渡せる PromptBundle（DATA-907）を生成できること。
-2. **R-PROMPT-02**: preset による切り替え  
-   - `--preset` により、`DATA-910.prompt.presets` で定義されたプロンプトプリセットを切り替えられること。
-3. **R-PROMPT-03**: 言語設定  
-   - `--language` 未指定時は `DATA-910.prompt.default_language` を用い、指定時はそれを上書きできること。
 
 ## 10. 非機能要件（Non-Functional Requirements）
 

@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "generated_at": "2025-12-07T11:42:37Z",
+  "generated_at": "2025-12-07T13:10:30Z",
   "root": "/home/teika/projects/iori-spec/iori-spec",
   "nodes": [
     {
@@ -23,8 +23,7 @@
           "IF-930",
           "IF-940",
           "IF-950",
-          "IF-960",
-          "IF-970"
+          "IF-960"
         ],
         "data": [
           "DATA-900",
@@ -32,7 +31,6 @@
           "DATA-904",
           "DATA-905",
           "DATA-906",
-          "DATA-907",
           "DATA-910"
         ]
       },
@@ -54,18 +52,17 @@
           "interfaces/IF-930_trace_lint.md",
           "interfaces/IF-940_search_specs.md",
           "interfaces/IF-950_impact_analyzer.md",
-          "interfaces/IF-960_context_builder.md",
-          "interfaces/IF-970_prompt_bundle_builder.md"
+          "interfaces/IF-960_context_builder.md"
         ],
         "see_also": [
           "dev-plan.md",
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "5ce1ccb62b0fdeb7296a519abcd889c49c983d80ca1646e9abd784b607bd3d85",
+      "hash": "2ad6cfd7be11078dcc08ac40f76ee76a77c4c456bea7656c446db77e009955b1",
       "frontmatter_range": {
         "start": 1,
-        "end": 53
+        "end": 50
       }
     },
     {
@@ -292,6 +289,9 @@
       "llm_brief": "- role: このファイルは、IF-970（Prompt Bundle Builder）が生成する  \n  **「LLM にそのまま渡せるプロンプト構造（PromptBundle）」のデータ構造**を定義する data_contract です。\n- llm_action: あなた（LLM）は IF-970 を実装するとき、この data_contract を  \n  **「prompt コマンドの JSON 出力／Python 戻り値のフォーマット」**として参照し、  \n  ここで定義された構造を持つ `PromptBundle` オブジェクトを返すコードを書いてください。",
       "summary": "- **PromptBundle** は「どの preset で、どんな system / user メッセージと、\n  どの spec コンテキスト（Markdown）を LLM に渡すか」を表現する。\n- 構造は：\n\n  - `PromptBundle` … 全体のメタ情報＋ system / user / context_markdown / context_items",
       "trace": {
+        "req": [
+          "REQ-810"
+        ],
         "if": [
           "IF-970"
         ],
@@ -324,10 +324,10 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "e093329cd1f2b6677fbe2d1d15ebb4c562f1eff4165eb5d9bf28e9cc4c83de0b",
+      "hash": "8f38f6027b7e00d90d21e400e6d4174cf3ed1e3bf7355ac626cf14d22a9c35d1",
       "frontmatter_range": {
         "start": 1,
-        "end": 35
+        "end": 37
       }
     },
     {
@@ -716,14 +716,21 @@
       "llm_brief": "- role: この IF は、ContextBundle（DATA-905）を入力として、  \n  **「LLM にそのまま投げられるプロンプト構造（PromptBundle）」** を組み立てる  \n  Prompt Builder の振る舞いを定義します。\n- llm_action: あなた（LLM）はこの IF と DATA-905 を読み、  \n  `build_prompt_bundle(context_bundle, preset=...) -> PromptBundle` のような",
       "summary": "- ContextBundle を入力に、preset/language/extra_instruction に応じた PromptBundle（DATA-907）を構築する。\n- system/user/context_markdown を組み立て、LLM 呼び出しに直接渡せる形を定義する。\n\n---",
       "trace": {
+        "req": [
+          "REQ-810"
+        ],
         "if": [
           "IF-960"
         ],
         "data": [
-          "DATA-905"
+          "DATA-905",
+          "DATA-907"
         ]
       },
       "dp": {
+        "produces": [
+          "DATA-907"
+        ],
         "produced_by": [
           "IF-970"
         ],
@@ -744,10 +751,10 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "2f231538a3ee337916dd7424a739bf35c1720931faab907df2d410a1c92b44c8",
+      "hash": "160c5e232bf415de55292af2e3e61be858048e2c36d3a3252f4a1bab4168c0e0",
       "frontmatter_range": {
         "start": 1,
-        "end": 35
+        "end": 37
       }
     },
     {
@@ -824,8 +831,7 @@
           "IF-930",
           "IF-940",
           "IF-950",
-          "IF-960",
-          "IF-970"
+          "IF-960"
         ],
         "data": [
           "DATA-900",
@@ -833,7 +839,6 @@
           "DATA-904",
           "DATA-905",
           "DATA-906",
-          "DATA-907",
           "DATA-910"
         ]
       },
@@ -842,8 +847,7 @@
           "DATA-900",
           "DATA-904",
           "DATA-905",
-          "DATA-906",
-          "DATA-907"
+          "DATA-906"
         ],
         "consumes": [
           "DATA-901",
@@ -859,17 +863,59 @@
           "interfaces/IF-930_trace_lint.md",
           "interfaces/IF-940_search_specs.md",
           "interfaces/IF-950_impact_analyzer.md",
-          "interfaces/IF-960_context_builder.md",
-          "interfaces/IF-970_prompt_bundle_builder.md"
+          "interfaces/IF-960_context_builder.md"
         ],
         "see_also": [
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "12244219f332f231ae28d20ff3c3811c356791b3cd326afa4c77c92e99af5e95",
+      "hash": "bd705f7b2e82dce2d3a6009f0386e4409ab65352271f3dc12f5bd45a58455dda",
       "frontmatter_range": {
         "start": 1,
-        "end": 55
+        "end": 51
+      }
+    },
+    {
+      "id": "REQ-810",
+      "kind": "requirements",
+      "scope": "tooling.prompt",
+      "status": "draft",
+      "spec_title": "REQ-810: Prompt Bundle (Extension)",
+      "role": "req",
+      "file": "requirements/REQ-810_prompt_bundle.md",
+      "llm_brief": "- role: ContextBundle（DATA-905）から LLM へ渡す PromptBundle を組み立てる拡張機能の要求を定義する。\n- llm_action: IF-970 / DATA-907 を設計・更新するときに、本要求を満たすこと。コア（index/lint/search/impact/context）とは独立した拡張として扱う。",
+      "summary": "- ContextBundle を入力に、preset/language/extra_instruction に基づく PromptBundle を生成できること。\n- PromptBundle は system/user/context_markdown/context_items を含み、LLM へそのまま渡せる形であること。\n- 構造は DATA-907 に従い、拡張機能としてコアの整合性を壊さないこと。",
+      "trace": {
+        "if": [
+          "IF-970"
+        ],
+        "data": [
+          "DATA-907",
+          "DATA-905"
+        ]
+      },
+      "dp": {
+        "produces": [
+          "DATA-907"
+        ],
+        "consumes": [
+          "DATA-905"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "interfaces/IF-970_prompt_bundle_builder.md",
+          "data_contracts/DATA-907_prompt_bundle.md",
+          "data_contracts/DATA-905_context_bundle.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "31f46c5a11930035e4df03b1dd64eec6c7adc5294350998ff1466f735735f718",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 34
       }
     },
     {

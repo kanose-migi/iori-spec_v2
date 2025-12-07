@@ -729,6 +729,34 @@ iori-spec report tasks \
   [--out <PATH>]
 ```
 
+## 7. プロンプト生成コマンド（拡張 / アダプタ層）
+
+### 7.1 `iori-spec prompt` — NICE TO HAVE（拡張）
+
+#### 目的
+
+ContextBundle（DATA-905）を入力として、LLM に渡せる PromptBundle（DATA-907）を構築する。
+コア機能（index / lint / trace / search / impact / context）の下流に位置するアダプタとして、
+preset / language に応じた system / user / context_markdown をまとめる。
+
+#### シノプシス
+
+```bash
+iori-spec prompt \
+  [--preset <NAME>] \
+  [--language <ja|en|...>] \
+  [--format json] \
+  [--root <PATH>] \
+  [--index <PATH>]
+```
+
+#### 備考
+
+- REQ-810 / IF-970 / DATA-907 に紐づく拡張機能。コアのトレーサビリティ／カバレッジとは切り離し、status=draft で開始する。
+- ContextBundle の生成は IF-960 / `context` コマンドに依存する。
+- JSON 出力（DATA-907 準拠）を基本とし、LLM クライアント側で各プロバイダ形式にマッピングする。
+- front matter に `extension: true` を付けることで、trace lint は未トレース/孤立を WARN 扱い（コアは ERROR）。
+
 ## MUST コマンド詳細仕様
 
 対象コマンド：
@@ -1328,6 +1356,10 @@ iori-spec trace lint \
 
   - 「仕様として未充足 or 危険な匂いはあるが、構造的には壊れていない」レベル。
   - 終了コードは **0 のまま**だが、修正を強く推奨。
+- **拡張（extension: true）**
+
+  - front matter に `extension: true` が付与されているノードは「拡張扱い」とし、孤立/未トレースなど本来 ERROR となるケースも WARN に緩和する。
+  - 付与されていないものはすべてコア扱い（通常の ERROR 判定）とする。
 - **INFO**
 
   - 「設計上の傾向や TODO を知らせるための情報」レベル。
@@ -1547,6 +1579,3 @@ status 依存のルール（TRACE-010 / 011 / 020 / 021 / 022 / 030）は、
 
 まずはこのルールセットをベースラインとして、
 「このルールは重すぎる / 足りない」と感じるところがあれば、そこから微調整していこう。
-
-
-

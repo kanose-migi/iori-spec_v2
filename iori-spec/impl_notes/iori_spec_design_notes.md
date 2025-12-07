@@ -383,7 +383,7 @@ LLM に対してはほぼこういうやり方ができるようになる：
 | `docs/requirements/`                    | **必須** | 「何を実現するか」の正本置き場。                                   |
 | `docs/requirements/functional.md`       | **必須** | 機能要件 REQ-0xx。ここがないと「何をするプロダクトか」が定まらない。               |
 | `docs/requirements/nonfunctional.md`    | **推奨** | 性能・信頼性など。超小規模プロダクトなら README_SPEC に混ぜてもよいが、分けたほうが後々楽。 |
-| `docs/requirements/traceability_map.md` | **必須** | REQ ↔ IF/DATA/TEST をつなぐ SSOT。`trace` コマンドがここ前提で動く。 |
+| `artifacts/traceability_map.md` | **必須** | REQ ↔ IF/DATA/TEST をつなぐビュー。`trace report` で front matter から生成。 |
 
 #### 4. architecture/
 
@@ -465,7 +465,7 @@ LLM に対してはほぼこういうやり方ができるようになる：
   - `docs/`
   - `docs/README_SPEC.md`
   - `requirements/functional.md`
-  - `requirements/traceability_map.md`
+  - `artifacts/traceability_map.md`
   - `reference/iori_spec_guide.md`
   - `reference/spec_structure_and_traceability.md`
 
@@ -860,8 +860,8 @@ NO → 他ディレクトリへ昇格させる
     - REQ-203〜: 拡張性（ID プレフィックス追加への対応）
     - REQ-211〜: UX（CLI の一貫したオプション設計など）
 
-- docs/requirements/traceability_map.md  
-  - REQ ↔ IF / DATA / TEST の対応表（iori-spec 自身のトレーサビリティ）
+- artifacts/traceability_map.md  
+  - REQ ↔ IF / DATA / TEST の対応表（front matter から生成するビュー）
 
 ### 3. architecture（推奨）
 
@@ -1166,6 +1166,3 @@ iori-spec で想定してる context コマンド（仮）の動きを、ざっ�
 [ ] [Spec Structure & Traceability Rules / 2.2 trace_role（トレース上の役割）]
     ファイルの front matter のフォーマットにおいて、`trace_role` は、`kind`・`scope`・パス規則（ディレクトリ階層）から `iori-spec` が機械的に決定し、
     ユーザーが明示的に設定する必要はないが、将来的に上書き設定を許可する可能性の検討。
-
-
-

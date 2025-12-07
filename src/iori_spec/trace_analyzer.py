@@ -51,8 +51,8 @@ def _find_trace_doc(result: IndexResult, explicit_path: Optional[Path]) -> Optio
                 return doc
         return None
 
-    # デフォルト: root/requirements/traceability_map.md
-    default = result.root / "requirements" / "traceability_map.md"
+    # デフォルト: root/artifacts/traceability_map.md
+    default = result.root / "artifacts" / "traceability_map.md"
     for doc in result.docs:
         if doc.path.resolve() == default.resolve():
             return doc
@@ -127,7 +127,7 @@ def analyze_trace(
                 id="(none)",
                 message=(
                     "Traceability Map document not found. "
-                    "Tried default 'requirements/traceability_map.md' and files containing 'traceability'."
+                    "Tried default 'artifacts/traceability_map.md' and files containing 'traceability'."
                 ),
             )
         )
