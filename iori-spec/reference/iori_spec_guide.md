@@ -140,7 +140,6 @@ doc:
 ```
 
 - セクション見出しは `spec_section_schema.yaml`（正本）に従う。サンプル構造は `reference/iori_spec_section_schema_guide.md` や `reference/sample/spec_section_schema.sample.yaml` を参照。
-```
 
 ## 7. ID・見出しブロックのルール（概要）
 
