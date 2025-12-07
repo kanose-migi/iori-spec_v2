@@ -18,6 +18,8 @@
 CLI から直接使えることはもちろん、  
 CI や LLM ツール（例: codex cli）からも呼び出して使えるように設計されています。
 
+ The spec set for this project lives under `iori-spec/`. 新しく仕様を読むときは `iori-spec/README_SPEC.md` から入り、CLI は標準配置なら `--config` 省略可（カスタム配置のみ `--config iori-spec/reference/iori_spec_config.yaml` などを指定）。
+
 ---
 
 ## Goals / Philosophy
@@ -154,23 +156,26 @@ npm install --save-dev textlint
 ## Example Usage (concept)
 
 ```bash
-# REQ/IF/DATA/TEST のトレーサビリティチェック
-iori-spec trace docs/
+# セットアップ（ローカル開発用）
+python -m pip install -e .
+
+# REQ/IF/DATA/TEST のトレーサビリティチェック（標準配置なら --config 省略可）
+iori-spec trace
 
 # 仕様インデックスの生成
-iori-spec index docs/ > spec_index.json
+iori-spec index
 
 # ラベル（IDのタイトル）をSSoTに同期
-iori-spec labels --sync docs/
+iori-spec labels --sync iori-spec/
 
 # 用語Lint（禁止別名・正準語彙チェック）
-iori-spec vocab docs/
+iori-spec vocab iori-spec/
 
 # LLM向けに、あるIDまわりのコンテキストを束ねる
-iori-spec impact REQ-005 --radius 1 > /tmp/context-req-005.txt
+iori-spec impact REQ-800 --radius 1 > /tmp/context-req-800.txt
 
 # textlint を経由した日本語Lint
-iori-spec textlint docs/requirements/functional.md --format json
+iori-spec textlint iori-spec/requirements/REQ-800_tooling_cli.md --format json
 ```
 
 ---
@@ -204,4 +209,3 @@ iori-spec textlint docs/requirements/functional.md --format json
 TBD
 
 （ライセンス方針が決まり次第、ここに追記してください）
-

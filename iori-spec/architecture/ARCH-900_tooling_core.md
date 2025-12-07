@@ -11,7 +11,7 @@ trace:
   if:
     - IF-910       # index
     - IF-920       # lint
-    - IF-930       # trace lint
+    - IF-930       # trace
     - IF-940       # search
     - IF-950       # impact
     - IF-960       # context
@@ -19,7 +19,6 @@ trace:
   data:
     - DATA-900     # spec_index
     - DATA-901     # spec_section_schema
-    - DATA-902     # lint_result
     - DATA-904     # search_result
     - DATA-905     # context_bundle
     - DATA-906     # impact_report
@@ -113,7 +112,7 @@ doc:
 ## 3. 運用上の目安（LLM / SDD 観点）
 
 - LLM には本書のレイヤ説明を前提知識として渡し、生成コードが依存方向を逆流させないようにする。
-- コード変更時は、REQ-800 → ARCH-900 → 対応 IF / DATA の順に確認し、SpecIndex を更新したうえで lint/trace-lint を回す。
+- コード変更時は、REQ-800 → ARCH-900 → 対応 IF / DATA の順に確認し、SpecIndex を更新したうえで lint/trace を回す。
 - core レイヤの関数は CLI に閉じず、Python ライブラリとしても利用できる形を維持する。
 
 ---
@@ -149,9 +148,9 @@ iori_spec/
     loader.py              # DATA-910: iori_spec_config.yaml ローダ
     models.py              # IoriSpecConfig / KindDef / ScopeDef 型
 
-  core/
-    __init__.py
-    types.py               # SpecNode / SpecIndex / Graph などの共通型
+    core/
+      __init__.py
+      types.py               # SpecNode / SpecIndex / Graph などの共通型
     frontmatter.py         # front matter + 本文のパーサ
     section_schema.py      # DATA-901 ローダ／検証
     graph.py               # trace / dp / doc グラフ構築（G_trace / G_dp / G_doc）
@@ -159,21 +158,21 @@ iori_spec/
 
     indexer.py             # IF-910: spec_index_builder の実装
     linter.py              # IF-920: lint_core（構造・メタ）
-    trace_linter.py        # IF-930: trace_lint
+    trace_linter.py        # IF-930: trace
     search.py              # IF-940: search_specs
     impact.py              # IF-950: impact_analyzer
     context_builder.py     # IF-960: context_builder
     prompt_builder.py      # IF-970: prompt_bundle_builder（拡張）
 
-  commands/
-    __init__.py
-    index_cmd.py           # CLI サブコマンド: index
-    lint_cmd.py            # CLI サブコマンド: lint
-    trace_lint_cmd.py      # CLI サブコマンド: trace-lint
-    search_cmd.py          # CLI サブコマンド: search
-    impact_cmd.py          # CLI サブコマンド: impact
-    context_cmd.py         # CLI サブコマンド: context
-    prompt_cmd.py          # CLI サブコマンド: prompt（拡張）
+    commands/
+      __init__.py
+      index_cmd.py           # CLI サブコマンド: index
+      lint_cmd.py            # CLI サブコマンド: lint
+      trace_cmd.py           # CLI サブコマンド: trace
+      search_cmd.py          # CLI サブコマンド: search
+      impact_cmd.py          # CLI サブコマンド: impact
+      context_cmd.py         # CLI サブコマンド: context
+      prompt_cmd.py          # CLI サブコマンド: prompt（拡張）
 
   cli.py                   # `iori-spec` エントリ（argparse/typer/click など）
 
@@ -227,15 +226,15 @@ iori_spec/
 
 - `types.py`
 
-  - `SpecNode`
+      - `SpecNode`
 
-    - DATA-900 の `nodes[]` 要素に相当する型。
-  - `SpecIndex`
+      - DATA-900 の `nodes[]` 要素に相当する型。
+    - `SpecIndex`
 
-    - DATA-900 全体を表す型。
-  - その他、`LintIssue`, `SearchHit`, `ImpactEdge`, `ContextBundle`, `PromptBundle` など
-    DATA-902 / 904 / 905 / 906 / 907 に対応する型。
-- `frontmatter.py`
+      - DATA-900 全体を表す型。
+    - その他、`LintIssue`, `SearchHit`, `ImpactEdge`, `ContextBundle`, `PromptBundle` など
+      904 / 905 / 906 / 907 に対応する型（lint result 用 schema は将来定義）。
+    - `frontmatter.py`
 
   - Markdown ファイルから `frontmatter: dict` と `body: str` を分離。
 - `section_schema.py`
@@ -256,22 +255,22 @@ iori_spec/
   - 出力:
 
     - `SpecIndex`（必要なら JSON シリアライズ可能な dict に変換）
-- `linter.py`（IF-920）
+    - `linter.py`（IF-920）
 
-  - 入力:
+      - 入力:
 
-    - Markdown specs + `SpecSectionSchema`
-  - 出力:
+        - Markdown specs + `SpecSectionSchema`
+      - 出力:
 
-    - `LintResult`（DATA-902）
-- `trace_linter.py`（IF-930）
+        - `LintResult`（スキーマは将来 DATA-9xx として定義予定）
+    - `trace_linter.py`（IF-930）
 
-  - 入力:
+      - 入力:
 
-    - `SpecIndex`
-  - 出力:
+        - `SpecIndex`
+      - 出力:
 
-    - `LintResult`（DATA-902、rule_id で trace 系と判別）
+        - `LintResult`（スキーマは将来 DATA-9xx として定義予定、rule_id で trace 系と判別）
 - `search.py`（IF-940）
 
   - 入力:
@@ -340,7 +339,7 @@ iori_spec/
   - `core.linter.run_lint()` を呼び出し、`--format` に応じて出力整形。
 - `trace_lint_cmd.py`
 
-  - `core.trace_linter.run_trace_lint()` を呼び出し。
+  - `core.trace_linter.run_trace()` を呼び出し（実装名は trace_lint でも可）。
 - `search_cmd.py`
 
   - 入力クエリを受け取り、`core.search.search_specs()` を呼び出し。
@@ -392,8 +391,8 @@ Markdown specs
     ▼
 SpecIndex (DATA-900)  ←── IF-910 (indexer)
     │
-    ├─→ IF-920 (linter) ──→ LintResult (DATA-902)
-    ├─→ IF-930 (trace_linter) ──→ LintResult (DATA-902)
+    ├─→ IF-920 (linter) ──→ LintResult（スキーマは将来 DATA-9xx として定義予定）
+    ├─→ IF-930 (trace_linter) ──→ LintResult（スキーマは将来 DATA-9xx として定義予定）
     ├─→ IF-940 (search) ──→ SearchHit[] (DATA-904)
     ├─→ IF-950 (impact) ──→ ImpactReport (DATA-906)
     └─→ IF-960 (context_builder)
@@ -481,6 +480,3 @@ commands レイヤでは、これらを捕捉して Exit Code にマッピング
 4. **エントリポイントの安定**
 
    - core 関数のシグネチャは、IF 仕様で定めたものから大きく逸脱しないようにする。
-
-
-

@@ -5,10 +5,10 @@ project:
   description: "Specification static analysis toolkit for specs (demo config)"
 
 paths:
-  spec_root: "docs"
-  spec_glob: "docs/**/*.md"
+  spec_root: "iori-spec"
+  spec_glob: "iori-spec/**/*.md"
   artifacts_dir: "artifacts"
-  section_schema_path: "docs/reference/spec_section_schema.yaml"
+  section_schema_path: "iori-spec/reference/spec_section_schema.yaml"
   ignore_paths:
     - "README_SPEC.md"
     - "impl_notes"

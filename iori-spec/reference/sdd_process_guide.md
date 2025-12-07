@@ -48,7 +48,7 @@ Specification Driven Development（SDD）を iori-spec で回すための手順�
   - チェック: lint（frontmatter/sections/ids）を通す。
 - **Phase 3: タスク化と実装準備**  
   - 書く: TASK（dev_tasks）を起こし、Steps/Done Criteria を明記。  
-  - 更新: traceability_map（必要なら）。  
+  - 更新: trace.*（front matter）を整備し、必要なら Traceability Map を再生成（`trace report`）。  
   - チェック: trace-lint / spec-index。
 - **Phase 4: 実装・検証**  
   - 実装: コード/スクリプトを変更。  

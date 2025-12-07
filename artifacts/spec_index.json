@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
-  "generated_at": "2025-12-05T12:45:27Z",
-  "root": "C:/projects/iori-spec/docs",
+  "generated_at": "2025-12-07T11:42:37Z",
+  "root": "/home/teika/projects/iori-spec/iori-spec",
   "nodes": [
     {
       "id": "ARCH-900",
@@ -29,7 +29,6 @@
         "data": [
           "DATA-900",
           "DATA-901",
-          "DATA-902",
           "DATA-904",
           "DATA-905",
           "DATA-906",
@@ -63,10 +62,10 @@
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "527c0fe79fba772081c556cf4aa9bc1b8c18f70a6fd56a208fdf332692451424",
+      "hash": "5ce1ccb62b0fdeb7296a519abcd889c49c983d80ca1646e9abd784b607bd3d85",
       "frontmatter_range": {
         "start": 1,
-        "end": 54
+        "end": 53
       }
     },
     {
@@ -90,7 +89,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "4291d8a3b5ac3d109610790db3a16595c1a2485ce3bded51ee9b42fe332788ae",
+      "hash": "f3add6b877e2b8268c55fe021ad6f5157690c71078d01dcd607565efc8fa5198",
       "frontmatter_range": {
         "start": 1,
         "end": 30
@@ -125,7 +124,7 @@
           "impl_notes/spec_template.md"
         ]
       },
-      "hash": "a0cc6f76215b43c28b790a392999829e01c21287ac489e6f2152e4bc7b756b9f",
+      "hash": "560c8539310b7182f02f34feaa09f1cd96a6b145a9c89aa315a3d807e05edccb",
       "frontmatter_range": {
         "start": 1,
         "end": 32
@@ -175,7 +174,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "f31fe5b8ec195c54d85732a2b76756e7f4562c0122fccd95e0f5d426949139f8",
+      "hash": "2af15a21d4d7847e2c46607090d15e054f22d81defe40d516df931a07bc1a77c",
       "frontmatter_range": {
         "start": 1,
         "end": 36
@@ -226,7 +225,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "672221ce8f50462a0381cd92b9047f8e7542f610255ccc420e7eb58171e2629b",
+      "hash": "70e9e48796011762f0f25e60adfd978e80daf733e7be401aca31c528a01ed491",
       "frontmatter_range": {
         "start": 1,
         "end": 37
@@ -276,7 +275,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "524d6dfae697d2b929e7b8f8fa2eae14ae5d9e254ca6c38c199a605650ee3126",
+      "hash": "ec22b021a589364e251b86557764f1b3d4be1105ffc8282786d7e3e53b7aca88",
       "frontmatter_range": {
         "start": 1,
         "end": 36
@@ -325,7 +324,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "96a31e3099a244c5536e192df020a907dd79659e6425988d2df429f45acfb395",
+      "hash": "e093329cd1f2b6677fbe2d1d15ebb4c562f1eff4165eb5d9bf28e9cc4c83de0b",
       "frontmatter_range": {
         "start": 1,
         "end": 35
@@ -366,7 +365,7 @@
       "doc": {
         "read_next": [
           "DATA-900_spec_index.md",
-          "DATA-901_spec_section_schema.md",
+          "DATA-901_iori_spec_section_schema_guide.md",
           "interfaces/IF-910_spec_index_builder.md",
           "interfaces/IF-920_lint_core.md",
           "interfaces/IF-960_context_builder.md",
@@ -376,7 +375,7 @@
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "16d2d335ae3349f1d90490ca889e09b8842b9cdcbc6de037172fec373a33f482",
+      "hash": "c9eacd0b6c81c57b16a258a5277b742e4f27b5dd2e1971a825eca8caab31b0a1",
       "frontmatter_range": {
         "start": 1,
         "end": 41
@@ -445,7 +444,7 @@
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "32e8e63315743bf568fabc64ca112f76483afb58500503e4964c2047161ccc4b",
+      "hash": "82637e4d8ff3dcd1e92dfce6329f0129bea7eafd635c211bf941e29535b33a16",
       "frontmatter_range": {
         "start": 1,
         "end": 55
@@ -488,7 +487,7 @@
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "d6bdf24e5feaa0e8968a8ce467297bc1a98feb5045b59552dbd485bcc88aff8d",
+      "hash": "846336b448a6e9b30a32fca35d2a9a0f32c9b61a280218305731e84000658448",
       "frontmatter_range": {
         "start": 1,
         "end": 33
@@ -533,7 +532,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "25e6b943aa8524a11a8b6033e15635e978afd3fe6389f903d6579007af584d68",
+      "hash": "4c2f41e03fc6a1a35c9c52acb8466dd27007aa833802a8951860ae1ca1fac1c8",
       "frontmatter_range": {
         "start": 1,
         "end": 35
@@ -573,7 +572,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "5a5870035d35b692ba74f4ace6dfb2905af9c3eda5c7e615212eccea796eba76",
+      "hash": "417ceeaaf6f074f47f26ad365abec7eb7fa375bf27d1a1fde26c76d91494d1b1",
       "frontmatter_range": {
         "start": 1,
         "end": 32
@@ -611,7 +610,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "fb89b095367ab2e032c4c38ca9e52d3a24cc34b8d135835a616ea4391a57346f",
+      "hash": "1e0d52f71cb49c3c13f70ceb126961dc0b5b2d520b71dbca4e52ccf6c2bbd893",
       "frontmatter_range": {
         "start": 1,
         "end": 30
@@ -653,7 +652,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "2d4c64db660cd6ec27f6b2ee13ce86d4c082b6fedcecf11fd26f9fb03c883d4b",
+      "hash": "4e5b7798d74b65e93d53eb85fcddc1b736b796d7771ce2b8a06b1e38532f95cb",
       "frontmatter_range": {
         "start": 1,
         "end": 34
@@ -700,7 +699,7 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "5005366e1320735cc1209d03010b5db4435a2160acde034d5ee2cf411dcf2bed",
+      "hash": "252c04734ba12b46c88706992022404d6b2fe4ed539c65d0572940383c70fbc8",
       "frontmatter_range": {
         "start": 1,
         "end": 37
@@ -745,26 +744,26 @@
           "impl_notes/spec_command.md"
         ]
       },
-      "hash": "9b502855242dddf904a3d57aafe1d6d26223365208d2ce0e6558dfc802332fdd",
+      "hash": "2f231538a3ee337916dd7424a739bf35c1720931faab907df2d410a1c92b44c8",
       "frontmatter_range": {
         "start": 1,
         "end": 35
       }
     },
     {
-      "id": "REF-102",
+      "id": "REF-100",
       "kind": "reference",
       "scope": "meta",
-      "status": "draft",
-      "spec_title": "iori-spec Section Guide",
+      "status": "review",
+      "spec_title": "仕様書の書き方・ID/構造ルール",
       "role": "ref",
-      "file": "reference/iori_spec_section_guide.md",
-      "llm_brief": "iori-spec で扱う仕様セクションの意味・粒度・書き分け方をまとめたリファレンス。`spec_section_schema.yaml` の機械可読な定義を、人間と LLM が運用する際の実用的なガイドとして補完する。",
+      "file": "reference/iori_spec_guide.md",
+      "llm_brief": "仕様書の型・IDルール・front matter 必須項目をまとめた基準書。iori-spec の lint / index / trace が前提とする仕様形状をここで定義する。",
       "summary": null,
       "trace": null,
       "dp": null,
       "doc": null,
-      "hash": "7e7ab67c3595a172ddda6aa32d9da8dc3d8a2305e486c74a8edfab21226a50e5",
+      "hash": "233b99610a9b7d91cb2ffccd25ebeca5780d326fd97ddd3e0affc303b4b83de1",
       "frontmatter_range": {
         "start": 1,
         "end": 7
@@ -775,15 +774,34 @@
       "kind": "reference",
       "scope": "meta",
       "status": "review",
-      "spec_title": "Spec Section Schema",
+      "spec_title": "Section Schema Guide",
       "role": "ref",
-      "file": "reference/spec_section_schema.md",
-      "llm_brief": null,
+      "file": "reference/iori_spec_section_schema_guide.md",
+      "llm_brief": "`spec_section_schema.yaml` に書かれたセクション構造ルールを、人間と LLM が理解しやすいように自然言語で説明するガイド。どの kind に何の見出しが必要か、どこを iori-spec が機械的に読むかを素早く把握できる。",
       "summary": null,
       "trace": null,
       "dp": null,
       "doc": null,
-      "hash": "daf1523bd13b80868d28ac61fb5bd853ec4546750fd6c2cac0e34b3e28fb099c",
+      "hash": "44a42dbb43fdac31e2446e3a0e16bdea161a8a7e0b98261e181cad444d8d400a",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 7
+      }
+    },
+    {
+      "id": "REF-103",
+      "kind": "reference",
+      "scope": "meta",
+      "status": "draft",
+      "spec_title": "SDD プロセスガイド",
+      "role": "ref",
+      "file": "reference/sdd_process_guide.md",
+      "llm_brief": "Specification Driven Development（SDD）を iori-spec で回すための手順書。要求→設計→タスク→実装→検証まで、どのタイミングでどの仕様/コマンド/チェックを使うかを整理し、人間と LLM が同じフローを踏めるようにする。",
+      "summary": null,
+      "trace": null,
+      "dp": null,
+      "doc": null,
+      "hash": "98dc6c920f6693273d0a70cf99b6e3924a58aec00c1fb991f3dc15c3d31ab81f",
       "frontmatter_range": {
         "start": 1,
         "end": 7
@@ -794,11 +812,11 @@
       "kind": "requirements",
       "scope": "tooling.cli",
       "status": "draft",
-      "spec_title": "REQ-800: iori-spec CLI — Core Tooling Requirements",
+      "spec_title": "REQ-800: iori-spec CLI ? Core Tooling Requirements",
       "role": "req",
       "file": "requirements/REQ-800_tooling_cli.md",
-      "llm_brief": "- role: このドキュメントは、`iori-spec` CLI ツールが満たすべき  \n  **ユーザー視点の要求（Requirements）** を定義します。\n- llm_action: あなた（LLM）は、`interfaces/IF-9xx_*.md` や `data_contracts/DATA-9xx_*.md` を  \n  実装・修正するとき、この REQ を **上位のゴール** として参照し、  \n  ここに書かれた振る舞い・制約を壊さないようにしてください。",
-      "summary": null,
+      "llm_brief": "- role: このドキュメントは、`iori-spec` CLI ツールが満たすべき **ユーザー視点の要求（Requirements）** を定義します。\n- llm_action: あなた（LLM）は、`interfaces/IF-9xx_*.md` や `data_contracts/DATA-9xx_*.md` を実装・修正するとき、この REQ を **上位のゴール** として参照し、ここに書かれた振る舞い・制約を壊さないようにしてください。CLI の細かい I/O 仕様は IF / DATA に委ねられますが、ここで定義された「MUST / SHOULD レベルの要求」を外れない実装を行うことが目的です。",
+      "summary": "- `iori-spec` CLI は、仕様の一覧・検索・Lint・トレース・影響分析・コンテキスト生成・プロンプト生成を統一的に提供し、仕様駆動開発を支援する。\n- すべてのコマンドは `DATA-910_iori_spec_config` を基に動作し、`DATA-900_spec_index` を SSOT として利用する。\n- JSON 出力は対応する DATA-9xx schema に準拠し（未定義の schema は今後追加検討）、CI / 自動化で再現性を担保する。",
       "trace": {
         "if": [
           "IF-910",
@@ -812,7 +830,6 @@
         "data": [
           "DATA-900",
           "DATA-901",
-          "DATA-902",
           "DATA-904",
           "DATA-905",
           "DATA-906",
@@ -823,7 +840,6 @@
       "dp": {
         "produces": [
           "DATA-900",
-          "DATA-902",
           "DATA-904",
           "DATA-905",
           "DATA-906",
@@ -850,10 +866,48 @@
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "d340fdf1a0e3bcb48bd90a7cd1cf8f32688310e4455c3c24275e51c06f9241c2",
+      "hash": "12244219f332f231ae28d20ff3c3811c356791b3cd326afa4c77c92e99af5e95",
       "frontmatter_range": {
         "start": 1,
-        "end": 57
+        "end": 55
+      }
+    },
+    {
+      "id": "STEER-001",
+      "kind": "steering",
+      "scope": "meta",
+      "status": "draft",
+      "spec_title": "iori-spec プロダクト指針",
+      "role": "steering",
+      "file": "steering/product.md",
+      "llm_brief": "仕様書を解析・索引化し、lint / trace / impact / context / prompt を行うツールセット「iori-spec」のプロダクト方向性を示す。対象は仕様を書く人と、それを活用して開発・レビュー・プロンプト生成を行う人/LLM。",
+      "summary": null,
+      "trace": null,
+      "dp": null,
+      "doc": null,
+      "hash": "5b70edea4005ee73722ac71352a92cf65618311d8ce86048fd03bfaa14f85005",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 7
+      }
+    },
+    {
+      "id": "STEER-002",
+      "kind": "steering",
+      "scope": "meta",
+      "status": "draft",
+      "spec_title": "iori-spec 技術方針",
+      "role": "steering",
+      "file": "steering/tech.md",
+      "llm_brief": "仕様解析・索引・lint・trace・impact・context・prompt を行うツールチェーン「iori-spec」の技術方針をまとめる。Python を中核に、SpecIndex を SSOT とした CLI/ライブラリ群を安定運用し、LLM 連携を前提にした拡張性・再現性を確保する。",
+      "summary": null,
+      "trace": null,
+      "dp": null,
+      "doc": null,
+      "hash": "1c3ea4a561a1887f8087110016b31eae149de1607d527720250d6d2326ae1fb5",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 7
       }
     }
   ]

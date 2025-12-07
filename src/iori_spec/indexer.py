@@ -66,10 +66,35 @@ class IndexResult:
     ids: List[IdIndexEntry]
 
 
-def build_index(root: Path, glob_pattern: str | None = None) -> IndexResult:
+def _build_ignore_patterns(ignore_paths: List[str] | None) -> List[str]:
+    """config.paths.ignore_paths などを Path.match で使いやすいパターン群へ展開する。"""
+    patterns: List[str] = []
+    for raw in ignore_paths or []:
+        d = raw.strip()
+        if not d:
+            continue
+        has_glob = any(ch in d for ch in "*?")
+        path_obj = Path(d)
+
+        # サブディレクトリ指定があれば末尾名も追加
+        if "/" in d:
+            patterns.append(path_obj.name)
+
+        if has_glob:
+            patterns.extend([d, f"**/{d}"])
+        else:
+            patterns.extend([d, f"**/{d}"])
+            if path_obj.suffix == "":
+                patterns.extend([f"{d}/**", f"**/{d}/**"])
+
+    return patterns
+
+
+def build_index(root: Path, glob_pattern: str | None = None, ignore_paths: List[str] | None = None) -> IndexResult:
     """root 以下の .md を走査して IndexResult を構築する。"""
     root = root.resolve()
     docs = scan_specs(root, glob_pattern=glob_pattern)
+    ignore_patterns = _build_ignore_patterns(ignore_paths)
 
     doc_entries: List[DocIndexEntry] = []
     # ID -> occurrences
@@ -79,6 +104,8 @@ def build_index(root: Path, glob_pattern: str | None = None) -> IndexResult:
         # 例: root=docs, path=docs/requirements/functional.md
         #   -> rel = "requirements/functional.md"
         rel = doc.path.relative_to(root)
+        if ignore_patterns and any(rel.match(pat) for pat in ignore_patterns):
+            continue
         # doc_id は拡張子なしの相対パスにしておく
         doc_id = str(rel.with_suffix("")).replace("\\", "/")
 

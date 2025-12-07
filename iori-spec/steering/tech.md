@@ -16,11 +16,11 @@ status: draft
 - LLM に iori-spec の技術スタックや品質方針を説明するときの最初のコンテキストとして渡す。
 
 ## READ_NEXT
-- `docs/reference/iori_spec_guide.md`（仕様の書き方・ID/構造ルール）
-- `docs/reference/iori_spec_section_schema_guide.md`（必須セクションの意味と書き方）
-- `docs/reference/iori_spec_config.yaml`（kind/scope vocabulary と設定）
-- `docs/architecture/overview.md`（アーキテクチャ概要）
-- `docs/requirements/functional.md` / `docs/requirements/nonfunctional.md`
+- [reference/iori_spec_guide.md](../reference/iori_spec_guide.md)（仕様の書き方・ID/構造ルール）
+- [reference/iori_spec_section_schema_guide.md](../reference/iori_spec_section_schema_guide.md)（必須セクションの意味と書き方）
+- [reference/iori_spec_config.yaml](../reference/iori_spec_config.yaml)（kind/scope vocabulary と設定）
+- [architecture/ARCH-900_tooling_core.md](../architecture/ARCH-900_tooling_core.md)（アーキテクチャ概要）
+- [requirements/REQ-800_tooling_cli.md](../requirements/REQ-800_tooling_cli.md)（機能要件の一覧）
 
 ## 1. このドキュメントの役割
 - iori-spec を実装・運用する際の技術方針と非機能の軸を示す。
@@ -29,7 +29,7 @@ status: draft
 
 ## 2. 範囲（Scope）と前提
 - 対象: iori-spec の CLI / ライブラリ / スキーマ / 設定ファイル。主に仕様解析・索引・lint・trace・impact・context・prompt 機能。
-- 利用者: 仕様を書く人、iORi-spec を使って実装/レビューする人、LLM を利用して開発を支援する人。
+- 利用者: 仕様を書く人、iori-spec を使って実装/レビューする人、LLM を利用して開発を支援する人。
 - 前提: SpecIndex（DATA-900）を SSOT とし、セクション構造は `spec_section_schema.yaml` に従う。ID は `REQ/IF/DATA/TEST/TASK/REF/STEER/...` などプロジェクト合意のプレフィックスを用いる。
 - 非対象: ソースコードビルド全般や一般的なプロジェクト管理は扱わない。LLM モデル実装やホスティングは対象外（利用は想定）。
 
@@ -43,7 +43,7 @@ status: draft
 - **SSOT: SpecIndex** — 仕様一覧・メタ情報・トレースは DATA-900 を唯一のソースとして扱う。再スキャンを避け、一貫性を担保する。
 - **Schema-first** — セクション構造（DATA-901）と設定（DATA-910）を先に定義し、それに従ってパーサ/CLI/生成物を実装する。
 - **拡張可能な CLI** — `index / lint / trace-lint / search / impact / context / prompt` をコアとし、サブコマンド追加は IF/DATA で拡張可能に設計する。
-- **ツール/データの分離** — 実装コードは `src/`、スキーマと仕様は `docs/`、生成物は `artifacts/` に分離し、ロケールやプロジェクト差分は config で切り替える。
+- **ツール/データの分離** — 実装コードは `src/`、スキーマと仕様は `iori-spec/`、生成物は `artifacts/` に分離し、ロケールやプロジェクト差分は config で切り替える。
 
 ## 5. 技術スタック
 - **言語**: Python 3.x（CLI/解析）、TypeScript（将来の UI/拡張用）。  
@@ -54,7 +54,7 @@ status: draft
 - **パフォーマンス/スケール**: 数百〜数千ファイルの仕様セットで実用的な応答時間を目標（詳細は非機能要件を参照）。  
 
 ## 6. 非機能・品質方針
-- **再現性**: 同じ入力（docs/ + config/）から同じ SpecIndex / lint 結果が得られること。  
+- **再現性**: 同じ入力（`iori-spec/` + config）から同じ SpecIndex / lint 結果が得られること。  
 - **透明性**: lint/trace/impact の結果は JSON と human-friendly 出力を両立。  
 - **堅牢性**: 必須メタ情報欠落や不正 ID 形式を検出し、明確なメッセージとヒントを返す。  
 - **移植性**: OS 依存を最小化し、クロスプラットフォームで動く CLI を目指す。  

@@ -143,7 +143,8 @@ def _cmd_trace(args: argparse.Namespace) -> int:
         trace_map = Path(args.trace_map)
 
     pattern = getattr(args, "glob", None) or glob_pattern
-    result = analyze_trace(spec_root, trace_map, glob_pattern=pattern)
+    ignore_paths = cfg.paths.ignore_paths if cfg else None
+    result = analyze_trace(spec_root, trace_map, glob_pattern=pattern, ignore_paths=ignore_paths)
 
     if args.format == "json":
         print(format_trace_json(result))

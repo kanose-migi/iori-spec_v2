@@ -10,7 +10,7 @@ trace:
   if:
     - IF-910    # index
     - IF-920    # lint
-    - IF-930    # trace lint
+    - IF-930    # trace
     - IF-940    # search
     - IF-950    # impact
     - IF-960    # context
@@ -18,7 +18,6 @@ trace:
   data:
     - DATA-900  # spec_index
     - DATA-901  # spec_section_schema
-    - DATA-902  # lint_result
     - DATA-904  # search_result
     - DATA-905  # context_bundle
     - DATA-906  # impact_report
@@ -30,7 +29,6 @@ trace:
 dp:
   produces:
     - DATA-900
-    - DATA-902
     - DATA-904
     - DATA-905
     - DATA-906
@@ -71,12 +69,12 @@ doc:
 ## READ_NEXT
 - `interfaces/IF-910_spec_index_builder.md`（index）
 - `interfaces/IF-920_lint_core.md`（lint）
-- `interfaces/IF-930_trace_lint.md`（trace-lint）
+- `interfaces/IF-930_trace_lint.md`（trace）
 - `interfaces/IF-940_search_specs.md`（search）
 - `interfaces/IF-950_impact_analyzer.md`（impact）
 - `interfaces/IF-960_context_builder.md`（context）
 - `interfaces/IF-970_prompt_bundle_builder.md`（prompt）
-- `data_contracts/DATA-900_spec_index.md` / `DATA-901_spec_section_schema.md` / `DATA-902_lint_result.md` ほか
+- `data_contracts/DATA-900_spec_index.md` / `DATA-901_spec_section_schema.md` ほか
 
 ## 1. このドキュメントの役割
 
@@ -88,7 +86,7 @@ doc:
 
 ### 2.1 対象
 - `iori-spec` Python パッケージが提供する **CLI コマンド群**。
-- 特に、次のコアコマンドを対象とする：`index` / `lint` / `trace lint` / `search` / `impact` / `context` / （拡張）`prompt`
+- 特に、次のコアコマンドを対象とする：`index` / `lint` / `trace` / `search` / `impact` / `context` / （拡張）`prompt`
 
 ### 2.2 非対象
 - LLM API の呼び出し自体（OpenAI / Anthropic などのクライアント実装）。
@@ -99,20 +97,21 @@ doc:
 - 下位 IF / DATA / TEST を作成・変更するときは、必ず本 REQ に適合するかを確認する。
 - lint エラーが出た場合は、必須 heading（LLM_BRIEF / USAGE / READ_NEXT / 1〜3 / 4 / 6）を優先的に補う。
 - CLI コマンドの追加・大幅変更を行う場合は、本 REQ を更新し、対応する IF / DATA / TEST を同期させる。
+- トレーサビリティは front matter の `trace.*` を SSOT とし、必要に応じて `trace report` でビューを生成する（手書きしない）。
 
 ## 4. 要件の概要（Summary）
 - `iori-spec` CLI は、仕様の一覧・検索・Lint・トレース・影響分析・コンテキスト生成・プロンプト生成を統一的に提供し、仕様駆動開発を支援する。
 - すべてのコマンドは `DATA-910_iori_spec_config` を基に動作し、`DATA-900_spec_index` を SSOT として利用する。
-- JSON 出力は対応する DATA-9xx schema に準拠し、CI / 自動化で再現性を担保する。
+- JSON 出力は対応する DATA-9xx schema に準拠し（未定義の schema は今後追加検討）、CI / 自動化で再現性を担保する。
 
 ## 5. 背景・コンテキスト（任意）
 - 仕様セットの健全性（構造・トレース）と、LLM への適切なコンテキスト供給を CLI で支援するための要求をまとめる。
 
 ## 6. Acceptance Criteria
 - 必須 heading（LLM_BRIEF / USAGE / READ_NEXT / 1〜3 / 4 / 6）が存在し、requirements 用スキーマの lint に通ること。
-- コアコマンド（index / lint / trace-lint / search / impact / context / prompt）が本 REQ の機能要件を満たし、対応 IF / DATA / TEST と整合すること。
+- コアコマンド（index / lint / trace / search / impact / context / prompt）が本 REQ の機能要件を満たし、対応 IF / DATA / TEST と整合すること。
 - JSON 出力が対応する DATA-9xx schema に準拠し、CI で安定的に扱えること。
-- Traceability Map 上で、本 REQ が対象 IF / DATA から参照されること（双方向トレース）。
+- front matter の `trace.*` で、本 REQ が対象 IF / DATA から参照されること（必要に応じて trace report でビューを生成）。
 
 ## 7. 用語
 
@@ -147,26 +146,24 @@ doc:
 3. **R-CLI-03**: 設定ファイルの利用  
    - 仕様の root / artifacts 出力先 / section schema パスなどは `DATA-910 (iori_spec_config)` の内容に従うこと。
 4. **R-CLI-04**: 出力形式の切り替え  
-   - 各コマンドは `--format` オプションで少なくとも `json` / `table` / `markdown`（または human-friendly）を切り替えられること。  
-   - `json` は対応する DATA-9xx の schema に準拠すること。
+   - 各コマンドは `--format` オプションで少なくとも `text`（human-friendly）/`json` を切り替えられること（実装現状に合わせる）。  
+   - `json` は対応する DATA-9xx の schema に準拠すること（未定義のものは将来の拡張）。
 
 ### 9.2 index コマンド（REQ → IF-910 / DATA-900）
 
 1. **R-INDEX-01**: SpecIndex の生成  
    - `iori-spec index` は `DATA-910` で指定された `spec_root` / `spec_glob` に従って仕様ファイルを列挙し、`DATA-900_spec_index` を生成すること。
 2. **R-INDEX-02**: SSOT としての位置づけ  
-   - `search` / `impact` / `context` / `trace lint` など、他のコマンドは SpecIndex を唯一のソースとして参照すること（直接 Markdown を再走査しないこと）。
+   - `search` / `impact` / `context` / `trace` など、他のコマンドは SpecIndex を唯一のソースとして参照すること（直接 Markdown を再走査しないこと）。
 
-### 9.3 lint / trace lint コマンド（REQ → IF-920 / IF-930 / DATA-902）
+### 9.3 lint / trace コマンド（REQ → IF-920 / IF-930）
 
 1. **R-LINT-01**: 構造・メタ情報チェック  
    - `iori-spec lint` は front matter / sections / ids を対象に、`DATA-901` と `DATA-910` の定義に沿って構造的な問題を検出すること。
 2. **R-LINT-02**: ルール種別の区別  
-   - lint 結果（DATA-902）には、少なくともルールカテゴリ（frontmatter / sections / ids / trace）が識別できる情報を含めること。
+   - lint/trace の結果には、少なくともルールカテゴリ（frontmatter / sections / ids / trace）が識別できる情報を含めること（出力スキーマは今後定義）。
 3. **R-TRACE-01**: トレーサビリティ健全性  
-   - `iori-spec trace-lint` は SpecIndex（DATA-900）を用いて G_trace を構築し、トレーサビリティの欠落や孤立ノードを検出すること。
-4. **R-TRACE-02**: lint との統合  
-   - trace-lint の結果も DATA-902 と同一スキーマで扱えること（rule_id などで区別）。
+   - `iori-spec trace` は SpecIndex（DATA-900）と front matter の `trace.*` を用いて G_trace を構築し、トレーサビリティの欠落や孤立ノードを検出すること。
 
 ### 9.4 search コマンド（REQ → IF-940 / DATA-904）
 
@@ -218,7 +215,7 @@ doc:
 1. **RNF-CI-01**: 安定した JSON 形式  
    - `--format json` の出力は、対応する DATA-9xx schema を変えない限り互換性が保たれるよう配慮すること（フィールド追加は可、削除・意味変更は慎重に）。
 2. **RNF-CI-02**: Exit Code  
-   - コマンドは少なくとも次を満たすこと：正常終了: `0`、lint / trace-lint で重大な問題がある場合: `>0`、使用方法エラーなども `>0` だが種別を区別できる余地を残すこと。
+   - コマンドは少なくとも次を満たすこと：正常終了: `0`、lint / trace で重大な問題がある場合: `>0`、使用方法エラーなども `>0` だが種別を区別できる余地を残すこと。
 
 ### 10.3 パフォーマンス・スケーラビリティ
 

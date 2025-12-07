@@ -96,6 +96,7 @@ def find_config_path(start: Path) -> Optional[Path]:
         Path("iori_spec_config.yaml"),
         Path("reference") / "iori_spec_config.yaml",
         Path("docs") / "reference" / "iori_spec_config.yaml",
+        Path("iori-spec") / "reference" / "iori_spec_config.yaml",
     ]
 
     for current in [start] + list(start.parents):

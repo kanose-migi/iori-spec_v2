@@ -29,13 +29,13 @@ status: draft  # draft / review / stable
 
 ### 2.1 ディレクトリ構造と kind / scope
 
-docs/ 以下の仕様書は、少なくとも次のメタレイヤーに分類される。
+`iori-spec/` 以下の仕様書は、少なくとも次のメタレイヤーに分類される。
 
 | ディレクトリ             | kind            | 主な内容                                    |
 | ------------------ | --------------- | --------------------------------------- |
 | `steering/` (任意)   | `steering`      | ビジョン・スコープ・成功指標など                        |
 | `requirements/`    | `requirements`  | 機能・非機能要件（REQ-xxx）                       |
-| （同上）               | `requirements`  | `traceability_map.md`（REQ↔IF/DATA/TEST） |
+| （生成物）             | -               | `artifacts/traceability_map.md`（REQ↔IF/DATA/TEST のビュー） |
 | `architecture/`    | `architecture`  | コンポーネント構成・レイヤー・依存方向                     |
 | `interfaces/`      | `interfaces`    | インターフェイス仕様（IF-xxx）                      |
 | `data_contracts/`  | `data_contract` | データ構造・バイナリ仕様（DATA-xxx）                  |
@@ -71,8 +71,8 @@ status: draft | review | stable                        # 任意（ある場合�
 
 - `trace_role = "trace_map"`
 
-  - `requirements/traceability_map.md`
-  - REQ↔IF/DATA/TEST の**公式な対応表（SSOT）**。
+  - `artifacts/traceability_map.md`（`iori-spec trace report` が生成するビュー）
+  - REQ↔IF/DATA/TEST の**ビュー**であり、手書きしない。SSOT は source ドキュメントの front matter `trace.*` 。
 
 - `trace_role = "ref"`
 
@@ -123,71 +123,49 @@ status: draft | review | stable                        # 任意（ある場合�
 
 **SHOULD NOT**:
 
-- 定義ブロックおよび Traceability Map 内で、ID の“省略表記”（レンジ・ショートハンド）を使用してはならない。
+- 定義ブロックおよび Traceability Map 生成物内で、ID の“省略表記”（レンジ・ショートハンド）を使用してはならない。
 
   - 例：`REQ-101..104`, `REQ-101~104`, `REQ-101,102` など。
 - これらの記法は、トレーサビリティチェックの対象外であるドキュメント（`architecture/` 等の `trace_role="ref"` であるドキュメント）内の説明目的に限り許可される。
 
-※ 省略表記は lint ルールで検出し、`trace_role="source"` であるドキュメントおよび `traceability_map.md` 内ではエラーとして扱う。
+※ 省略表記は lint ルールで検出し、`trace_role="source"` であるドキュメントおよび生成される Traceability Map 内ではエラーとして扱う。
 
 ## 4. Traceability Map のルール
 
 ### 4.1 役割
 
-`requirements/traceability_map.md` は、
-**REQ ↔ IF / DATA / TEST の公式な対応関係（トレーサビリティ）の SSOT**として機能する。
+- `artifacts/traceability_map.md` は、`iori-spec trace report` が front matter の `trace.*` と SpecIndex から生成する **ビュー**。
+- 手書き禁止。SSOT は REQ/IF/DATA/TEST の source ドキュメントに記載された `trace.*`。
 
-典型的な行は次の形式をとる。
+典型的な行（生成物）は次の形式をとる。
 
 ```markdown
-| REQ    | 説明                           | IF                        | DATA                           | TEST                  |
-|--------|--------------------------------|---------------------------|--------------------------------|-----------------------|
-| REQ-101| 辞書ビルド成果物をエクスポート | IF-100_digits_bins_spec   | DATA-101_by_digits_bin         | TEST-101, TEST-102    |
-| REQ-002| ...                            | IF-200_query_engine_spec  | DATA-020_SURF_DIGITS, DATA-014 | TEST-201              |
+| REQ    | IF               | DATA                    | TEST                  |
+|--------|------------------|-------------------------|-----------------------|
+| REQ-800| IF-910, IF-920…  | DATA-900, DATA-901 …    | TEST-800-??（あれば） |
 ```
-
-**この 1 行が意味すること**:
-
-- 当該 REQ-xxx は、
-
-  - 記載された IF-xxx によって**実現され**、
-  - 記載された DATA-xxx に**依存し**、
-  - 記載された TEST-xxx によって**検証される**。
-
-これを本ドキュメントでは
-
-「REQ-xxx が IF/DATA/TEST にトレースされている」
-
-と呼ぶ。
 
 ### 4.2 trace コマンドが行うチェック
 
-`iori-spec trace` は、次の情報を用いて整合性をチェックする。
+`iori-spec trace lint`（または `trace`）は、次の情報を用いて整合性をチェックする。
 
-1. `trace_role="source"` のドキュメントから抽出した
-
-   - 定義済み `REQ-xxx` / `IF-xxx` / `DATA-xxx` / `TEST-xxx` の集合
-2. `traceability_map.md` の各行に出現する
-
-   - `REQ` / `IF` / `DATA` / `TEST` の集合
+1. `trace_role="source"` のドキュメントの front matter `trace.*`
+2. SpecIndex に定義されている ID 群（REQ/IF/DATA/TEST）
+3. （任意）生成済み Traceability Map との整合性
 
 **MUST**（基本ルール）:
 
 - **未トレースの REQ があってはならない**。
 
-  - `requirements/*` で定義されている REQ-xxx が、
+  - `requirements/*` で定義されている REQ-xxx が `trace.*` で IF/DATA/TEST のいずれにも紐付いていない場合、警告またはエラーとする。
+- **trace.* に書かれた ID は必ずどこかで定義されていなければならない**。
 
-    - `traceability_map.md` のどの行にも現れない場合、警告またはエラーとする。
-- **Trace 行に載っている ID は、必ずどこかで定義されていなければならない**。
-
-  - Traceability Map に記載されている IF-xxx / DATA-xxx / TEST-xxx が、
-
-    - どの `interfaces/` / `data_contracts/` / `tests/` にも定義がない場合、エラーとする。
+  - REQ からリンクされる IF/DATA/TEST が SpecIndex に存在しない場合、エラーとする。
 
 **SHOULD**（推奨ルール）:
 
-- どの REQ にも紐付いていない IF / DATA / TEST の存在は、
-  「孤立仕様」として警告する（ただしツール側オプションで無効化可能とする）。
+- どの REQ にも紐付いていない IF / DATA / TEST の存在は、「孤立仕様」として警告する（ただしツール側オプションで無効化可能とする）。
+- 生成した Traceability Map と SpecIndex にズレがないこと（生成時に検出できるのが望ましい）。
 
 **NOTE**:
 
@@ -412,6 +390,4 @@ IF や REQ との依存関係（「このタスクはどの IF/REQ に紐づく�
 `iori-spec` の実装および仕様書テンプレートの改善に合わせて更新されることを想定する。
 
 ---
-
-
 

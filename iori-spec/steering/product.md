@@ -16,12 +16,12 @@ status: draft
 - LLM に iori-spec の全体像を説明するときの冒頭コンテキストとして渡す。
 
 ## READ_NEXT
-- `docs/steering/tech.md`（技術・非機能方針）
-- `docs/reference/iori_spec_guide.md`（仕様の書き方・ID/構造ルール）
-- `docs/reference/iori_spec_section_schema_guide.md`（必須セクションの意味と書き方）
-- `docs/reference/iori_spec_config.yaml`（kind/scope vocabulary と設定）
-- `docs/architecture/overview.md`（アーキテクチャ概要）
-- `docs/requirements/functional.md`（機能要件の一覧）
+- [steering/tech.md](./tech.md)（技術・非機能方針）
+- [reference/iori_spec_guide.md](../reference/iori_spec_guide.md)（仕様の書き方・ID/構造ルール）
+- [reference/iori_spec_section_schema_guide.md](../reference/iori_spec_section_schema_guide.md)（必須セクションの意味と書き方）
+- [reference/iori_spec_config.yaml](../reference/iori_spec_config.yaml)（kind/scope vocabulary と設定）
+- [architecture/ARCH-900_tooling_core.md](../architecture/ARCH-900_tooling_core.md)（アーキテクチャ概要）
+- [requirements/REQ-800_tooling_cli.md](../requirements/REQ-800_tooling_cli.md)（機能要件の一覧）
 
 ## 1. このドキュメントの役割
 - iori-spec のビジョンとプロダクトゴールを示し、個別の requirements / IF / DATA / TEST の上位に位置づける。
@@ -63,4 +63,3 @@ status: draft
 - SpecIndex を起点に、影響範囲とコンテキスト生成が一貫して再現可能である。
 - 新しい仕様ファイル追加時に、セットアップから lint 通過までの時間が短い（数分〜数十分）。
 - 仕様変更時の漏れ（トレース切れ、セクション欠落）が顕著に減る。
-

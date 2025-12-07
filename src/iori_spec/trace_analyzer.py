@@ -106,9 +106,14 @@ def _find_id_entry(result: IndexResult, id_: str) -> Optional[IdIndexEntry]:
 
 # ---------- 解析本体 ----------
 
-def analyze_trace(root: Path, trace_map_path: Optional[Path] = None, glob_pattern: str | None = None) -> TraceResult:
+def analyze_trace(
+    root: Path,
+    trace_map_path: Optional[Path] = None,
+    glob_pattern: str | None = None,
+    ignore_paths: List[str] | None = None,
+) -> TraceResult:
     """トレーサビリティチェックのメイン関数."""
-    index = build_index(root, glob_pattern=glob_pattern)
+    index = build_index(root, glob_pattern=glob_pattern, ignore_paths=ignore_paths)
     trace_doc = _find_trace_doc(index, trace_map_path)
     issues: List[TraceIssue] = []
     rows: List[TraceRow] = []

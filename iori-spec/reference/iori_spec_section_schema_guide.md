@@ -16,10 +16,9 @@ status: review
 - LLM に「どの見出しが必須か」「どこを tool が読むか」を説明する際に、このガイドを貼る。
 
 ## READ_NEXT
-- `docs/reference/spec_section_schema.yaml`（機械可読な元スキーマ）
-- `docs/reference/iori_spec_guide.md`（仕様全体の書き方・ID/構造ルール）
-- `docs/reference/iori_spec_section_guide.md`（セクション種別ごとの意味・粒度）
-- `docs/reference/iori_spec_config.yaml`（kind / scope vocabulary）
+- [reference/spec_section_schema.yaml](./spec_section_schema.yaml)（機械可読な元スキーマ）
+- [reference/iori_spec_guide.md](./iori_spec_guide.md)（仕様全体の書き方・ID/構造ルール）
+- [reference/iori_spec_config.yaml](./iori_spec_config.yaml)（kind / scope vocabulary）
 
 ## 1. このドキュメントの役割
 - セクションスキーマの「意図」と「実務上の使い方」を文章で説明し、YAML を読まなくても最低限の判断ができるようにする。
