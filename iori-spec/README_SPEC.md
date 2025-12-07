@@ -57,7 +57,7 @@ iori-spec の仕様ツリー全体の「入口」。どこに何があるか、�
 5. `reference/sdd_process_guide.md`（SDD の手順）  
 6. `requirements/REQ-800_tooling_cli.md`（現行の要件セット）  
 7. `architecture/ARCH-900_tooling_core.md`（仕様ツール全体の構成）  
-8. 目的に応じて interfaces / data_contracts / tests / dev_tasks を参照。
+8. 目的に応じて interfaces / data_contracts / tests / dev_tasks を参照（show/graph/scaffold/tasks など補助 IF もここで確認）。
 
 ## 6. LLM への貼り方（最小セット例）
 - 背景共有: `steering/product.md` の LLM_BRIEF と 1章を短く貼る。  

@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "generated_at": "2025-12-07T13:10:30Z",
+  "generated_at": "2025-12-07T13:41:16Z",
   "root": "/home/teika/projects/iori-spec/iori-spec",
   "nodes": [
     {
@@ -758,6 +758,205 @@
       }
     },
     {
+      "id": "IF-980",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-980: show — Spec表示（コンテキスト0ラッパ）",
+      "role": "if",
+      "file": "interfaces/IF-980_show.md",
+      "llm_brief": "- role: `iori-spec show` は指定 ID の spec 本体を、コンテキスト抽出なしで表示する簡易ビュー。`context --radius 0` の薄いラッパとして設計する。\n- llm_action: search で見つけた ID を「まず一度読む」入口として、この IF を実装・利用する。SpecIndex（DATA-900）を使い、対象 ID の主要セクションだけを整形して出力する。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "if": [
+          "IF-940",
+          "IF-960"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "interfaces/IF-940_search_specs.md",
+          "interfaces/IF-960_context_builder.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "621b4e2b2cf3be8a43e001afcf66ebb236b8ee25778539f3c3ccb8945d565e2c",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 30
+      }
+    },
+    {
+      "id": "IF-985",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-985: scaffold/new — Specテンプレ生成",
+      "role": "if",
+      "file": "interfaces/IF-985_scaffold.md",
+      "llm_brief": "- role: `iori-spec new` / `scaffold` は REQ/IF/DATA/TEST/TASK のテンプレを生成し、SDD で一貫した構造の spec を量産するための IF。\n- llm_action: 追加する ID に応じて front matter・必須セクションを自動配置し、LLM は生成されたテンプレを埋めるだけで済むようにする。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "data": [
+          "DATA-900",
+          "DATA-901"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-901",
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "data_contracts/DATA-901_spec_section_schema.md",
+          "impl_notes/spec_template.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "ea4fd841cd0a30f0deadf405dc90a8429ce7a01270d462f0ab0e6293af96a08a",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 30
+      }
+    },
+    {
+      "id": "IF-990",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-990: graph export — Trace/DP/Docの可視化エクスポート",
+      "role": "if",
+      "file": "interfaces/IF-990_graph_export.md",
+      "llm_brief": "- role: `iori-spec graph export` は G_trace / G_dp / G_doc などの内部グラフを DOT 等でエクスポートし、可視化やデバッグに使うための IF。\n- llm_action: SpecIndex（DATA-900）から構築したグラフを DOT/JSON で出力し、人間/ツールが構造を確認できるようにする。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "impl_notes/spec_command.md"
+        ],
+        "see_also": [
+          "interfaces/IF-991_graph_neighbors.md"
+        ]
+      },
+      "hash": "8b9659a3d6cbdd39e4ebf84969108a989cb129fdcf1e91943c0910ac622438e7",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 27
+      }
+    },
+    {
+      "id": "IF-991",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-991: graph neighbors — 近傍デバッグビュー",
+      "role": "if",
+      "file": "interfaces/IF-991_graph_neighbors.md",
+      "llm_brief": "- role: `iori-spec graph neighbors` は指定 ID の近傍ノードを列挙するデバッグ用 IF。trace/dp/doc グラフがどう張られているかを局所的に確認する。\n- llm_action: 影響範囲やトレースを手早く目視確認したいときに、この IF を実装/利用して近傍を出力する。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "if": [
+          "IF-990"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "interfaces/IF-990_graph_export.md",
+          "requirements/REQ-800_tooling_cli.md"
+        ],
+        "see_also": [
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "a8a8982aff496dabf2665b7267a0f79e94ee38fd23f463d87d237357ac2b326a",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 28
+      }
+    },
+    {
+      "id": "IF-995",
+      "kind": "interfaces",
+      "scope": "tooling.cli",
+      "status": "draft",
+      "spec_title": "IF-995: tasks list/report — TASKビュー補助",
+      "role": "if",
+      "file": "interfaces/IF-995_tasks.md",
+      "llm_brief": "- role: `tasks list` / `tasks report` は TASK-xxx と他 ID の紐づきを一覧・レポートする運用補助 IF。impact/context だけでは見づらい作業タスクの把握を支える。\n- llm_action: TASK ノードを一覧・集計し、関連する IF/REQ/DATA/TEST を表示する CLI を実装する。",
+      "summary": null,
+      "trace": {
+        "req": [
+          "REQ-800"
+        ],
+        "data": [
+          "DATA-900"
+        ]
+      },
+      "dp": {
+        "consumes": [
+          "DATA-900"
+        ]
+      },
+      "doc": {
+        "read_next": [
+          "requirements/REQ-800_tooling_cli.md",
+          "impl_notes/dev_tasks_spec.md",
+          "impl_notes/spec_command.md"
+        ]
+      },
+      "hash": "7fbca081d577c4a5b9fd442f17b9798857b4cd7fb047b476366fc4c56aa0da90",
+      "frontmatter_range": {
+        "start": 1,
+        "end": 27
+      }
+    },
+    {
       "id": "REF-100",
       "kind": "reference",
       "scope": "meta",
@@ -770,7 +969,7 @@
       "trace": null,
       "dp": null,
       "doc": null,
-      "hash": "233b99610a9b7d91cb2ffccd25ebeca5780d326fd97ddd3e0affc303b4b83de1",
+      "hash": "80e276b7f32f7a0c9bf508618f74099286ce5e5dd4d43b86a8c8d7de53fd37ef",
       "frontmatter_range": {
         "start": 1,
         "end": 7
@@ -831,7 +1030,12 @@
           "IF-930",
           "IF-940",
           "IF-950",
-          "IF-960"
+          "IF-960",
+          "IF-980",
+          "IF-985",
+          "IF-990",
+          "IF-991",
+          "IF-995"
         ],
         "data": [
           "DATA-900",
@@ -863,16 +1067,21 @@
           "interfaces/IF-930_trace_lint.md",
           "interfaces/IF-940_search_specs.md",
           "interfaces/IF-950_impact_analyzer.md",
-          "interfaces/IF-960_context_builder.md"
+          "interfaces/IF-960_context_builder.md",
+          "interfaces/IF-980_show.md",
+          "interfaces/IF-985_scaffold.md",
+          "interfaces/IF-990_graph_export.md",
+          "interfaces/IF-991_graph_neighbors.md",
+          "interfaces/IF-995_tasks.md"
         ],
         "see_also": [
           "reference/iori_spec_guide.md"
         ]
       },
-      "hash": "bd705f7b2e82dce2d3a6009f0386e4409ab65352271f3dc12f5bd45a58455dda",
+      "hash": "e0f8419f1745177f310f01997af4dde785eca1ab24aae576692812de28f57085",
       "frontmatter_range": {
         "start": 1,
-        "end": 51
+        "end": 61
       }
     },
     {

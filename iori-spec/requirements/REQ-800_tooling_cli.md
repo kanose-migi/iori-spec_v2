@@ -14,6 +14,11 @@ trace:
     - IF-940    # search
     - IF-950    # impact
     - IF-960    # context
+    - IF-980    # show
+    - IF-985    # scaffold/new
+    - IF-990    # graph export
+    - IF-991    # graph neighbors
+    - IF-995    # tasks list/report
   data:
     - DATA-900  # spec_index
     - DATA-901  # spec_section_schema
@@ -46,6 +51,11 @@ doc:
     - interfaces/IF-940_search_specs.md
     - interfaces/IF-950_impact_analyzer.md
     - interfaces/IF-960_context_builder.md
+    - interfaces/IF-980_show.md
+    - interfaces/IF-985_scaffold.md
+    - interfaces/IF-990_graph_export.md
+    - interfaces/IF-991_graph_neighbors.md
+    - interfaces/IF-995_tasks.md
   see_also:
     - reference/iori_spec_guide.md
 ---
