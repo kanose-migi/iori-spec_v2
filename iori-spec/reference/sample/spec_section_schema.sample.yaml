@@ -1,0 +1,338 @@
+version: 0.1
+
+rules:
+  # ===== layer1: 全 core spec 共通 =====
+  - id: llm_brief
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: LLM_BRIEF
+    required: true
+    multiple: false
+    tool_source: true
+    order: 10
+
+  - id: usage
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: USAGE
+    required: true
+    multiple: false
+    tool_source: true
+    order: 20
+
+  - id: read_next
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: READ_NEXT
+    required: true
+    multiple: false
+    tool_source: true
+    order: 30
+
+  - id: doc_role
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: "1. このドキュメントの役割"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 40
+
+  - id: scope_and_assumptions
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: "2. 範囲（Scope）と前提"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 50
+
+  - id: operation_guidelines
+    kinds:
+      - steering
+      - requirements
+      - architecture
+      - interfaces
+      - data_contracts
+      - tests
+      - reference
+      - dev_tasks
+    heading:
+      level: 2
+      text: "3. 運用上の目安（LLM / SDD 観点）"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 60
+
+  # ===== kind: requirements（REQ-xxx） =====
+  - id: req_summary
+    kinds:
+      - requirements
+    heading:
+      level: 2
+      text: "4. 要件の概要（Summary）"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 100
+
+  - id: req_background
+    kinds:
+      - requirements
+    heading:
+      level: 2
+      text: "5. 背景・コンテキスト（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 110
+
+  - id: req_acceptance
+    kinds:
+      - requirements
+    heading:
+      level: 2
+      text: "6. Acceptance Criteria"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 120
+
+  - id: req_nongoals
+    kinds:
+      - requirements
+    heading:
+      level: 2
+      text: "7. 非ゴール / 除外事項（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 130
+
+  # ===== kind: interfaces（IF-xxx） =====
+  - id: if_summary
+    kinds:
+      - interfaces
+    heading:
+      level: 2
+      text: "4. Summary"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 100
+
+  - id: if_inputs
+    kinds:
+      - interfaces
+    heading:
+      level: 2
+      text: "5. Inputs"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 110
+
+  - id: if_outputs
+    kinds:
+      - interfaces
+    heading:
+      level: 2
+      text: "6. Outputs"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 120
+
+  - id: if_errors
+    kinds:
+      - interfaces
+    heading:
+      level: 2
+      text: "7. Errors（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 130
+
+  - id: if_examples
+    kinds:
+      - interfaces
+    heading:
+      level: 2
+      text: "8. Examples（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 140
+
+  # ===== kind: data_contracts（DATA-xxx） =====
+  - id: data_summary
+    kinds:
+      - data_contracts
+    heading:
+      level: 2
+      text: "4. Summary"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 100
+
+  - id: data_schema
+    kinds:
+      - data_contracts
+    heading:
+      level: 2
+      text: "5. Schema"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 110
+
+  - id: data_constraints
+    kinds:
+      - data_contracts
+    heading:
+      level: 2
+      text: "6. Constraints（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 120
+
+  - id: data_usage
+    kinds:
+      - data_contracts
+    heading:
+      level: 2
+      text: "7. 利用箇所の概要（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 130
+
+  # ===== kind: tests（TEST-xxx） =====
+  - id: test_summary
+    kinds:
+      - tests
+    heading:
+      level: 2
+      text: "4. Summary"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 100
+
+  - id: test_preconditions
+    kinds:
+      - tests
+    heading:
+      level: 2
+      text: "5. Preconditions（任意）"
+    required: false
+    multiple: false
+    tool_source: true
+    order: 110
+
+  - id: test_steps
+    kinds:
+      - tests
+    heading:
+      level: 2
+      text: "6. Steps"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 120
+
+  - id: test_expected
+    kinds:
+      - tests
+    heading:
+      level: 2
+      text: "7. Expected Results"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 130
+
+  # ===== kind: dev_tasks（TASK-xxx） =====
+  - id: task_summary
+    kinds:
+      - dev_tasks
+    heading:
+      level: 2
+      text: "4. Summary"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 100
+
+  - id: task_steps
+    kinds:
+      - dev_tasks
+    heading:
+      level: 2
+      text: "5. Steps"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 110
+
+  - id: task_done
+    kinds:
+      - dev_tasks
+    heading:
+      level: 2
+      text: "6. Done Criteria"
+    required: true
+    multiple: false
+    tool_source: true
+    order: 120
+
+allow_extra_sections: true

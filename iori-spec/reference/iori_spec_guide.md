@@ -19,6 +19,8 @@ status: review        # draft / review / stable
 - [reference/spec_structure_and_traceability.md](./spec_structure_and_traceability.md)
 - [reference/iori_spec_section_schema_guide.md](./iori_spec_section_schema_guide.md)
 - [reference/iori_spec_config.yaml](./iori_spec_config.yaml)
+- [reference/spec_section_schema.yaml](./spec_section_schema.yaml) — セクション構造の SSOT（YAML）
+- [reference/sample/spec_section_schema.sample.yaml](./sample/spec_section_schema.sample.yaml) — スキーマのサンプルコピー
 
 ## 1. このドキュメントの役割
 
@@ -29,6 +31,7 @@ status: review        # draft / review / stable
 - 人間と AI が同じルールで仕様を読み書きできるようにする。
 - 実装時に「どのファイルを読めばよいか」「どのファイルを同期すべきか」を迷わないようにする。
 - プロンプト時に不要なコンテキストを貼りすぎず、**SDD (Specification Driven Development)** を効率よく回せるようにする。
+- セクション構造の正本は `spec_section_schema.yaml`（YAML, 機械可読）とし、本ガイド／section schema ガイドはその自然言語説明として位置づける。
 
 ## 2. 範囲（Scope）と前提
 

@@ -19,11 +19,13 @@ status: review
 - [reference/spec_section_schema.yaml](./spec_section_schema.yaml)（機械可読な元スキーマ）
 - [reference/iori_spec_guide.md](./iori_spec_guide.md)（仕様全体の書き方・ID/構造ルール）
 - [reference/iori_spec_config.yaml](./iori_spec_config.yaml)（kind / scope vocabulary）
+- [reference/sample/spec_section_schema.sample.yaml](./sample/spec_section_schema.sample.yaml)（スキーマのサンプルコピー）
 
 ## 1. このドキュメントの役割
 - セクションスキーマの「意図」と「実務上の使い方」を文章で説明し、YAML を読まなくても最低限の判断ができるようにする。
 - 必須／推奨セクションや、LLM/ツールが参照する箇所を明示し、lint 修正や新規 spec 追加を迷わず進められるようにする。
 - スキーマ変更時に、人間向けの差分説明をここに追記しておく。
+- 正本は `spec_section_schema.yaml`（YAML, 機械可読）であり、本ガイドはその自然言語解説。LLM に貼るときは YAML を優先し、必要に応じて本ガイドの該当章を添える。
 
 ## 2. 範囲（Scope）と前提
 - 対象: `steering / requirements / architecture / interfaces / data_contracts / tests / dev_tasks / reference` の core spec。
