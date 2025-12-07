@@ -105,26 +105,41 @@ status: review        # draft / review / stable
 
 ### 6.1 IF ファイル
 
-- 本体 spec: `interfaces/IF-xxx_<short_name>.md`（例: `interfaces/IF-900_tooling_cli.md`）
-- LLM 用 Card: `interfaces/IF-xxx_<short_name>_card.md`（カード運用する場合のみ）
+- 本体 spec: `interfaces/IF-xxx_<short_name>.md`（例: `interfaces/IF-900_tooling_cli.md`）。原則1ファイル1ID。
 
-#### spec の冒頭テンプレ
+#### front matter の例（最小構成）
 
 ```markdown
-# IF-xxx: <短い説明>
+---
+kind: interfaces
+scope: tooling.cli
+id: IF-900
+spec_title: "IF-900: iori-spec CLI (例)"
+status: draft
+# extension: true  # 拡張扱いにする場合のみ付与（任意）
+trace:
+  req:
+    - REQ-800
+  if: []
+  data:
+    - DATA-900
+  test: []
+  task: []
+dp:
+  produces: []
+  produced_by: []
+  consumes:
+    - DATA-900
+  inputs: []
+doc:
+  read_next:
+    - requirements/REQ-800_tooling_cli.md
+  see_also: []
+---
+# IF-900: iori-spec CLI (例)
+```
 
-kind: interface
-scope: <任意のスコープ名>  # 例: build.lexicon.src_to_surf
-
-Implements:
-- REQ: REQ-101, REQ-102
-- DATA(in): DATA-101
-- DATA(out): DATA-201, DATA-202
-- TEST: TEST-201, TEST-202
-
-READ NEXT:
-- data_contracts/<Name>.md
-- tests/TEST-201_<short_name>.md
+- セクション見出しは `spec_section_schema.yaml`（正本）に従う。サンプル構造は `reference/iori_spec_section_schema_guide.md` や `reference/sample/spec_section_schema.sample.yaml` を参照。
 ```
 
 ## 7. ID・見出しブロックのルール（概要）
