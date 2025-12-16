@@ -1,0 +1,1023 @@
+version: "0.1"
+
+# NOTE:
+# - spec_sections_registry.yaml がセクション構造（kinds / heading / required 等）の SSOT。
+# - 本ファイルは各セクションの「目的」「書き方の目安」「サンプル」をまとめたセマンティクス層。
+# - section_id は spec_sections_registry.yaml.sections[].section_id と 1:1 に対応する。
+# - examples は常に 2 本立てを推奨:
+#     - HabitLog（個人〜中規模向け習慣トラッカー）
+#     - BookMart（大規模オンライン書店／EC サイト）
+
+sections:
+  # ===== layer1: 全 core spec 共通 =====
+  - section_id: llm_brief
+    purpose: |
+      ファイル全体を LLM に渡したときに「何をさせたいか／何の仕様か」を 2〜4 行程度で端的に説明するセクション。
+      kind（requirements / interfaces など）と、この spec がカバーする主なテーマを明示する。
+    guidelines: |
+      - 先頭行に必ず kind を明記する（書式固定）:
+        - `- kind: <kind>`
+        - `<kind>` は YAML front matter の `kind` と一致させる（front matter の再掲）。
+      - 行数は 2〜4 行（上記の kind 行を含めて数える）。
+      - LLM に依頼したいタスク（要件整理・IF 実装・テスト生成など）を具体的に書く。
+      - 仕様の全文要約ではなく、「このファイルに何が書かれているか」と「どう使ってほしいか」に絞る。
+      - 主テーマは 1〜2 点に圧縮する（複数テーマが混ざる場合は 1 ファイル 1 PURPOSE を優先し、分割を検討する）。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成機能 REQ の LLM_BRIEF"
+        content: |
+          - kind: requirements
+          - HabitLog の「習慣作成機能」の要件を定義する。
+          - 本 spec をもとに REST API・フォーム実装・E2E テストケースを生成/更新できる状態にする。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API IF の LLM_BRIEF"
+        content: |
+          - kind: interfaces
+          - BookMart の注文作成 API（IF-201）の外部仕様を定義する。
+          - 決済・在庫の前提を整理し、本 spec をもとに実装と統合テストを安全に進められる状態にする。
+
+  # doc_role / scope_and_assumptions どちらに記載すべきか？:
+  # - doc_role は「この spec の責務（何を決める／何を決めない）」＝“意思決定の境界” を定義する。
+  # - scope_and_assumptions は「この spec が適用される範囲・前提」＝“適用条件の境界” を定義する。
+  # - 迷ったら:
+  #     - 「この spec が“最終的に決めるべき内容”か？」→ YES: doc_role
+  #     - 「適用対象/非対象・前提事実・用語定義か？」→ YES: scope_and_assumptions
+  # - “対象外”の書き分け:
+  #     - 「抽象度/責務として扱わない」→ doc_role（例: UI 詳細は扱わない）
+  #     - 「適用境界として今回の対象外」→ scope_and_assumptions（例: 定期便は除外）
+  #     - requirements の “非ゴール(Backlog含む)” は req_nongoals を優先（重複は最小化）
+  
+  - section_id: doc_role
+    purpose: |
+      この spec の責務（何を決める／何を決めない）を明示するセクション。
+      「このファイルを読めば何が確定し、何は別 spec / 別レイヤーに委ねられるか」を先に固定し、
+      読者（人間/LLM）が迷わずに参照・更新できる状態を作る。
+    guidelines: |
+      - 冒頭に 1〜2 行で「本 spec が決めること（意思決定の対象）」を宣言する（主題＋抽象度）。
+      - 次に「本 spec が決めないこと（委譲先）」を 2〜5 点で列挙する。
+        - “決めない” は「今回たまたま除外」ではなく、「この spec の責務ではない（抽象度/レイヤー違い）」として書く。
+        - 可能なら委譲先（REQ/IF/DATA/TEST/architecture/steering 等）を ID/パスで示す。
+      - “この spec が答える主要な問い” を 3〜7 件程度で列挙してよい（意思決定のチェックリストとして機能させる）。
+      - 書かないこと:
+        - 対象ユーザー/画面/環境などの適用境界の詳細（→ scope_and_assumptions）
+        - 具体的な手順・仕様本文（→ kind 別本体セクション群）
+      - 境界例（判断基準）:
+        - 「認証は別で扱う」＝責務/抽象度の宣言 → doc_role
+        - 「この spec は v1 のみに適用」＝適用条件 → scope_and_assumptions
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 REQ の『このドキュメントの役割』"
+        content: |
+          - 本仕様は HabitLog の「習慣作成機能」に関する要求（要件レイヤーの規範）を定義する。
+          - 本仕様が決めないこと（委譲先）:
+            - プロダクトの上位方針・優先順位: `steering/product.md`
+            - 画面レイアウトやUI文言の最終決定: `architecture/ui_guidelines.md`（またはデザイン仕様）
+            - API 形状・エンドポイント詳細: `interfaces/habit_create_if.md`
+            - データ永続化スキーマやイベント設計: `architecture/data_model.md`
+          - 本仕様が答える主要な問い:
+            - 習慣作成でユーザーが入力できる項目は何か（必須/任意、制約は何か）
+            - 作成時に満たすべきバリデーションは何か（エラー方針は何か）
+            - 作成後に発生する副作用は何か（初回通知予約、ログ生成などの範囲）
+            - 失敗時の扱いはどうするか（再試行、部分成功の可否）
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 DATA の『このドキュメントの役割』"
+        content: |
+          - 本仕様は BookMart の「注文作成」API におけるリクエスト/レスポンスのデータ契約（data_contract レイヤーの規範）を定義する。
+          - 本仕様が決めないこと（委譲先）:
+            - 注文成立条件・割引適用などの業務ルール: `requirements/order_create_req.md`
+            - 決済連携や在庫引当の業務フロー: `architecture/order_flow.md`
+            - エンドポイント設計や認可方式（HTTP/GraphQL等）: `interfaces/order_create_if.md`
+            - テスト戦略・テストケース網羅: `tests/order_create_test_plan.md`
+          - 本仕様が答える主要な問い:
+            - 必須フィールド/任意フィールドは何か（型、null可否、最大長）
+            - バージョニングと後方互換の方針は何か（追加/廃止時のルール）
+            - エラー表現の契約は何か（エラーコード、メッセージ、詳細フィールド）
+            - 個人情報（PII）や秘匿情報の取り扱い境界は何か（含める/含めない）
+
+  - section_id: scope_and_assumptions
+    purpose: |
+      この spec の適用境界（対象/非対象）と、仕様の解釈・実装・運用の前提を固定するセクション。
+      「どの状況にこの spec を適用してよいか／してはいけないか」「成立に必要な事実・依存」を明確にし、誤適用・二重記載・仕様の膨張を防ぐ。
+    guidelines: |
+      - 推奨フォーマット（箇条書きで明確に）:
+        - 対象（In scope）: 対象機能/コンポーネント/ユースケース/チャネル/バージョン等
+        - 非対象（Out of scope）: 今回は扱わない適用範囲（“今回の境界”として明記）
+        - 前提（Assumptions）: 成立している事実・外部依存・既存仕様・運用前提（例: ログイン済み）
+        - 用語/定義（Definitions）: 本 spec 内で誤解が起きやすい語だけを必要最小限で定義
+      - “前提”の書き分け:
+        - spec 全体に影響する恒常的な前提 → scope_and_assumptions
+        - 特定 API/特定フローに閉じた前提（入力・権限・エラー等の詳細）→ kind 別本体（例: if_inputs）
+      - 書かないこと:
+        - この spec の責務（何を決めないか）の宣言（→ doc_role）
+        - 仕様本文の詳細（ルール/アルゴリズム/手順/状態遷移など）（→ kind 別本体セクション群）
+      - 境界例（判断基準）:
+        - 「対象: 通常注文（定期便除外）」＝適用境界 → scope_and_assumptions
+        - 「テスト戦略はここでは決めない」＝責務/抽象度 → doc_role
+      - 対象とする機能・コンポーネント・ユースケースを箇条書きにする。
+      - あえて除外する範囲（非対象）、別の REQ / IF に委ねる範囲を明示する。
+      - 依存する外部システムや既存仕様、前提となる事実（例: 認証済みであること）を書き出す。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 REQ の Scope と前提"
+        content: |
+          - 対象（In scope）:
+            - モバイルアプリおよび Web アプリからの「習慣作成」フロー
+          - 非対象（Out of scope）:
+            - チーム共有の習慣テンプレート
+            - 他ユーザーが作成した習慣のコピー機能
+          - 前提（Assumptions）:
+            - ユーザー認証は別機能で完了している（ログイン済み）
+            - 通知チャネル（プッシュ通知）は OS レベルで許可済みとする
+          - 用語/定義（Definitions）:
+            - 「習慣」: ユーザーが継続的に記録する対象（例: ランニング、読書）を指す
+            - 「通知」: 予定時刻に実施を促すリマインドを指す（配信方式の詳細は本仕様の対象外）
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 REQ の Scope と前提"
+        content: |
+          - 対象（In scope）:
+            - Web / モバイル Web からの通常注文（予約・定期便を除く）
+          - 非対象（Out of scope）:
+            - 店頭受け取り
+            - 法人向け大口注文
+            - マーケットプレイス出品者の注文処理
+          - 前提（Assumptions）:
+            - 顧客はログイン済みで、配送先住所と支払い手段を登録済みである
+            - 在庫数および価格は他システムとの同期が完了している
+          - 用語/定義（Definitions）:
+            - 「通常注文」: 即時購入で、予約商品・定期購入を含まない注文を指す
+            - 「予約」: 発売日前の商品を注文し、発売後に出荷される注文を指す
+            - 「定期便」: 一定間隔で自動生成される注文（本仕様では非対象）
+
+  - section_id: usage
+    purpose: |
+      この spec を「誰が／いつ（どんなトリガーで）／どう使うか」を明示するセクション。
+      読者と利用シーン（参照タイミング・作業内容・併読先）を固定し、
+      「今この場面で、どの spec を読み／何をすればよいか」を迷わせないことが目的。
+      ※責務（何を決める／決めない）や適用境界（対象/非対象）はここではなく、doc_role / scope_and_assumptions に委ねる。
+    guidelines: |
+      - 推奨フォーマット（順序固定を推奨）:
+        - 想定読者（Who）: 役割ベースで列挙（例: BE/FE/QA/PdM/SRE/データ分析/ツール実装者）
+        - 参照トリガー（When）: “イベント”として箇条書き（例: 新規作成、修正、レビュー、実装、障害/問合せ、リグレッション）
+        - 使い方（How）: 各トリガーで「何を確認/更新するか」を 2〜5 点のチェックリストで書く
+        - セット読み（With）: 併読すべき spec を 2〜5 件、理由付きで触れる（詳細リンクは READ_NEXT）
+      - “いつ”はフェーズ名（要件定義/実装/テスト/運用）だけでなく、具体トリガーで書く（更新時に迷いが出にくい）。
+      - “どう使うか”は説明ではなく作業単位に落とす（例: 「更新したら trace/lint を確認」「IF/TEST と整合確認」）。
+      - 書かないこと（アンチパターン）:
+        - 本 spec が決める/決めない（→ doc_role）
+        - 対象/非対象・前提の詳細（→ scope_and_assumptions）
+        - 仕様本文（ルール/アルゴリズム/状態遷移/入力仕様の詳細など）（→ kind 別本体セクション群）
+        - 関連 spec の“リンク集化”（→ READ_NEXT に譲る）
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 REQ の USAGE"
+        content: |
+          - 想定読者（Who）:
+            - バックエンド実装者 / モバイル・Web 実装者 / QA / PdM
+          - 参照トリガー（When）:
+            - 新規実装開始時（初回設計）
+            - 要件変更（入力項目・制約・通知条件の変更）
+            - リリース前レビュー（受入条件・テスト観点の確認）
+          - 使い方（How）:
+            - 実装前に「必須/任意項目」「制約」「失敗時の扱い」を確定させる
+            - 要件変更時は REQ を更新し、関連 IF/TEST と不整合がないか確認する
+            - レビュー時は受入条件（DoD）とテスト観点の過不足をチェックする
+          - セット読み（With）:
+            - interfaces/habit_create_if.md（API 形状の確定が必要なため）
+            - tests/habit_create_test_plan.md（受入・E2E 観点の整合確認のため）
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 DATA の USAGE"
+        content: |
+          - 想定読者（Who）:
+            - バックエンド / フロントエンド / QA / データ分析 / ツール実装者
+          - 参照トリガー（When）:
+            - API/DTO 設計・改修時（契約の追加/変更/廃止）
+            - 型生成・スキーマ同期の更新時
+            - 障害・問合せ対応（フィールドの意味・互換性の確認）
+          - 使い方（How）:
+            - 契約変更時は後方互換の影響（追加/必須化/廃止）を点検する
+            - FE は Schema を型生成に反映し、破壊的変更がないか確認する
+            - 分析用途は “入口の定義” として参照し、詳細な計測設計は別 spec に委ねる
+          - セット読み（With）:
+            - requirements/order_create_req.md（業務ルールとの整合が必要なため）
+            - interfaces/order_create_if.md（実際のI/Fとの整合確認のため）
+
+  - section_id: read_next
+    purpose: |
+      「この spec を読んだあとに、次に読むべき spec」をナビゲーションするためのセクション。
+      Trace 情報というより、人間と LLM の「読書順ガイド」として機能させる。
+    guidelines: |
+      - 直接的に関連する REQ / IF / DATA / TEST / steering / architecture を 3〜7 件程度に絞って列挙する。
+      - 「必読」レベルのリンクに限定し、網羅的なリンク集にはしない（迷いを増やすことになるため）。
+      - ファイルパスまたは ID を明記し、各項目に「なぜ次に読むべきか」を 1 行コメントで添える（推奨: `- <id|path> — <理由>`）。
+      - 並び順は「この spec の理解/更新に直結するもの」→「補助的な背景」の順にする（重要順）。
+      - 更新の目安:
+        - 依存先 SSOT が変わった／必須の関連 spec が増減した／運用上“必読”の参照が変わった場合は READ_NEXT も更新する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 REQ の READ_NEXT"
+        content: |
+          - `interfaces/IF-101_create_habit.md` — 入力/出力とエラー表現の確定（実装・テストの前提）
+          - `data_contracts/DATA-101_habit_and_log.md` — 永続化・ログ構造の前提（整合性と互換性）
+          - `tests/TEST-101_create_habit_e2e.md` — 受入/E2E 観点の確認（要件とテストのギャップ検出）
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 IF の READ_NEXT"
+        content: |
+          - `requirements/REQ-201_order_creation.md` — 業務ルールと受入条件（I/F の根拠）
+          - `data_contracts/DATA-201_order_and_payment.md` — 契約と互換性方針（破壊的変更の回避）
+          - `architecture/order_domain_overview.md` — ドメイン境界と責務分割（例外系の理解補助）
+          - `tests/TEST-201_order_creation_integration.md` — 統合テスト観点（外部依存・回帰の防止）
+          
+  - section_id: operation_guidelines
+    purpose: |
+      この spec を継続的に正しく保つための運用ルールを記録するセクション。
+      特に「いつ更新するか（更新トリガー）」「更新時に何を同時に直すか（波及範囲）」「LLM/ツールでどう品質担保するか」を
+      ひとまとまりの判断基準として固定し、更新漏れ・整合性崩れ・運用品質の劣化を防ぐ。
+      ※USAGE は参照導線（誰が/いつ/どう使うか）、本セクションは保守運用（いつ更新し、どう守るか）を扱う。
+    guidelines: |
+      - セクション先頭に「更新トリガー（Update Triggers）」を集約して書く（推奨フォーマット: Trigger → Action）。
+        - Trigger は “変更タイプ” で分類する（例: フィールド追加/必須化、業務ルール変更、外部依存変更、互換性方針変更、SLO/制約変更）。
+        - Action には最低限を含める:
+          - 変更すべき spec（REQ/IF/DATA/TEST/architecture 等）
+          - 同一 PR で更新すべきもの（原則）／例外条件
+          - 実行すべきツール（lint/trace/index/pack 等）と確認観点
+      - LLM 連携方針を書く（貼り方を “最小セット / 拡張セット” で定義する）:
+        - 最小セット: LLM_BRIEF + 該当箇所（diff/該当セクション）+ 期待成果物
+        - 拡張セット: 関連 spec（trace で近いもの）+ データ契約/IF/テスト観点 + 制約（互換性/性能/セキュリティ）
+      - ツール運用（Gate）を「いつ」「何を」「合格条件」で書く:
+        - 例: PR 時に lint を必須、リリース前に trace lint / index / pack の決定性を確認、など
+      - 書かないこと:
+        - 仕様本文の詳細（ルール/状態遷移/アルゴリズム等）（→ kind 別本体セクション群）
+        - 読者導線（誰が読むか等）（→ USAGE）
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 REQ の運用上の目安"
+        content: |
+          - 更新トリガー（Trigger → Action）:
+            - 入力項目の追加（例: タグ/ゴール値）:
+              - Action: 本 REQ と関連 IF/DATA/TEST を同一 PR で更新する（UI/DTO/検証観点の整合を取る）
+              - Tool: `lint` と `trace lint` を実行し、必須セクション欠落とリンク切れがないことを確認する
+            - バリデーション/通知条件の変更:
+              - Action: REQ の受入条件とテスト観点を更新し、IF の入力制約（if_inputs 等）と矛盾がないか見直す
+              - Tool: `lint` + テスト仕様（TEST）との trace を確認する
+          - LLM 連携（貼り方）:
+            - 最小セット: 本 REQ の LLM_BRIEF + 変更対象セクション（diff）+ 期待成果物（例: IF 更新案、テストケース案）
+            - 拡張セット: 関連 IF/DATA の該当箇所を追加で渡し、矛盾なく更新するよう依頼する
+          - ツール運用（Gate）:
+            - PR 時: `iori-spec lint` を必須（必須セクション欠落・整合性違反を防止）
+            - マイナーリリース前: `iori-spec lint` / `trace lint` を実行し、Acceptance Criteria とテスト観点のギャップを点検する
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 DATA の運用上の目安"
+        content: |
+          - 更新トリガー（Trigger → Action）:
+            - Schema の変更（追加/必須化/廃止/型変更）:
+              - Action: 本 DATA を更新し、関連 IF（エンドポイントI/O）と TEST（契約テスト/統合テスト）を同一 PR で見直す
+              - Tool: `lint` と互換性方針（破壊的変更の扱い）チェックを実施する
+            - 決済・在庫など外部依存の前提変更:
+              - Action: 影響する REQ/architecture/IF/DATA/TEST を一括で点検し、前提不整合を解消する
+              - Tool: `trace lint` により参照の欠落・不整合を検出する
+          - LLM 連携（貼り方）:
+            - 最小セット: 本 DATA の LLM_BRIEF + Summary/Schema + 変更内容（diff）+ 期待成果物（例: 互換性を保った更新案）
+            - 拡張セット: 金額/通貨/精度などの制約、関連 IF の該当箇所、契約テスト観点を追加で渡す
+          - ツール運用（Gate）:
+            - PR 時: `iori-spec lint` を必須（契約の必須項目・整合性違反を早期検出）
+            - リリース前: `trace lint` を実行し、IF/DATA/TEST の更新漏れがないことを確認する
+
+  # ===== kind: requirements（REQ-xxx） =====
+  - section_id: req_summary
+    purpose: |
+      この REQ で「何を実現するか」を一目で分かるようにするためのサマリ。
+      主体（誰が）・行為（何をする）・結果（どうなる）の 3 要素を短くまとめる。
+    guidelines: |
+      - 3〜7 行程度で、機能のストーリーを自然文で説明する。
+      - 重要な制約（レスポンス時間、UX 要件など）があれば軽く触れる。
+      - 詳細な条件は Acceptance Criteria に譲り、ここでは全体像に集中する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の Summary"
+        content: |
+          ユーザーは、名前と頻度（毎日／平日のみなど）を指定して新しい習慣を登録できる。
+          登録した習慣は、当日以降のカレンダーに表示され、1 タップで「達成済み」にできる。
+          翌日アプリを開いたとき、前日の達成状況が連続記録日数として反映されている。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の Summary"
+        content: |
+          顧客は、カートに追加した書籍をまとめて注文として確定できる。
+          注文確定時に在庫が引き当てられ、決済が成功した場合のみ注文が有効になる。
+          注文確定後、顧客はマイページから配送状況と過去の注文履歴を確認できる。
+
+  - section_id: req_background
+    purpose: |
+      要件の背景・課題・ステークホルダーの文脈を説明する任意セクション。
+      なぜこの要件が必要なのか、どのようなシナリオで使われるのかを補足する。
+    guidelines: |
+      - 現状の課題やユーザーニーズを具体例を交えて書く。
+      - 関連する施策や他機能との関係性（依存・競合）を整理する。
+      - 将来の拡張アイデアが見えている場合は、簡潔に触れてもよい。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の背景"
+        content: |
+          現状、ユーザーは日々の習慣を紙のノートやメモアプリで管理しており、記録漏れや継続状況の把握が難しい。
+          シンプルで素早く記録できる UI と、連続記録日数などのフィードバックを提供することで、
+          モチベーションの維持を支援する必要がある。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の背景"
+        content: |
+          大型セールやキャンペーン時には注文が集中し、在庫切れや決済失敗に関するクレームが発生している。
+          顧客にとって分かりやすい注文フローと、在庫・決済・配送の整合性が取れたシステム設計が求められている。
+
+  - section_id: req_acceptance
+    purpose: |
+      この REQ が満たされたと判断するための観測可能な条件を列挙するセクション。
+      正常系・境界値・代表的な異常系を含めた受け入れ条件を定義する。
+    guidelines: |
+      - 各項目はテスト可能な形（具体的な値や状態）で書く。
+      - 正常系・境界条件・主要なエラーケースをバランスよく含める。
+      - 詳細な手順は TEST spec に任せ、ここでは「何ができれば OK か」に集中する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の Acceptance Criteria"
+        content: |
+          - ユーザーが習慣名と頻度のみを入力した場合でも、習慣が作成されること。
+          - 必須項目（習慣名）が未入力の場合、エラーメッセージが表示され、習慣は作成されないこと。
+          - 翌日アプリを開いたとき、新しく作成した習慣が当日のカレンダーに表示されていること。
+          - 同じ名前の習慣を 50 個以上作成しようとすると、バリデーションエラーとして扱われること。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の Acceptance Criteria"
+        content: |
+          - 在庫が 1 冊以上ある書籍のみで注文した場合、注文が作成され、在庫数が正しく減算されること。
+          - 決済が失敗した場合、注文は「無効」となり在庫は元に戻ること。
+          - 在庫が不足している書籍を含む注文の場合、当該書籍についてエラーを返し、他の書籍のみで注文を確定するかユーザーに選択肢を提示すること。
+          - ピーク時にも、注文確定 API の p95 レイテンシが 1 秒以内であること。
+
+  - section_id: req_nongoals
+    purpose: |
+      あえて対象外とする事項を明示し、仕様の膨張や誤解を防ぐセクション。
+      「やらないこと」を書くことで、範囲を締めることが目的。
+    guidelines: |
+      - 今回のスコープでは取り扱わない要件・将来の拡張候補を列挙する。
+      - 別の REQ に委ねる事項があれば、その ID を示す。
+      - 利用者が期待しそうだが本件では扱わない機能を明確にしておく。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の非ゴール"
+        content: |
+          - フレンド機能や他ユーザーとの習慣共有は本 REQ の対象外とする。
+          - AI による習慣提案機能は別 REQ で扱う。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の非ゴール"
+        content: |
+          - 店舗在庫とオンライン在庫のリアルタイム統合は本 REQ の対象外とする。
+          - マーケットプレイス出品者向けの複雑な価格ルールは別 REQ で扱う。
+
+  # ===== kind: interfaces（IF-xxx） =====
+
+  - section_id: req_invariants
+    purpose: |
+      本 REQ の範囲内で常に成立していなければならない不変条件（invariants）を列挙するセクション。
+      仕様の抜け漏れや矛盾を検出しやすくし、実装・テストの前提を揃えることが目的。
+    guidelines: |
+      - 「常に真である」ことを断言できる条件のみを書く。
+      - 例外がある場合は invariants ではなく Edge Cases / Acceptance に移す。
+      - 可能なら根拠（業務ルール、制約、他 REQ）を短く添える。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の Invariants"
+        content: |
+          - 習慣名はユーザー単位で一意（同名登録は不可）。
+          - 頻度の指定は「毎日／曜日指定／隔日」など事前定義された集合から選ぶ。
+          - 作成直後の当日分の達成状態は未達成（ユーザー操作でのみ達成へ遷移）。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の Invariants"
+        content: |
+          - 注文合計金額 = 商品小計 + 税 + 送料（割引がある場合は割引を差し引いた後の値）。
+          - 在庫引当が成立していない注文は確定できない。
+          - 注文確定後は、注文の明細（SKU/数量/単価）は変更不可（変更はキャンセル＋再注文）。
+
+  - section_id: req_edge_cases
+    purpose: |
+      代表的な境界条件・例外的状況（edge cases）を整理し、期待される挙動を明文化するセクション。
+      Acceptance Criteria だけでは漏れやすい「現場で起こりがちな罠」を先回りで潰すことが目的。
+    guidelines: |
+      - 具体的な状況（入力/状態/タイミング）と期待結果を 1 セットで書く。
+      - 正常系の変種（境界値）と、異常系（入力不備/競合/重複送信）を混在させてもよい。
+      - 重要度が高いものは Acceptance Criteria にも反映し、ここは「見落とし防止」の役割に寄せる。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成要件の Edge Cases"
+        content: |
+          - 同一フォームの二重送信（連打）時：重複登録は起きず、同一結果（作成済みの習慣）を返す。
+          - 端末のタイムゾーン変更直後：頻度の解釈（当日/翌日境界）が破綻しない。
+          - 習慣名が最大長ギリギリ：保存・表示が崩れず、バリデーションメッセージも適切。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成要件の Edge Cases"
+        content: |
+          - 注文確定直前に在庫が減少：不足分を明示し、注文は確定しない（部分確定はしない）。
+          - 決済がタイムアウト：二重請求を避けるため、注文状態を「確認中」にし、後続で整合させる。
+          - 同一カートの並行確定（複数端末）：いずれか一方のみ成功し、他は競合エラーになる。
+
+  - section_id: nfr_summary
+    purpose: |
+      本 spec に関わる非機能要件（Non-Functional Requirements: NFR）の全体像を短くまとめるセクション。
+      性能・可用性・セキュリティ等の観点で、どこに重心があるかを先に共有する。
+    guidelines: |
+      - 3〜7 行程度で、主要な品質特性と大まかな目標水準（目安）を述べる。
+      - 詳細な数値や測定方法は後続セクションに譲る。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の NFR Summary"
+        content: |
+          モバイル端末での体感速度を重視し、主要操作は 1 秒以内に完了することを目標とする。
+          個人データを扱うため、認証・権限・保護（暗号化/ログ）を適切に実装する。
+          小〜中規模利用を想定しつつ、将来的なスケールを阻害しない構造とする。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の NFR Summary"
+        content: |
+          セール時のピークトラフィックでも注文確定が滞らないこと（性能・スケーラビリティ）を最優先とする。
+          決済・在庫・配送の整合性を損なわないこと（信頼性）を担保する。
+          個人情報・決済情報を扱うため、監査可能性とセキュリティ要件を明確化する。
+
+  - section_id: nfr_quality_attribute
+    purpose: |
+      本 spec で重視する品質特性（例：性能、可用性、信頼性、セキュリティ、保守性等）を列挙し、目標水準を整理するセクション。
+    guidelines: |
+      - 品質特性ごとに「何を」「どの程度」満たすかを書き、優先順位があれば併記する。
+      - 数値は Measurement / Capacity Bounds で詳細化してよい（ここは一覧性を重視）。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の品質特性（例）"
+        content: |
+          - 性能：主要画面の初期表示は p95 で 1.0s 以内（ネットワーク良好時）。
+          - 可用性：サービス停止を伴うメンテナンスは最小化する。
+          - セキュリティ：トークン管理、通信の暗号化、権限チェックを必須とする。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の品質特性（例）"
+        content: |
+          - 性能：注文確定 API は p95 で 800ms 以内（ピーク時は別途許容を定義）。
+          - 信頼性：在庫引当・決済・注文確定の整合性を壊さない（冪等性・再実行可能性）。
+          - 監査性：重要操作は追跡可能なログを残し、問い合わせ対応可能とする。
+
+  - section_id: nfr_measurement
+    purpose: |
+      非機能要件の達成度をどのように測定・検証するか（指標、環境、手段）を定義するセクション。
+      数値目標がある場合、その測り方が曖昧だと運用で破綻するため、測定方法を先に固定する。
+    guidelines: |
+      - 指標（例：p95/p99、エラーレート、SLO）と測定区間を明確にする。
+      - 測定環境（ステージング/本番相当、データ量、負荷条件）を簡潔に書く。
+      - ツール（APM、負荷試験、ログ集計）と判定方法を記載する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の Measurement"
+        content: |
+          - 指標：主要 API の応答時間（p95/p99）、クライアントの画面表示時間（p95）。
+          - 環境：ステージング（本番相当データ量）で計測し、リリース前に再検証する。
+          - 手段：APM とフロント計測（RUM 等）で継続監視し、退行を検出する。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の Measurement"
+        content: |
+          - 指標：注文確定 API の応答時間（p95/p99）と失敗率、キュー滞留時間。
+          - 環境：ピーク相当負荷（同時ユーザー/注文数）で負荷試験を実施する。
+          - 手段：負荷試験＋APM＋監視ダッシュボードで目標達成を確認する。
+
+  - section_id: nfr_capacity_bounds
+    purpose: |
+      想定する負荷・データ量・同時実行数などのキャパシティ境界（Capacity Bounds）を定義するセクション。
+      スケール設計の前提を明確化し、過剰設計と不足設計の両方を避ける。
+    guidelines: |
+      - 代表的な負荷（RPS、同時ユーザー、バッチ頻度など）とデータ量（件数、サイズ）を定義する。
+      - ピークと通常の両方があれば分けて書く。
+      - 境界を超える場合の方針（拒否/劣化/スケール）を簡潔に添える。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の Capacity Bounds"
+        content: |
+          - ユーザー数：〜数十万規模を初期想定。
+          - 1ユーザーあたり習慣数：上限 200（超過はエラー）などを定義する。
+          - 同時書き込み：朝/夜に集中する想定で、ピーク時でも書き込みが詰まらないこと。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の Capacity Bounds"
+        content: |
+          - ピーク時注文確定：数千〜数万/分（キャンペーン時）を想定。
+          - カート明細：1注文あたり最大 200 行（上限）を定義。
+          - ピーク超過時：注文確定は受け付けつつ、非同期処理（通知/メール等）は劣化許容、などを定める。
+
+  - section_id: nfr_operational_notes
+    purpose: |
+      運用・監視・障害対応の観点で必要な前提や設計上の注意点を整理するセクション。
+      非機能は「作って終わり」になりやすいため、運用に落ちる形で要件化する。
+    guidelines: |
+      - 監視（メトリクス/ログ/トレース）、アラート、ダッシュボードの要点を書く。
+      - デプロイ/ロールバック、保守作業、権限運用など、運用で詰まりやすい点を列挙する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の Operational Notes"
+        content: |
+          - 主要 API の遅延/失敗率を監視し、閾値超過で通知する。
+          - 重要イベント（習慣作成/更新/削除）は監査ログに残す。
+          - 個人データに関する問い合わせに備え、データエクスポート手段を用意する（必要なら）。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の Operational Notes"
+        content: |
+          - 注文確定の失敗率、決済エラー、在庫引当失敗を分解して監視する。
+          - 決済連携の障害時はサーキットブレーカ等で影響範囲を限定する。
+          - 障害時のリカバリ手順（再処理、整合性チェック、返金フロー）を運用手順として残す。
+
+  - section_id: nfr_acceptance
+    purpose: |
+      非機能要件が満たされたと判断するための受け入れ条件（観測可能な判定条件）を列挙するセクション。
+    guidelines: |
+      - 測定指標・測定環境に依存するため、Measurement と矛盾しない形で書く。
+      - リリース判定に使えるよう、可能な限り数値と閾値で定義する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog の NFR Acceptance"
+        content: |
+          - 主要 API の応答時間がステージング計測で p95 1.0s 以内である。
+          - 重大なセキュリティ脆弱性（高/重大）が未解決でない。
+          - 主要メトリクスの監視とアラートが設定済みである。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart の NFR Acceptance"
+        content: |
+          - 注文確定 API がピーク相当負荷試験で p95 800ms 以内、失敗率 0.5% 未満である。
+          - 冪等性（重複リクエスト時の二重請求防止）がテストで確認されている。
+          - 障害対応手順（再処理/返金/整合性チェック）が運用ドキュメントとして整備されている。
+
+  - section_id: if_summary
+    purpose: |
+      このインターフェイスが何を受け取り、何を返すのかを 1〜3 行で要約するセクション。
+    guidelines: |
+      - API の主目的（どんな操作を行うか）を書く。
+      - 主な入力と出力の種類を簡潔に列挙する。
+      - プロトコル（REST / gRPC など）が重要なら一言触れる。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Summary"
+        content: |
+          認証済みユーザーが新しい習慣を作成するための REST API。
+          習慣の名前・頻度などを受け取り、作成された習慣の ID とメタ情報を返す。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Summary"
+        content: |
+          カート内容と配送先・決済情報を受け取り、注文を作成するための REST API。
+          決済結果や在庫引当結果を含む注文情報を返す。
+
+  - section_id: if_inputs
+    purpose: |
+      インターフェイスが受け取るリクエストの内容と前提条件を定義するセクション。
+    guidelines: |
+      - HTTP メソッド、パス、クエリパラメータ、ボディのフィールドなどを網羅する。
+      - 各フィールドの型・必須 / 任意・制約（長さ・形式など）を明示する。
+      - 前提となる認証や権限要件があればここに書く。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Inputs"
+        content: |
+          - HTTP Method: POST
+          - Path: `/api/habits`
+          - Body（JSON）:
+            - `name` (string, required, max 100)
+            - `frequency` (string, required, enum: "daily", "weekday", "custom")
+            - `reminder_time` (string, optional, HH:mm)
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Inputs"
+        content: |
+          - HTTP Method: POST
+          - Path: `/api/orders`
+          - Body（JSON）:
+            - `cart_id` (string, required)
+            - `shipping_address_id` (string, required)
+            - `payment_method_id` (string, required)
+            - `coupon_code` (string, optional, max 32)
+
+  - section_id: if_outputs
+    purpose: |
+      インターフェイスの正常系レスポンスの構造を定義するセクション。
+    guidelines: |
+      - ステータスコードとレスポンスボディのフィールド一覧を書く。
+      - 重要なフィールドとその意味（ID、タイムスタンプなど）を説明する。
+      - ページングやメタ情報があれば、その仕組みも記載する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Outputs"
+        content: |
+          - Status: 201 Created
+          - Body（JSON）:
+            - `id` (string)
+            - `name` (string)
+            - `frequency` (string)
+            - `created_at` (string, ISO-8601)
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Outputs"
+        content: |
+          - Status: 201 Created
+          - Body（JSON）:
+            - `order_id` (string)
+            - `status` (string, enum: "pending", "confirmed")
+            - `total_amount` (number)
+            - `currency` (string, e.g. "JPY")
+            - `created_at` (string, ISO-8601)
+
+  - section_id: if_errors
+    purpose: |
+      代表的な異常系レスポンスを整理し、クライアント側のハンドリングの前提を揃えるセクション。
+    guidelines: |
+      - ステータスコードごとに、どのような条件で発生するかを書く。
+      - エラー JSON の形式（code / message / details など）を揃える。
+      - 再送可能かどうか（リトライ方針）が重要であれば触れる。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Errors"
+        content: |
+          - 400 Bad Request — バリデーションエラー
+            - `{"code":"VALIDATION_ERROR","message":"name is required","details":{...}}`
+          - 401 Unauthorized — アクセストークンが無効または期限切れ
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Errors"
+        content: |
+          - 400 Bad Request — カートが空、または配送先情報が不完全
+            - `{"code":"INVALID_ORDER","message":"cart is empty","details":{...}}`
+          - 402 Payment Required — 決済失敗
+            - `{"code":"PAYMENT_FAILED","message":"payment was declined","details":{...}}`
+          - 409 Conflict — 在庫引当時の競合
+            - `{"code":"OUT_OF_STOCK","message":"some items are no longer available","details":{...}}`
+
+  - section_id: if_compatibility
+    purpose: |
+      インターフェースの互換性（バージョニング、後方互換、破壊的変更、段階的廃止）に関する方針を整理するセクション。
+      クライアント・外部連携がある場合、互換性ルールは品質と運用コストに直結する。
+    guidelines: |
+      - 互換性の原則（後方互換を維持するか、破壊的変更の許容条件）を明記する。
+      - バージョン表現（URL、ヘッダ、メディアタイプ等）と移行期間の扱いを書く。
+      - 廃止（deprecation）の通知方法・期限・挙動を定義する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Compatibility"
+        content: |
+          - 後方互換を基本とし、既存フィールドの意味変更や削除は行わない。
+          - 追加フィールドは許容し、クライアントは未知フィールドを無視できる実装とする。
+          - 破壊的変更が必要な場合は新バージョン（例：/v2）を追加し、移行期間を設ける。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Compatibility"
+        content: |
+          - 後方互換維持を原則とし、必須フィールドの追加は行わない（必要なら v2 へ）。
+          - 既存のエラーコードは維持し、追加のみ許容する。
+          - 廃止予定の挙動はレスポンスヘッダ等で通知し、一定期間後に停止する。
+
+  - section_id: if_examples
+    purpose: |
+      代表的なリクエスト / レスポンス例を提示し、利用イメージを共有するセクション。
+    guidelines: |
+      - cURL 例や JSON サンプルなど、1〜3 パターンに絞って載せる。
+      - 実運用でよく使われる典型ケースを選ぶ。
+      - 長大な例は別ファイルに切り出し、ここからリンクしてもよい。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Example"
+        content: |
+          curl -X POST https://api.habitlog.app/api/habits \
+            -H "Authorization: Bearer <TOKEN>" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "毎朝ストレッチ",
+              "frequency": "daily",
+              "reminder_time": "07:30"
+            }'
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Example"
+        content: |
+          curl -X POST https://api.bookmart.com/api/orders \
+            -H "Authorization: Bearer <TOKEN>" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "cart_id": "cart_123",
+              "shipping_address_id": "addr_456",
+              "payment_method_id": "pay_789",
+              "coupon_code": "SPRING20"
+            }'
+
+  # ===== kind: data_contracts（DATA-xxx） =====
+
+  - section_id: if_invariants
+    purpose: |
+      インターフェース（API/イベント等）において常に成立すべき不変条件（invariants）を列挙するセクション。
+      実装・クライアント・テストが共有すべき前提（冪等性、認可、整合性）を明確化する。
+    guidelines: |
+      - 「常に真である」条件だけを書く（例外があるなら Errors / Edge Cases へ）。
+      - 認証/認可、冪等性、リクエスト/レスポンスの整合性に関する前提は優先して記載する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API の Invariants"
+        content: |
+          - 認証必須：未認証のリクエストは 401 を返す。
+          - ユーザーは自分の習慣のみ作成できる（他ユーザーの作成は不可）。
+          - 同一の冪等キー（Idempotency-Key）を用いた重複リクエストは同一結果を返す。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API の Invariants"
+        content: |
+          - 冪等性：同一冪等キーでの重複確定は二重請求にならない。
+          - 認可：顧客は自分のカート/注文のみ操作できる。
+          - 注文確定は「在庫引当成功」かつ「決済成功」のときのみ成立する。
+
+  - section_id: data_summary
+    purpose: |
+      このデータ構造が何のために存在するかを説明するセクション。
+    guidelines: |
+      - どのコンポーネント間でやり取りされるデータかを書く。
+      - 主なフィールドや特徴（ID、バージョン、サイズなど）に軽く触れる。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成リクエスト DATA の Summary"
+        content: |
+          習慣作成リクエストのペイロードを表現するデータ契約。
+          モバイル／Web クライアントからバックエンドへ送信されるフィールドと、その制約を定義する。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成リクエスト DATA の Summary"
+        content: |
+          BookMart における注文作成リクエストの設定値を表現するデータ構造。
+          カート、配送先、決済手段などの情報を一括して受け渡す。
+
+  - section_id: data_schema
+    purpose: |
+      データ構造のフィールド一覧・型・制約を定義する中核セクション。
+    guidelines: |
+      - テーブル形式または箇条書きでフィールドを列挙する。
+      - 型、必須 / 任意、制約、説明を明示する。
+      - enum やバージョンフィールドなど、互換性に効く情報を丁寧に書く。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成リクエストの Schema"
+        content: |
+          | Field            | Type    | Required | Constraints          | Description                |
+          |------------------|---------|----------|----------------------|----------------------------|
+          | `name`           | string  | yes      | max 100 chars        | 習慣の名前                |
+          | `frequency`      | string  | yes      | enum: daily/weekday  | 実行頻度                  |
+          | `reminder_time`  | string  | no       | HH:mm                | リマインド時刻            |
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成リクエストの Schema"
+        content: |
+          | Field                 | Type    | Required | Constraints                 | Description          |
+          |-----------------------|---------|----------|-----------------------------|----------------------|
+          | `cart_id`             | string  | yes      | non-empty                   | 対象カートの ID      |
+          | `shipping_address_id` | string  | yes      | non-empty                   | 配送先住所 ID        |
+          | `payment_method_id`   | string  | yes      | non-empty                   | 支払い方法 ID        |
+          | `coupon_code`         | string  | no       | max 32 chars                | クーポンコード       |
+
+  - section_id: data_compatibility
+    purpose: |
+      データスキーマの互換性（スキーマ進化、後方/前方互換、移行方針）を定義するセクション。
+      データは長期に残るため、互換性ルールを曖昧にすると運用・移行コストが肥大化する。
+    guidelines: |
+      - 追加/変更/削除が許容される範囲（後方互換を壊さない変更）を明記する。
+      - マイグレーション（オンライン/オフライン、段階移行、デュアルライト等）の方針を書く。
+      - 互換性が必要な読者（古いクライアント/外部連携/ETL）を想定して記述する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog データの Compatibility"
+        content: |
+          - フィールド追加は後方互換として許容する（既存クライアントは未知フィールドを無視）。
+          - 既存フィールドの意味変更・削除は原則禁止（必要なら段階移行を行う）。
+          - 破壊的変更が必要な場合はバージョン付きスキーマを導入し、移行期間を設ける。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart データの Compatibility"
+        content: |
+          - 注文明細は監査上保持が必要なため、既存レコードの破壊的変更はしない。
+          - 追加フィールドは許容し、ETL/分析基盤はスキーマ進化に追従できる設計とする。
+          - 大規模変更は段階移行（デュアルライト＋バックフィル）で実施する。
+
+  - section_id: data_constraints
+    purpose: |
+      Schema に書ききれない整合性制約や性能上の制約を詳述するセクション。
+    guidelines: |
+      - 値の組み合わせに関する制約（例: start < end）を書く。
+      - 実装依存の制約（例: 最大レコード数）で、クライアントに影響するものを明示する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成リクエストの Constraints"
+        content: |
+          - 1 ユーザーが同時に持てる習慣は最大 100 個とする。
+          - `reminder_time` を設定できるのは `frequency` が daily/weekday の場合に限る。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成リクエストの Constraints"
+        content: |
+          - カートに含まれる書籍数は最大 50 冊までとする。
+          - クーポンコードは有効期限内かつ対象商品を含む場合のみ適用される。
+
+  - section_id: data_semantics
+    purpose: |
+      データフィールドの意味（Semantics）を整理するセクション。
+      型や制約だけでは読み取れない「ビジネス上の意味」「計算規則」「解釈」を明文化する。
+    guidelines: |
+      - 重要フィールドについて、意味・単位・計算式・許容値の解釈を説明する。
+      - 同名/類似名フィールドがある場合は差分を明確にする。
+      - 外部システム由来のコード体系は参照元を示す。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog データの Semantics"
+        content: |
+          - `frequency`: 習慣の実行頻度。曜日指定の場合は `weekdays` とセットで解釈する。
+          - `streak_days`: 連続達成日数。ユーザーのローカル日付境界で計算する。
+          - `created_at`: サーバ時刻（UTC）。表示はクライアントでローカル変換する。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart データの Semantics"
+        content: |
+          - `order_total`: 送料・税・割引を含む最終請求額。
+          - `reserved_stock`: 引当済み在庫数量。出荷完了後は `shipped_qty` と一致する。
+          - `payment_status`: 決済状態（例：authorized/captured/failed）。状態遷移のルールを併記する。
+
+  - section_id: data_examples
+    purpose: |
+      代表的なデータのサンプル（JSON 例、レコード例）を示すセクション。
+      スキーマやセマンティクスの理解を具体例で補助し、実装・テストの整合を取りやすくする。
+    guidelines: |
+      - 最小例と、代表的な現実的例（オプション項目あり）を用意する。
+      - 個人情報や秘密情報はダミー値にする。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "HabitLog データ例"
+        content: |
+          ```json
+          {
+            "habit_id": "hb_123",
+            "name": "英単語",
+            "frequency": "weekdays",
+            "weekdays": ["mon","tue","wed","thu","fri"],
+            "streak_days": 12,
+            "created_at": "2025-12-14T00:00:00Z"
+          }
+          ```
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "BookMart 注文明細データ例"
+        content: |
+          ```json
+          {
+            "order_id": "od_456",
+            "customer_id": "cu_789",
+            "items": [{"sku":"BK-001","qty":2,"unit_price":1800}],
+            "shipping_fee": 500,
+            "tax": 410,
+            "discount": 0,
+            "order_total": 4510,
+            "payment_status": "captured"
+          }
+          ```
+
+  - section_id: data_usage
+    purpose: |
+      このデータがどこで生成され、どこで利用されるかの概要を説明するセクション。
+    guidelines: |
+      - 生成元コンポーネントと利用側コンポーネントを列挙する。
+      - イベントフローや依存関係が分かる程度に簡潔に書く。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成リクエストの利用箇所"
+        content: |
+          - モバイル／Web フロントエンドから習慣作成 API に送信される。
+          - バックエンドの HabitService が受け取り、DB の habits テーブルに永続化する。
+          - 作成後のイベントは通知サービスに送られ、初回リマインドのスケジュール設定に利用される。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成リクエストの利用箇所"
+        content: |
+          - Web フロントエンドから注文作成 API に送信される。
+          - OrderService が受け取り、在庫サービス・決済ゲートウェイと連携して処理する。
+          - 完了した注文情報は配送システムおよび分析基盤にも連携される。
+
+  # ===== kind: tests（TEST-xxx） =====
+  - section_id: test_summary
+    purpose: |
+      テストケースの目的と対象範囲を短く説明するセクション。
+    guidelines: |
+      - どの機能（どの REQ / IF / DATA）を検証するのかを書く。
+      - 正常系中心か、異常系中心かなど、テストの性格を明示する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 E2E テストの Summary"
+        content: |
+          習慣作成 API の正常系フローを E2E レベルで検証する。
+          ユーザーが UI から習慣を作成したとき、DB と画面状態が期待通りになることを確認する。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API テストの Summary"
+        content: |
+          注文作成 API が有効なカートに対して注文を作成し、
+          在庫引当と決済結果を正しく反映することを検証する。
+
+  - section_id: test_preconditions
+    purpose: |
+      テスト実行前に満たしておくべき前提条件を整理するセクション。
+    guidelines: |
+      - テストデータ、事前に必要な設定、環境の状態などを書く。
+      - 自動テストの場合はセットアップ手順を簡潔に記載してもよい。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 E2E テストの Preconditions"
+        content: |
+          - テスト用ユーザー `test-user@habitlog.app` が存在し、ログイン可能であること。
+          - 端末のタイムゾーンがアプリ設定と一致していること。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API テストの Preconditions"
+        content: |
+          - テスト用顧客アカウントが存在し、少なくとも 1 件の配送先住所と支払い手段が登録されていること。
+          - テスト用カート `cart_123` に在庫が十分にある書籍が 2 冊以上入っていること。
+          - テスト環境の決済ゲートウェイがサンドボックスモードで起動していること。
+
+  - section_id: test_steps
+    purpose: |
+      テストの手順を具体的に列挙するセクション。
+    guidelines: |
+      - ステップごとに番号を振り、誰が見ても同じ操作ができるように書く。
+      - 自動テストコードに落とし込める粒度を意識する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 E2E テストの Steps"
+        content: |
+          1. ログインページからテストユーザーでログインする。
+          2. 「新しい習慣を追加」ボタンを押下する。
+          3. 名前に「英単語の勉強」、頻度に「平日のみ」を入力する。
+          4. 「保存」ボタンを押下する。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API テストの Steps"
+        content: |
+          1. 顧客としてログインし、テスト用カート `cart_123` を取得する。
+          2. `/api/orders` に対して注文作成リクエストを送信する。
+          3. レスポンスの `order_id` を取得し、DB 上の注文レコードを参照する。
+          4. 在庫テーブルおよび決済ログを確認する。
+
+  - section_id: test_expected
+    purpose: |
+      テストの期待結果を観測可能な形で列挙するセクション。
+    guidelines: |
+      - ステータスコード、レスポンス内容、DB 状態、UI 表示など、観測ポイントを明示する。
+      - 自動テストの assertion にそのまま落とし込めるレベルで書く。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 E2E テストの Expected Results"
+        content: |
+          - レスポンスステータスが 201 であること。
+          - DB の habits テーブルに新しいレコードが 1 件追加されていること。
+          - アプリのトップ画面の習慣一覧に「英単語の勉強」が表示されていること。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成 API テストの Expected Results"
+        content: |
+          - レスポンスステータスが 201 であること。
+          - DB の orders テーブルに新しい注文レコードが 1 件追加されていること。
+          - 関連する order_items レコードがカート内容と一致していること。
+          - 在庫テーブルで該当書籍の在庫数が適切に減算されていること。
+          - 決済ログに成功レコードが残っていること。
+
+  # ===== kind: dev_tasks（TASK-xxx） =====
+  - section_id: task_summary
+    purpose: |
+      実装タスクとしてどのような作業を行うのかを一言で説明するセクション。
+    guidelines: |
+      - 対象となる REQ / IF / DATA / TEST の ID を含め、「何を完了させるタスクか」を書く。
+      - 実装とテストの両方を含むかどうかを明示する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API 実装タスクの Summary"
+        content: |
+          習慣作成 API（IF-101）の実装とユニットテストの追加。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成フロー実装タスクの Summary"
+        content: |
+          注文作成 API（IF-201）および関連する在庫引当・決済連携ロジックの実装と統合テストの追加。
+
+  - section_id: task_steps
+    purpose: |
+      開発者が実際に手を動かす際の手順を箇条書きで示すセクション。
+    guidelines: |
+      - 実装ファイルのパスや関数名など、作業対象を特定できるように書く。
+      - コミット単位や PR 単位の作業ステップとしても機能する粒度を意識する。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API 実装タスクの Steps"
+        content: |
+          - `api/habits_controller.ts` に `createHabit` ハンドラを追加する。
+          - IF-101 に定義されたバリデーションルールを実装する。
+          - ユニットテスト `test_habits_controller_create.ts` を作成し、正常系・異常系をカバーする。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成フロー実装タスクの Steps"
+        content: |
+          - `services/order_service.ts` に注文作成ロジックを実装する。
+          - 在庫サービスおよび決済ゲートウェイ用のクライアントを注入し、IF-201 のフローどおりに呼び出す。
+          - 統合テスト `test_order_creation_flow.ts` を作成し、正常系と代表的なエラーケースをカバーする。
+
+  - section_id: task_done_criteria
+    purpose: |
+      タスク完了の判定条件を明確にし、「なんとなく終わった」を防ぐセクション。
+    guidelines: |
+      - テストが緑であること、lint が通ることなど、客観的な完了条件を書く。
+      - 関連する spec が更新済みかどうかも含める。
+    examples:
+      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
+        title: "習慣作成 API 実装タスクの Done Criteria"
+        content: |
+          - 新規習慣作成 API がローカル環境で正常に動作している。
+          - 関連するユニットテストがすべて緑である。
+          - IF-101 / TEST-101 の spec が実装内容と矛盾していないことを確認した。
+          - `npm test` / `npm run lint` がエラーなく通る。
+      - app: "BookMart（大規模オンライン書店／EC サイト）"
+        title: "注文作成フロー実装タスクの Done Criteria"
+        content: |
+          - 注文作成 API を通じて、在庫引当と決済処理が一連のフローとして動作している。
+          - 関連する統合テストとユニットテストがすべて緑である。
+          - REQ-201 / IF-201 / DATA-201 / TEST-201 の spec が最新の実装と整合しており、
+            `iori-spec lint` / `trace lint` がエラーなく通る。
