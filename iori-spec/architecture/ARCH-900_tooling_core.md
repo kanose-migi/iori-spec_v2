@@ -144,9 +144,9 @@ iori_spec/
     loader.py              # DATA-910: iori_spec_config.yaml ローダ
     models.py              # IoriSpecConfig / KindDef / ScopeDef 型
 
-    core/
-      __init__.py
-      types.py               # SpecNode / SpecIndex / Graph などの共通型
+  core/
+    __init__.py
+    types.py               # SpecNode / SpecIndex / Graph などの共通型
     frontmatter.py         # front matter + 本文のパーサ
     section_schema.py      # DATA-901 ローダ／検証
     graph.py               # trace / dp / doc グラフ構築（G_trace / G_dp / G_doc）
@@ -159,14 +159,14 @@ iori_spec/
     impact.py              # IF-950: impact_analyzer
     context_builder.py     # IF-960: context_builder
 
-    commands/
-      __init__.py
-      index_cmd.py           # CLI サブコマンド: index
-      lint_cmd.py            # CLI サブコマンド: lint
-      trace_cmd.py           # CLI サブコマンド: trace
-      search_cmd.py          # CLI サブコマンド: search
-      impact_cmd.py          # CLI サブコマンド: impact
-      context_cmd.py         # CLI サブコマンド: context
+  commands/
+    __init__.py
+    index_cmd.py           # CLI サブコマンド: index
+    lint_cmd.py            # CLI サブコマンド: lint
+    trace_cmd.py           # CLI サブコマンド: trace
+    search_cmd.py          # CLI サブコマンド: search
+    impact_cmd.py          # CLI サブコマンド: impact
+    context_cmd.py         # CLI サブコマンド: context
 
   cli.py                   # `iori-spec` エントリ（argparse/typer/click など）
 

@@ -1,6 +1,6 @@
 ---
 kind: reference
-scope: meta
+scope: iori-spec
 id: REF-100
 spec_title: "仕様書の書き方・ID/構造ルール"
 status: review        # draft / review / stable
@@ -8,14 +8,17 @@ status: review        # draft / review / stable
 # 仕様書の書き方・ID/構造ルール
 
 ## LLM_BRIEF
+
 仕様書の型・IDルール・front matter 必須項目をまとめた基準書。iori-spec の lint / index / trace が前提とする仕様形状をここで定義する。
 
 ## USAGE
+
 - 新規に仕様ファイルを作る前に、必須の front matter と heading 構造を確認する。
 - 既存仕様を lint で修正するときに、ID 命名やセクション構成の判断基準として参照する。
 - LLM に仕様の書き方や ID ルールを説明する際の一次参照として渡す。
 
 ## READ_NEXT
+
 - [reference/spec_structure_and_traceability.md](./spec_structure_and_traceability.md)
 - [reference/iori_spec_section_schema_guide.md](./iori_spec_section_schema_guide.md)
 - [reference/iori_spec_config.yaml](./iori_spec_config.yaml)

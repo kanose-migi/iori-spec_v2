@@ -1,6 +1,6 @@
 ---
 kind: reference
-scope: meta
+scope: iori-spec
 id: REF-105
 spec_title: "iori-spec CLI 利用ガイド"
 status: draft

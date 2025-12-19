@@ -247,7 +247,7 @@ status: draft
 
 ## READ_NEXT
 
-- **SPEC-SYS-002**: セクション定義（registry/guide、`include_in`、ordering、unknown section policy）の SSOT。H2 見出し運用を変更するときは必読。
-- **SPEC-SYS-003**: トレーサビリティ（`trace` の意味論・最小条件・ルール ID 体系）の SSOT。作成/修正フローで `trace` を更新する判断根拠。
-- **SPEC-SYS-004**: 成果物契約（index / pack / lint_report の shape・互換性・決定性）の SSOT。pack を正として運用する前提・レビュー安定性に直結。
-- **SPEC-SYS-005**: ツール運用（Run Model、profile、CI ゲート、exit code）の SSOT。`lint` / `pack` を CI でどう止めるかの根拠。
+- SPEC-SYS-002: セクション定義（registry/guide、`include_in`、ordering、unknown section policy）の SSOT。H2 見出し運用を変更するときは必読。
+- SPEC-SYS-003: トレーサビリティ（`trace` の意味論・最小条件・ルール ID 体系）の SSOT。作成/修正フローで `trace` を更新する判断根拠。
+- SPEC-SYS-004: 成果物契約（index / pack / lint_report の shape・互換性・決定性）の SSOT。pack を正として運用する前提・レビュー安定性に直結。
+- SPEC-SYS-005: ツール運用（Run Model、profile、CI ゲート、exit code）の SSOT。`lint` / `pack` を CI でどう止めるかの根拠。
