@@ -3,8 +3,8 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-003
 spec_title: "iori-spec Traceability Specification (Ruleset)"
-stability: core
-status: draft
+stability: core # core|extension
+status: draft # draft|review|stable|deprecated
 ---
 
 # SPEC-SYS-003 Traceability Specification (Ruleset)
@@ -150,7 +150,7 @@ DATA の有無が曖昧になりやすい場合、REQ は次のヒントを持�
 ```yaml
 trace:
   coverage_hints:
-    data: required   # required | optional | auto
+    data: required # required | optional | auto
 ```
 
 - `required`: DATA 充足（DATA-* の satisfied_by）が必須

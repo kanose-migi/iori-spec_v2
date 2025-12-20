@@ -3,8 +3,8 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-005
 spec_title: "iori-spec Tooling Specification (Index / Lint / Context Pack / CI Gate)"
-stability: core
-status: draft
+stability: core # core|extension
+status: draft # draft|review|stable|deprecated
 ---
 
 # SPEC-SYS-005 Tooling Specification (Index / Lint / Context Pack / CI Gate)
@@ -298,11 +298,11 @@ pack:
 
 - exit code は **運用の安定性**のため最小の 3 値に固定する（MUST）。
 
-| exit code | 条件                                   | 意味             |
-| --------: | ------------------------------------ | -------------- |
-|         0 | `run_status != fatal` かつ Gate = PASS | 正常終了（品質ゲート通過）  |
-|         1 | `run_status != fatal` かつ Gate = FAIL | 正常終了（品質ゲート失敗）  |
-|         2 | `run_status = fatal` または実行が信頼不可      | 実行失敗（入力不正/例外等） |
+| exit code | 条件                                      | 意味                        |
+| --------: | ----------------------------------------- | --------------------------- |
+|         0 | `run_status != fatal` かつ Gate = PASS    | 正常終了（品質ゲート通過）  |
+|         1 | `run_status != fatal` かつ Gate = FAIL    | 正常終了（品質ゲート失敗）  |
+|         2 | `run_status = fatal` または実行が信頼不可 | 実行失敗（入力不正/例外等） |
 
 #### exit code=2（実行失敗）の代表例（SHOULD）
 

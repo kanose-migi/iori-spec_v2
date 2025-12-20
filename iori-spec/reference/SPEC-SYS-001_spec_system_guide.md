@@ -3,8 +3,8 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-001
 spec_title: "iori-spec Spec System Operating Guide (Authoring / Review / Reference Flow)"
-stability: core
-status: draft
+stability: core # core|extension
+status: draft # draft|review|stable|deprecated
 ---
 
 # SPEC-SYS-001 Spec System Operating Guide (Authoring / Review / Reference Flow)

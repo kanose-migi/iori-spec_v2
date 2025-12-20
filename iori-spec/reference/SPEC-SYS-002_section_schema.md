@@ -3,8 +3,8 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-002
 spec_title: "iori-spec Section Schema"
-stability: core     # core|extension
-status: draft       # draft|review|stable|deprecated
+stability: core # core|extension
+status: draft # draft|review|stable|deprecated
 ---
 
 # SPEC-SYS-002 Section Schema
@@ -113,7 +113,7 @@ status: draft       # draft|review|stable|deprecated
 2. **このドキュメントの役割**（何を決め、何を決めないか）
 3. **範囲（Scope）と前提**（適用範囲・前提・定義）
 4. **kind 別本体セクション群**
-    - 当該 kind に適用されるセクションを priority 昇順で並べる（registry の定義が正）。
+   - 当該 kind に適用されるセクションを priority 昇順で並べる（registry の定義が正）。
 5. **USAGE**（どう使うか：人間向け運用/参照方法）
 6. **運用上の目安（LLM / SDD 観点）**（LLM運用・分割・更新ルール）
 7. **READ_NEXT**
@@ -125,8 +125,10 @@ status: draft       # draft|review|stable|deprecated
 ### `spec_sections_registry.yaml`（構造定義）
 
 - 目的：仕様書群で使用可能なセクションをカタログ化し、各 `kind` に対する「必須/任意」「抽出対象」「並び順」を決定する。
+
 - ルート構造：
   - `version: string`（例: `0.1`）
+
   - `policy: object`（任意）
     - `unknown_sections: (allow|warn|error)`（任意。デフォルト `allow`）
       - `allow`: unknown section を許容（lint はしない／抽出対象にはしない）
@@ -147,7 +149,7 @@ status: draft       # draft|review|stable|deprecated
 
   - `applies_to_kinds: string[]`（必須）
     - 当該セクションが適用される `kind` の集合（1 つ以上）
-    - "*" は全 `kind` に適用するワイルドカードとする。
+    - "\*" は全 `kind` に適用するワイルドカードとする。
 
   - `required: boolean`（必須）
     - `true` の場合、該当 `kind` の仕様書に当該セクションが存在しないことは `lint` エラー
@@ -165,6 +167,7 @@ status: draft       # draft|review|stable|deprecated
 ### `spec_sections_guide.yaml`（記載ガイド）
 
 - 目的：registry の `section_id` に対し、「何を書くべきか」を一貫して提示できるようにする。
+
 - ルート構造：
   - `version: string`（例: `0.1`）
   - `sections: SectionGuide[]`

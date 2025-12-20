@@ -3,8 +3,8 @@ kind: steering
 scope: spec_system
 id: STEER-001
 spec_title: "Product Steering (Purpose / Non-goals / Success Metrics)"
-stability: core
-status: draft
+stability: core # core|extension
+status: draft # draft|review|stable|deprecated
 ---
 
 # STEER-001 Product Steering (Purpose / Non-goals / Success Metrics)
