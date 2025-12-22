@@ -565,46 +565,57 @@ lint の manifest は補助であり、存在しない場合でも lint_report �
 
 ## USAGE
 
-- 想定読者（Who）:
-  - Producer 実装者（index/pack/lint を生成するツール実装者）
-  - Consumer 実装者（CI 判定、可視化、検索、影響分析、LLM オーケストレーション等）
-  - 運用者（プロファイル設計、ゲート設計、品質管理）
+### 想定読者（Who）
 
-- 参照トリガー（When）:
-  - 新しい artifact（record_type / フィールド）を追加・変更するとき
-  - 決定性（順序・正規化・fingerprint）に関する不具合を修正するとき
-  - Consumer 側の互換性判断（契約バージョン対応、未知フィールド対応）を実装・更新するとき
-  - pack / lint_report の取り違え事故や再現性問題を調査するとき
+- Producer 実装者（index/pack/lint を生成するツール実装者）
+- Consumer 実装者（CI 判定、可視化、検索、影響分析、LLM オーケストレーション等）
+- 運用者（プロファイル設計、ゲート設計、品質管理）
 
-- 使い方（How）:
-  - Producer: Common Header・正規化・順序規約・`source_index` を満たす形で出力し、差分安定性（同入力→同出力）を担保する。
-  - Consumer: `contract_version` と `complete` を検査してから利用し、未知フィールド（`extensions` を含む）や未知 `rule_id` を許容したうえで既知フィールドのみで動作する。
-  - pack / lint_report: `source_index.index_digest` により参照元 index を検証し、取り違えを検知できるようにする。
+### 参照タイミング（When）
 
-- セット読み（With）:
-  - SPEC-SYS-003 — `trace` の意味論・ルールID体系（artifact が参照する意味論の SSOT）
-  - SPEC-SYS-005 — lint 実行/CI ゲートなど運用仕様（exit code 等の運用は 005 を正とする）
-  - SPEC-SYS-002 — `include_in` 等、pack 抽出根拠となるセクション定義
+- 新しい artifact（record_type / フィールド）を追加・変更するとき
+- 決定性（順序・正規化・fingerprint）に関する不具合を修正するとき
+- Consumer 側の互換性判断（契約バージョン対応、未知フィールド対応）を実装・更新するとき
+- pack / lint_report の取り違え事故や再現性問題を調査するとき
+
+### 使い方（How）
+
+- Producer: Common Header・正規化・順序規約・`source_index` を満たす形で出力し、差分安定性（同入力→同出力）を担保する。
+- Consumer: `contract_version` と `complete` を検査してから利用し、未知フィールド（`extensions` を含む）や未知 `rule_id` を許容したうえで既知フィールドのみで動作する。
+- pack / lint_report: `source_index.index_digest` により参照元 index を検証し、取り違えを検知できるようにする。
+
+### セットで読む spec（With）
+
+- SPEC-SYS-003 — `trace` の意味論・ルールID体系（artifact が参照する意味論の SSOT）
+- SPEC-SYS-005 — lint 実行/CI ゲートなど運用仕様（exit code 等の運用は 005 を正とする）
+- SPEC-SYS-002 — `include_in` 等、pack 抽出根拠となるセクション定義
 
 ## 運用上の目安（LLM / SDD 観点）
 
-- 更新トリガー（Trigger → Action）:
-  - artifact の shape（必須フィールド/型/順序）の変更:
-    - Action: 互換性影響を判定し、`contract_version` を MAJOR/MINOR/PATCH として更新する。Producer/Consumer 両方の互換性を点検し、必要なら移行メモ（破壊的変更の理由・回避策）を残す。
-  - 意味論の境界変更（同じフィールドの再解釈・意味変更）:
-    - Action: **破壊的変更（MAJOR）**として扱うことを原則とし、既存 Consumer が誤解し得ない形（新フィールド追加＋旧フィールド維持、等）を優先する。
-  - 決定性・正規化（path/配列/JSON/fingerprint）に関する規約変更:
-    - Action: “同入力→同出力” を満たすことを最優先に、規約変更の影響（差分、digest、再現性）を検証する。必要に応じて golden テスト/比較ベクトルを更新する。
-  - pack 抽出根拠（`include_in=pack`、follow 条件、limits 等）の変更:
-    - Action: SPEC-SYS-002 / SPEC-SYS-005 と整合するように更新し、manifest の `selection`（再現性の鍵）が意図どおり記録されることを確認する。
+### 更新トリガー（Trigger → Action）
 
-- LLM 連携（貼り方）:
-  - 最小セット: LLM_BRIEF + 変更対象の該当節（diff）+ 期待成果物（例: 互換性判定、契約更新案、Consumer 側対応方針）
-  - 拡張セット: 関連する artifact の該当スキーマ断片（Common Header/manifest 等）+ SPEC-SYS-003（意味論）+ SPEC-SYS-005（運用/ゲート）
+- artifact の shape（必須フィールド/型/順序）の変更:
+  - Action: 互換性影響を判定し、`contract_version` を MAJOR/MINOR/PATCH として更新する。Producer/Consumer 両方の互換性を点検し、必要なら移行メモ（破壊的変更の理由・回避策）を残す。
+- 意味論の境界変更（同じフィールドの再解釈・意味変更）:
+  - Action: **破壊的変更（MAJOR）**として扱うことを原則とし、既存 Consumer が誤解し得ない形（新フィールド追加＋旧フィールド維持、等）を優先する。
+- 決定性・正規化（path/配列/JSON/fingerprint）に関する規約変更:
+  - Action: “同入力→同出力” を満たすことを最優先に、規約変更の影響（差分、digest、再現性）を検証する。必要に応じて golden テスト/比較ベクトルを更新する。
+- pack 抽出根拠（`include_in=pack`、follow 条件、limits 等）の変更:
+  - Action: SPEC-SYS-002 / SPEC-SYS-005 と整合するように更新し、manifest の `selection`（再現性の鍵）が意図どおり記録されることを確認する。
 
-- ツール運用（Gate）:
-  - PR 時: 変更が契約に影響する場合、`contract_version` 更新の妥当性（MAJOR/MINOR/PATCH）と、未知フィールド許容（Consumer 側の後方互換）をレビュー観点に含める。
-  - リリース前: 代表入力から生成した artifact の digest/順序が安定すること、`complete=false` を含む異常系でも Consumer が安全に扱えることを確認する。
+### LLM 連携の原則（貼り方・渡し方）
+
+- 最小セット: LLM_BRIEF + 変更対象の該当節（diff）+ 期待成果物（例: 互換性判定、契約更新案、Consumer 側対応方針）
+- 拡張セット: 関連する artifact の該当スキーマ断片（Common Header/manifest 等）+ SPEC-SYS-003（意味論）+ SPEC-SYS-005（運用/ゲート）
+
+### ツール運用（lint / テンプレ生成 / 抽出）
+
+- PR 時: 変更が契約に影響する場合、`contract_version` 更新の妥当性（MAJOR/MINOR/PATCH）と、未知フィールド許容（Consumer 側の後方互換）をレビュー観点に含める。
+- リリース前: 代表入力から生成した artifact の digest/順序が安定すること、`complete=false` を含む異常系でも Consumer が安全に扱えることを確認する。
+
+### 更新時の作法（どう更新するか）
+
+- 本仕様では、互換性（`contract_version`）・意味論変更・決定性・pack 抽出根拠の扱いを、上記「更新トリガー（Trigger → Action）」の Action として規定する。
 
 ## READ_NEXT
 

@@ -404,9 +404,9 @@ pack:
 
 ### セット読み（With）
 
-- 成果物（index / pack / lint_report）の形・決定性・互換性は **SPEC-SYS-004** を正とする（詳細は READ_NEXT）。
-- `trace` の意味論・ルールID（T001..）・プロファイル例は **SPEC-SYS-003** を正とする（詳細は READ_NEXT）。
-- セクション定義（include_in / ordering / unknown_sections 等）は **SPEC-SYS-002** を正とする（詳細は READ_NEXT）。
+- SPEC-SYS-004 — 成果物（index / pack / lint_report）の形・決定性・互換性
+- SPEC-SYS-003 — `trace` の意味論・ルールID（T001..）・プロファイル例
+- SPEC-SYS-002 — セクション定義（include_in / ordering / unknown_sections 等）
 
 ## 運用上の目安（LLM / SDD 観点）
 
@@ -436,14 +436,17 @@ pack:
   - 仕様変更が Run/設定/ゲート/出力に影響する場合、準拠テスト（Conformance Fixtures）の更新を同一 PR で行う。
 - リリース前:
   - `index_digest` / `lint_report` / `pack manifest` が「同一入力 → 同一出力」になること（決定性）を点検し、意図しない差分がないことを確認する。
+- 準拠テスト（Conformance Fixtures）（SHOULD）:
+  - 実装は小さな `spec_root` フィクスチャに対して、以下がスナップショット一致することを確認する準拠テストを用意することが望ましい（SHOULD）。
+    - `index_digest`（および spec_index.jsonl の正規化出力）
+    - `lint_report`（findings と run_status）
+    - `pack` の `manifest`（selection と resolved_ids）
 
-### 準拠テスト（Conformance Fixtures）（SHOULD）
+### 更新時の作法（どう更新するか）
 
-- 実装は小さな `spec_root` フィクスチャに対して、以下がスナップショット一致することを確認する準拠テストを用意することが望ましい（SHOULD）。
-
-  - `index_digest`（および spec_index.jsonl の正規化出力）
-  - `lint_report`（findings と run_status）
-  - `pack` の `manifest`（selection と resolved_ids）
+- CLI 名やサブコマンド体系は非安定（例示扱い）とし、安定軸は用途概念（index / lint / pack）と設定キーに置く。
+- 互換性影響がある変更（プロファイル既定や threshold 既定、Gate/exit code の意味論、決定性に関わる変更）は、CI 運用への影響と移行方針を必ず併記する。
+- 参照 SSOT（SPEC-SYS-002/003/004）と本仕様の間に齟齬が出る変更は、該当箇所を点検し、必要なら同一 PR で追随させる。
 
 ## READ_NEXT
 

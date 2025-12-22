@@ -292,39 +292,56 @@ sections:
 
 ## USAGE
 
-- 想定読者（Who）:
-  - 仕様書の作成・更新を行う編集者（人間/LLM）
-  - `spec_sections_registry.yaml` / `spec_sections_guide.yaml` のメンテナ（規約策定者）
-  - iori-spec ツール実装者 / CI・運用担当
-- 参照トリガー（When）:
-  - 標準セクションを追加・変更・廃止するとき（registry/guide を触るとき）
-  - `include_in`（index/render/pack）や `priority` の扱いを変えるとき
-  - unknown section の扱い（allow/warn/error）を変更するとき
-  - lint がセクション欠落・不一致・重複などを検知したとき
-- 使い方（How）:
-  - 変更は「registry（構造）」と「guide（記載）」を分けて行い、`section_id` の 1:1 対応を維持する。
-  - 見出しテキストは H2 で `heading` と完全一致させ、抽出・必須判定を決定的に保つ。
-  - 変更後は registry/guide の lint と、テンプレ生成・抽出（pack）の決定性が崩れていないことを確認する。
-- セット読み（With）:
-  - SPEC-SYS-001 — 仕様書群の編集・参照フロー（運用規約）
-  - SPEC-SYS-005 — `index` / `lint` / `context pack` / CI ゲートの実行仕様
+### 想定読者（Who）
+
+- 仕様書の作成・更新を行う編集者（人間/LLM）
+- `spec_sections_registry.yaml` / `spec_sections_guide.yaml` のメンテナ（規約策定者）
+- iori-spec ツール実装者 / CI・運用担当
+
+### 参照タイミング（When）
+
+- 標準セクションを追加・変更・廃止するとき（registry/guide を触るとき）
+- `include_in`（index/render/pack）や `priority` の扱いを変えるとき
+- unknown section の扱い（allow/warn/error）を変更するとき
+- lint がセクション欠落・不一致・重複などを検知したとき
+
+### 使い方（How）
+
+- 変更は「registry（構造）」と「guide（記載）」を分けて行い、`section_id` の 1:1 対応を維持する。
+- 見出しテキストは H2 で `heading` と完全一致させ、抽出・必須判定を決定的に保つ。
+- 変更後は registry/guide の lint と、テンプレ生成・抽出（pack）の決定性が崩れていないことを確認する。
+
+### セットで読む spec（With）
+
+- SPEC-SYS-001 — 仕様書群の編集・参照フロー（運用規約）
+- SPEC-SYS-005 — `index` / `lint` / `context pack` / CI ゲートの実行仕様
 
 ## 運用上の目安（LLM / SDD 観点）
 
-- 更新トリガー（Trigger → Action）:
-  - 標準セクションの追加/変更/廃止（`section_id` / `heading` / 適用 kind / required / include_in / priority の変更を含む）:
-    - Action: registry と guide を **同一 PR**で更新し、`section_id` の 1:1 対応を維持する（必要ならテンプレ/生成物も同一 PR で更新）。
-    - Tool: `lint`（必須欠落・重複・見出し不一致・1:1対応）を実行し、warning/error を解消する。
-  - `include_in`（index/render/pack）の意味・抽出方針を変更する:
-    - Action: 影響する成果物（pack/index/render）と契約（SPEC-SYS-004）・実行仕様（SPEC-SYS-005）を点検し、整合を取る。
-  - unknown section ポリシー（allow/warn/error）を変更する:
-    - Action: lint の扱いと、人間向け render / LLM 向け pack の扱いが意図どおりになることを確認する（運用ルールは SPEC-SYS-001 と整合させる）。
-- LLM 連携（貼り方）:
-  - 最小セット: 本仕様の LLM_BRIEF + 変更対象セクション（diff）+ 期待成果物（例: registry/guide 更新案、lint 修正案）
-  - 拡張セット: 影響する registry/guide の該当箇所 + 関連する SPEC-SYS-001/004/005 の該当箇所
-- ツール運用（Gate）:
-  - PR 時: registry/guide の `lint` を必須にし、`section_id` 1:1 対応・見出し一致・必須欠落を早期検出する。
-  - リリース前: テンプレ生成・抽出（pack）の決定性と、機械可読スキーマ（Validation Schema）検証が成立することを確認する。
+### 更新トリガー（Trigger → Action）
+
+- 標準セクションの追加/変更/廃止（`section_id` / `heading` / 適用 kind / required / include_in / priority の変更を含む）:
+  - Action: registry と guide を **同一 PR**で更新し、`section_id` の 1:1 対応を維持する（必要ならテンプレ/生成物も同一 PR で更新）。
+  - Action: `lint`（必須欠落・重複・見出し不一致・1:1対応）を実行し、warning/error を解消する。
+- `include_in`（index/render/pack）の意味・抽出方針を変更する:
+  - Action: 影響する成果物（pack/index/render）と契約（SPEC-SYS-004）・実行仕様（SPEC-SYS-005）を点検し、整合を取る。
+- unknown section ポリシー（allow/warn/error）を変更する:
+  - Action: lint の扱いと、人間向け render / LLM 向け pack の扱いが意図どおりになることを確認する（運用ルールは SPEC-SYS-001 と整合させる）。
+
+### LLM 連携の原則（貼り方・渡し方）
+
+- 最小セット: 本仕様の LLM_BRIEF + 変更対象セクション（diff）+ 期待成果物（例: registry/guide 更新案、lint 修正案）
+- 拡張セット: 影響する registry/guide の該当箇所 + 関連する SPEC-SYS-001/004/005 の該当箇所
+
+### ツール運用（lint / テンプレ生成 / 抽出）
+
+- PR 時: registry/guide の `lint` を必須にし、`section_id` 1:1 対応・見出し一致・必須欠落を早期検出する。
+- リリース前: テンプレ生成・抽出（pack）の決定性と、機械可読スキーマ（Validation Schema）検証が成立することを確認する。
+
+### 更新時の作法（どう更新するか）
+
+- 構造（registry）と記載ガイド（guide）を分離しつつ、`section_id` の 1:1 対応を破らないことを最優先にする。
+- 見出し表記（H2 / `heading` 完全一致）と、抽出用途（`include_in`）と、並び順（`priority`）が **ツールの決定性**を崩さないことを確認しながら更新する。
 
 ## READ_NEXT
 

@@ -470,51 +470,65 @@ trace:
 
 ## USAGE
 
-- 想定読者（Who）:
-  - 仕様の作成・改訂を行う執筆者（REQ/IF/DATA/TEST/ARCH/STEER/SPEC-SYS）
-  - レビュー担当者（整合性・更新漏れの確認）
-  - ツール実装者（index/lint/trace report などの実装・運用）
-- 参照トリガー（When）:
-  - 新規に REQ を作成・分割・統合するとき（最小カバレッジの確保）
-  - IF/DATA/TEST を追加・改訂するとき（由来・前提の明示、更新漏れの防止）
-  - lint/CI ゲートのルール運用を見直すとき（ルールIDと重大度プロファイルの分離）
-  - 不整合（dangling/循環/型不一致等）の原因調査をするとき
-- 使い方（How）:
-  - REQ は `trace.satisfied_by` に **IF を ≥1 件**、`trace.verified_by` に **TEST を ≥1 件**結線し、最小条件を満たす。
-  - DATA が要件上必須なら `coverage_hints.data: required` を明示し、`satisfied_by` に DATA を含める。
-  - 成立条件・実装順などの前提は `trace.depends_on` に書く（単なる関連は `trace.relates_to`）。
-  - IF/DATA/TEST は必要に応じて `derived_from` を付け、探索性を高める（主たるSSOTは REQ 側）。
-  - 置換・改訂は `trace.supersedes` で明示し、参照先を最新へ誘導する。
-- セット読み（With）:
-  - SPEC-SYS-005（lint/CI ゲートと重大度プロファイルの運用）
-  - SPEC-SYS-004（trace map 等の出力契約・互換性）
-  - SPEC-SYS-001（仕様書群の運用フロー：作成/修正/参照の標準手順）
+### 想定読者（Who）
+
+- 仕様の作成・改訂を行う執筆者（REQ/IF/DATA/TEST/ARCH/STEER/SPEC-SYS）
+- レビュー担当者（整合性・更新漏れの確認）
+- ツール実装者（index/lint/trace report などの実装・運用）
+
+### 参照タイミング（When）
+
+- 新規に REQ を作成・分割・統合するとき（最小カバレッジの確保）
+- IF/DATA/TEST を追加・改訂するとき（由来・前提の明示、更新漏れの防止）
+- lint/CI ゲートのルール運用を見直すとき（ルールIDと重大度プロファイルの分離）
+- 不整合（dangling/循環/型不一致等）の原因調査をするとき
+
+### 使い方（How）
+
+- REQ は `trace.satisfied_by` に **IF を ≥1 件**、`trace.verified_by` に **TEST を ≥1 件**結線し、最小条件を満たす。
+- DATA が要件上必須なら `coverage_hints.data: required` を明示し、`satisfied_by` に DATA を含める。
+- 成立条件・実装順などの前提は `trace.depends_on` に書く（単なる関連は `trace.relates_to`）。
+- IF/DATA/TEST は必要に応じて `derived_from` を付け、探索性を高める（主たるSSOTは REQ 側）。
+- 置換・改訂は `trace.supersedes` で明示し、参照先を最新へ誘導する。
+
+### セットで読む spec（With）
+
+- SPEC-SYS-005（lint/CI ゲートと重大度プロファイルの運用）
+- SPEC-SYS-004（trace map 等の出力契約・互換性）
+- SPEC-SYS-001（仕様書群の運用フロー：作成/修正/参照の標準手順）
 
 ## 運用上の目安（LLM / SDD 観点）
 
-- 更新トリガー（Trigger → Action）:
-  - エッジ型（Semantics）を追加・変更する:
-    - Action: 本仕様（定義・指針・整合性ルール）を更新し、ツールの解釈と齟齬が出ないよう SPEC-SYS-005（lint/CI）および実装側も同一 PR で追随する。
-  - 最小カバレッジ条件（Minimum Coverage）を変更する:
-    - Action: 既存 REQ 群への影響（未達の発生）を評価し、必要なら移行期間やプロファイル調整（WARN→ERROR など）を SPEC-SYS-005 側で管理する。
-  - ルールID体系（Lint Rule Catalog）を追加・変更する:
-    - Action: ルール ID の意味（検出対象）を本仕様で固定し、重大度の割当はプロファイル（運用設定）で管理する。
-  - trace 記法（Syntax）を拡張する（新フィールド、許容形式の追加など）:
-    - Action: 正規化方針（string→object 等）と後方互換の考え方を明記し、SPEC-SYS-004（出力契約）と整合させる。
-  - `supersedes` / deprecation の運用を変更する:
-    - Action: 参照先の最新化導線（READ_NEXT/運用規約）と、lint 指摘（deprecated参照など）の扱いを一貫させる。
+### 更新トリガー（Trigger → Action）
 
-- LLM 連携（貼り方）:
-  - 最小セット: 本仕様の LLM_BRIEF + 変更対象セクション（diff）+ 期待成果物（例: 新エッジ型の定義案、整合性ルール案、ルールID追加案）。
-  - 拡張セット: 影響する SPEC-SYS-004（出力契約）/ SPEC-SYS-005（CIゲート）/ 代表的な REQ/IF/DATA/TEST 例（移行の妥当性確認用）を追加で渡す。
+- エッジ型（Semantics）を追加・変更する:
+  - Action: 本仕様（定義・指針・整合性ルール）を更新し、ツールの解釈と齟齬が出ないよう SPEC-SYS-005（lint/CI）および実装側も同一 PR で追随する。
+- 最小カバレッジ条件（Minimum Coverage）を変更する:
+  - Action: 既存 REQ 群への影響（未達の発生）を評価し、必要なら移行期間やプロファイル調整（WARN→ERROR など）を SPEC-SYS-005 側で管理する。
+- ルールID体系（Lint Rule Catalog）を追加・変更する:
+  - Action: ルール ID の意味（検出対象）を本仕様で固定し、重大度の割当はプロファイル（運用設定）で管理する。
+- trace 記法（Syntax）を拡張する（新フィールド、許容形式の追加など）:
+  - Action: 正規化方針（string→object 等）と後方互換の考え方を明記し、SPEC-SYS-004（出力契約）と整合させる。
+- `supersedes` / deprecation の運用を変更する:
+  - Action: 参照先の最新化導線（READ_NEXT/運用規約）と、lint 指摘（deprecated参照など）の扱いを一貫させる。
 
-- ツール運用（Gate）:
-  - PR 時: `lint` / `trace lint`（重大度プロファイルに従う）で、dangling/重複/自己参照/最小カバレッジ不足を早期に検出する。
-  - リリース前: 重大度プロファイルの変更がある場合、既存仕様群に対する影響（新規 ERROR の発生）を棚卸しし、移行手順と合わせて適用する。
+### LLM 連携の原則（貼り方・渡し方）
 
-- 実務上の注意:
+- 最小セット: 本仕様の LLM_BRIEF + 変更対象セクション（diff）+ 期待成果物（例: 新エッジ型の定義案、整合性ルール案、ルールID追加案）。
+- 拡張セット: 影響する SPEC-SYS-004（出力契約）/ SPEC-SYS-005（CIゲート）/ 代表的な REQ/IF/DATA/TEST 例（移行の妥当性確認用）を追加で渡す。
+- 注意:
   - “本文に書いてあるから分かる”はスケールしない。ツールが辿れる導線を `trace` に残すことを優先する。
   - `depends_on` は「成立条件」。単なる参照・関連は `relates_to` に逃がす（意味を混ぜない）。
+
+### ツール運用（lint / trace lint / CI）
+
+- PR 時: `lint` / `trace lint`（重大度プロファイルに従う）で、dangling/重複/自己参照/最小カバレッジ不足を早期に検出する。
+- リリース前: 重大度プロファイルの変更がある場合、既存仕様群に対する影響（新規 ERROR の発生）を棚卸しし、移行手順と合わせて適用する。
+
+### 更新時の作法（どう更新するか）
+
+- 仕様（SPEC-SYS-003）側で固定するのは **意味（Semantics）・記法（Syntax）・最小整合性ルール・ルールIDの意味**であり、重大度（ERROR/WARN/INFO）やゲートは **プロファイル（運用設定）**に分離する。
+- 仕様変更がツール出力（trace map / lint report / pack follow 等）の解釈に影響する場合は、SPEC-SYS-004（成果物契約）と SPEC-SYS-005（実行/CI）を点検し、必要なら同一 PR で追随させる。
 
 ## READ_NEXT
 
