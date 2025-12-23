@@ -15,6 +15,7 @@ status: draft # draft|review|stable|deprecated
 - 本仕様は、iori-spec の各 spec ファイル先頭に置く **YAML front matter** の「必須キー・型・記法・拡張方針」を SSOT として定義する。
 - 本仕様は **front matter としての配置・必須性・型制約**を規範化する。
 - `trace` の意味論・記法は SPEC-SYS-003、ツール成果物（index/pack/lint_report）の契約は SPEC-SYS-004、設定解決と profile/gate は SPEC-SYS-005 を正とする。
+- `variant`（kind 内一次分類）を追加し、テンプレ生成・lint の分岐を **`kind + variant`** で決定的に行えるようにする（ADR-SPEC-001）。
 
 ## このドキュメントの役割
 
@@ -258,6 +259,23 @@ status: draft
 
 ## 任意キー（Optional Keys）
 
+### `variant`（MAY, kind-local enum）
+
+- 型: string（MUST if present）
+- 書式: `^[a-z][a-z0-9_]*$`（MUST）
+- 役割: `kind` を維持したまま、当該 kind 内の一次分類（例: `requirements` の `functional|nonfunctional`）を表す。
+- 検査・意味論:
+  - `taxonomy.variants` が提供され、かつ `taxonomy.variants[kind]` が定義されている場合、
+    - `variant` は **必須**（MUST）である（未指定は違反）。
+    - `variant` はその enum に含まれなければならない（MUST）。
+  - `taxonomy.variants[kind]` が定義されていない場合、
+    - `variant` は省略してよい（MAY）。
+    - `variant` が指定されている場合、ツールは「未定義 variant（taxonomy 未提供）」として info/warn を出してよい（MAY）。
+- `variant` の列挙・供給元:
+  - `variant` の許容値（kind ごとの enum）は project taxonomy（config 経由）で定義する（後述）。
+
+> NOTE: `variant` は kind の細分化（例: `nonfunctional_requirements` のような新 kind 追加）を避けつつ、テンプレ生成・lint の決定性を得るための最小拡張である。
+
 ### `trace`（MAY）
 
 - 型: object（MUST if present）
@@ -314,6 +332,11 @@ taxonomy:
     - cli
     - builder
     - docs
+  variants: # 任意（MAY）。kind 内一次分類（kind-local enum）
+    requirements: ["functional", "nonfunctional"]
+    interfaces: ["external", "internal"]
+    tests: ["unit", "integration", "contract"]
+    data_contracts: ["batch", "event"]
 ```
 
 ### 検査規約
@@ -340,7 +363,9 @@ taxonomy:
 - **FM014**: `scope_root` が taxonomy.scopes に存在しない（未定義 scope_root）
 - **FM015**: `status` が許容値でない
 - **FM016**: `stability` が許容値でない
-- **FM020**: top-level に未知キーがある（`extensions` へ移すべき）※推奨違反（SHOULD）
+- **FM017**: `variant` が許容値でない（taxonomy.variants[kind] に含まれない / kind に対し未定義）
+- **FM018**: `variant` が必須の kind で未指定（taxonomy.variants[kind] が定義されているのに variant が無い）
+- **FM020**: top-level に未知キーがある（許可キー: 必須6キー + variant/trace/extensions。それ以外は `extensions` へ移すべき）※推奨違反（SHOULD）
 
 ## 記載例（Examples）
 

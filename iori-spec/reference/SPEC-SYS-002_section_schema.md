@@ -46,7 +46,7 @@ status: draft # draft|review|stable|deprecated
 ### 前提（Assumptions）
 
 - iori-spec は推奨 `kind` として下記をデフォルトで用意する（ただし `kind` は拡張可能）:
-  - `steering / requirements / nonfunctional_requirements / architecture / interfaces / data_contracts / tests / dev_tasks / reference / impl_notes`
+  - `steering / requirements / interfaces / data_contracts / tests / architecture / reference / dev_tasks / impl_notes`
 - 仕様書（Markdown）は YAML front matter を持つ（必須キーは別仕様で定義）。
 - registry で定義されたセクションは見出しレベル **H2 固定**かつ `heading` と **完全一致**させる（表記ゆれは missing 扱い）。
 - registry 未定義の見出し（unknown section）は `policy.unknown_sections` に従って扱う（デフォルト `allow`）。
@@ -56,6 +56,7 @@ status: draft # draft|review|stable|deprecated
 - `section_id`: セクションを同定する論理キー（template / lint / 抽出のキー）
 - `heading`: 実際の Markdown H2 見出しテキスト（`##` を除いた文字列）
 - `include_in`: 抽出用途の集合（`index` / `render` / `pack`）
+- `variant`: front matter の kind 内一次分類（SPEC-SYS-006）。`applies_to_variants` を用いたセクション分岐の入力。
 
 ## スキーマ表現（概念モデル）
 
@@ -74,6 +75,7 @@ status: draft # draft|review|stable|deprecated
 
 - `section_id`: セクションの論理 ID（テンプレ生成・lint・抽出のキー）
 - `applies_to_kinds`: 適用 `kind` の集合（`"*"` は全 kind に適用するワイルドカード）
+- `applies_to_variants`: 適用 `variant` の集合（省略時は全 variant。`variant` は SPEC-SYS-006）
 - `heading`: 期待する見出し文字列（「H2 見出しのテキスト」に対応）
 - `required`: 必須/任意
 - `multiple`: 同一セクションの複数出現を許すか
@@ -149,7 +151,14 @@ status: draft # draft|review|stable|deprecated
 
   - `applies_to_kinds: string[]`（必須）
     - 当該セクションが適用される `kind` の集合（1 つ以上）
-    - "\*" は全 `kind` に適用するワイルドカードとする。
+    - "*" は全 `kind` に適用するワイルドカードとする。
+
+  - `applies_to_variants: string[]`（任意）
+    - 当該セクションが適用される `variant` の集合（1 つ以上）
+    - 省略時は「全 variant」に適用される。
+    - 制約（簡素化のため）:
+      - `applies_to_variants` を用いる場合、`applies_to_kinds` は **単一 kind**（かつ `*` を含まない）でなければならない（MUST）。
+      - `variant` は SPEC-SYS-006 の `taxonomy.variants[kind]` により列挙される（推奨）。ツールは可能なら taxonomy に照らして検査する（MAY）。
 
   - `required: boolean`（必須）
     - `true` の場合、該当 `kind` の仕様書に当該セクションが存在しないことは `lint` エラー
@@ -235,6 +244,7 @@ status: draft # draft|review|stable|deprecated
 ツールは最低限、以下を検査できる。
 
 - required セクションの欠落（error）
+  - 対象は、当該 spec の `kind`（および `variant` がある場合は `applies_to_variants`）でフィルタされた Effective Section Rules とする
 - 見出しの重複（`multiple: false` のセクションが複数回出現）
 - `include_in` の値が許可集合 `{index, render, pack}` から外れていない
 - `priority` の重複（同一 kind 内での衝突は warning。決定性が崩れるため）
@@ -256,6 +266,30 @@ sections:
     multiple: false
     include_in: [index, render, pack]
     priority: 10
+```
+
+### `applies_to_variants` を用いた例（参考）
+
+```yaml
+version: "0.1"
+sections:
+  - section_id: functional_requirements
+    heading: "Functional Requirements"
+    applies_to_kinds: ["requirements"]
+    applies_to_variants: ["functional"]
+    required: true
+    multiple: false
+    include_in: [index, render, pack]
+    priority: 100
+
+  - section_id: nonfunctional_requirements
+    heading: "Nonfunctional Requirements"
+    applies_to_kinds: ["requirements"]
+    applies_to_variants: ["nonfunctional"]
+    required: true
+    multiple: false
+    include_in: [index, render, pack]
+    priority: 110
 ```
 
 ### `spec_sections_guide.yaml`（最小例）

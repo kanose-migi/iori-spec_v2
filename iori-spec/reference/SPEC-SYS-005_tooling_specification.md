@@ -70,7 +70,7 @@ status: draft # draft|review|stable|deprecated
 ### 前提（必須依存）
 
 - pack の抽出根拠は SPEC-SYS-002 の `include_in: pack` を用いる（抽出対象の SSOT）。
-- lint のルールID（T001..）とプロファイル例（strict / balanced / exploratory）は SPEC-SYS-003 を正とする。
+- lint のルールID（FM### / S### / T### 等）とプロファイル例（strict / balanced / exploratory）は、各 SSOT（SPEC-SYS-006/002/003）を正とする。
 - pack / lint_report は `source_index`（index_digest / index_contract_version）を必須とする（SPEC-SYS-004 の要件）。よって **index_digest を得られること**は本仕様の前提となる。
 
 ---
@@ -191,6 +191,15 @@ config は少なくとも次を表現できる（MUST）。
 - （任意）`pack.follow.trace_edges`（省略時は実装既定。pack manifest には必ず記録されること）
 - （任意）`scan.include_globs` / `scan.exclude_globs`
 
+#### project taxonomy（MAY）
+
+front matter の検査・テンプレ生成の決定性のため、config は project taxonomy を含めてよい（MAY）。
+
+- `taxonomy.kinds`（MAY）: Effective Kinds の追加語彙（SPEC-SYS-006）
+- `taxonomy.scopes`（SHOULD）: `scope_root` の推奨語彙（SPEC-SYS-006）
+- `taxonomy.variants`（MAY）: kind 内一次分類（`variant`）の enum（SPEC-SYS-006 / ADR-SPEC-001）
+  - `taxonomy.variants[kind]` が存在する kind では、front matter の `variant` を必須（MUST）として lint できる。
+
 #### config 例（参考）
 
 ```yaml
@@ -199,6 +208,10 @@ output_root: artifacts
 profile: balanced
 gate:
   threshold: error
+taxonomy:
+  scopes: ["spec_system", "cli", "builder"]
+  variants:
+    requirements: ["functional", "nonfunctional"]
 scan:
   include_globs: ["**/*.md"]
   exclude_globs: ["artifacts/**", ".git/**", "node_modules/**"]
@@ -210,7 +223,7 @@ pack:
 
 ### プロファイル（重大度プロファイル）の定義
 
-- プロファイルは「ルールID（T001..）→ severity（error|warn|info）」の割当を持つ運用設定である（MUST）。
+- プロファイルは「ルールID（FM### / S### / T### 等）→ severity（error|warn|info）」の割当を持つ運用設定である（MUST）。
 - 内蔵プロファイル名は `strict` / `balanced` / `exploratory` を提供する（MUST）。
 - 内蔵プロファイルの内容（割当）は **SPEC-SYS-003 の例と一致**しなければならない（MUST）。
 - 内蔵プロファイルの割当を変更することは、CI の挙動を変え得るため **互換性破壊（MAJOR）**として扱う（MUST）。
@@ -234,12 +247,19 @@ pack:
 
 `lint` は少なくとも次を含む（MUST）。
 
-1. **構造lint**（SPEC-SYS-002 に基づく）
+1. **front matter lint**（SPEC-SYS-006 に基づく）
+   - YAML front matter の parse/必須キー/enum 検査等（rule_id: `FM###`）
 
+2. **構造lint**（SPEC-SYS-002 に基づく）
    - 必須セクション欠落、見出し重複、未知セクションの扱い（allow/warn/error）、順序逸脱など
-2. **trace-lint**（SPEC-SYS-003 に基づく）
 
+3. **trace-lint**（SPEC-SYS-003 に基づく）
    - ルールID（T001..）に対応する違反検出（例：重複、自己参照、循環、最小カバレッジ 等）
+
+### front matter lint の rule_id（MUST）
+
+- front matter lint の findings は `rule_id` に `FM###` 形式を用いなければならない（MUST）。
+- `FM###` の詳細定義（一覧）は SPEC-SYS-006 を正とする（MUST）。
 
 ### 構造lintの rule_id（MUST）
 
@@ -342,6 +362,41 @@ pack:
 
 ---
 
+## テンプレート生成（Skeleton / Template）（拡張・運用）
+
+> NOTE: 本節は Edge（拡張点）として定義する。CLI 名・出力形式は例示であり、安定軸は「入力（kind/variant）→ セクション集合の決定規則」である。
+
+### 目的（Why）
+
+- LLM / 人間が新規 spec（例: `REQ-*.md`）を作成する際に、`kind + variant` に応じた **最小の骨組み（front matter + H2 見出し）**を決定的に提供する。
+
+### 入力（What）
+
+- `kind`（MUST）
+- `variant`（MAY / kind により MUST）
+
+  - `taxonomy.variants[kind]` が定義されている場合、`variant` は必須（MUST）。
+- セクション定義 SSOT:
+  - `spec_sections_registry.yaml` / `spec_sections_guide.yaml`（SPEC-SYS-002）
+
+### セクション集合の決定規則（How, MUST）
+
+- 対象ファイルの **Effective Section Rules** は以下で決定する（MUST）。
+
+  1. `applies_to_kinds` が `kind` に一致する（または `*` を含む）
+  2. かつ `applies_to_variants` が未指定、または `variant` がその列挙に含まれる
+
+- その後、Effective Section Rules を `priority` 昇順（同値は `section_id` 昇順）で並べ、H2 見出し（`heading`）を出力する（MUST）。
+
+### 生成物（例）
+
+- 生成するテンプレートは、少なくとも以下を含むこと（SHOULD）。
+  - YAML front matter（SPEC-SYS-006 に準拠、必要なら `variant` を含む）
+  - `##` 見出し列（SPEC-SYS-002 の ordering に準拠）
+  - Guide 由来の短いプレースホルダ（purpose/guidelines の抜粋）を含めてもよい（MAY）
+
+---
+
 ## index の仕様（運用）
 
 ### index は前提工程（MUST）
@@ -405,6 +460,7 @@ pack:
 ### セット読み（With）
 
 - SPEC-SYS-004 — 成果物（index / pack / lint_report）の形・決定性・互換性
+- SPEC-SYS-006 — YAML front matter（`variant`/taxonomy を含む）
 - SPEC-SYS-003 — `trace` の意味論・ルールID（T001..）・プロファイル例
 - SPEC-SYS-002 — セクション定義（include_in / ordering / unknown_sections 等）
 
@@ -451,6 +507,7 @@ pack:
 ## READ_NEXT
 
 - SPEC-SYS-004（安定契約: index / pack / lint_report のデータ契約・決定性・互換性）— 本仕様の成果物要件の根拠
+- SPEC-SYS-006（front matter: kind/scope/variant/taxonomy）— front matter lint と分類軸の根拠
 - SPEC-SYS-003（トレーサビリティ: `trace` の意味論、ルールID、プロファイル例）— trace-lint とプロファイル運用の根拠
 - SPEC-SYS-002（セクション定義: include_in / ordering / unknown_sections）— 構造lint と pack 抽出根拠の前提
 - SPEC-SYS-001（運用ガイド: 新規作成/修正/参照フロー）— 仕様書運用全体の中でのツール位置づけ
