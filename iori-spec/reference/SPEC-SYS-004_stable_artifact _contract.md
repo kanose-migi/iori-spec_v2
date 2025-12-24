@@ -13,6 +13,7 @@ status: draft # draft|review|stable|deprecated
 
 - kind: reference（scope: spec_system）
 - iori-spec ツールが生成する成果物 **index（SSoT）／context pack（pack）／lint report** の **データ契約（shape・必須項目・意味論境界）**と、**決定性（同入力→同出力）／順序規約**、および **互換性方針（contract versioning / extensions）**を Stable Core として固定する。
+- 併せて、artifact の **構造（shape）を検証する validation schema（JSON Schema 等）**を外部ファイルとして配布し、仕様書側には **生成スナップショット（DO NOT EDIT）**を掲載できる前提で、スナップショットの境界・決定性・衝突優先順位を契約として定義する。
 - `trace` の意味論・ルールID体系は SPEC-SYS-003、lint の実行/CI ゲートは SPEC-SYS-005 を正とし、本仕様はそれらと整合する **成果物契約と正規化（Normalization）**に集中する。
 
 ## このドキュメントの役割
@@ -20,6 +21,7 @@ status: draft # draft|review|stable|deprecated
 - 本仕様が決めること（主題＋抽象度）
   - iori-spec が出力する artifact（index / pack / lint_report）の **契約（機械可読な shape）**、必須/任意、意味論の境界、決定性、順序規約を **Stable Core（契約レイヤー）**として固定する。
   - 派生 artifact（pack / lint_report）が「どの index から生成されたか」を機械的に検証できる最小要件（`source_index`）を定義する。
+  - 上記 artifact の **構造（shape）を検証する validation schema** を外部ファイルとして配布し得る前提で、仕様書内に掲示する **生成スナップショット（Snapshot）**の境界・決定性・衝突優先順位を契約化する。
 
 - 本仕様が決めないこと（委譲先）
   - `trace` の意味論（edge の意味）・一般制約・ルールID体系（→ SPEC-SYS-003）
@@ -44,6 +46,8 @@ status: draft # draft|review|stable|deprecated
 - lint report のデータ契約（構造、必須/任意、決定性、順序）
 - 互換性方針（contract versioning、extensions の扱い）
 - 正規化（Normalization）規約（path、順序、配列整列、fingerprint の算出）
+- artifact の構造（shape）を検証する validation schema の配布前提（外部SSOT）と、当該 schema の仕様書内掲示（生成スナップショット）の契約
+- 生成スナップショット（Snapshot）の境界（markers）・決定性（同入力→同出力）・編集禁止（DO NOT EDIT）
 - 物理配置に関する **推奨準拠プロファイル（FS Layout v1）**（ただし中身の契約を優先）
 
 ### 非対象（Out of scope）
@@ -55,7 +59,7 @@ status: draft # draft|review|stable|deprecated
 
 ### 前提（Assumptions）
 
-- 仕様ファイルは YAML front matter を持つ。
+- 仕様ファイルは YAML front matter を持つ（SPEC-SYS-006）。
 - `id` はグローバル一意で参照可能である。
 - pack 生成は SPEC-SYS-002 の `include_in`（用途概念 `pack`）を抽出根拠とする。
 
@@ -76,6 +80,8 @@ status: draft # draft|review|stable|deprecated
 ## 用語
 
 - **Artifact**: Producer が出力し、Consumer が入力として利用する機械可読な成果物
+- **Normative Artifact**: ツールと人が「正」とみなす規範（SSOT）として運用される外部ファイル（例: validation schema / lint rule catalog / severity profiles）。
+- **Snapshot（生成スナップショット）**: Normative Artifact の内容を仕様書内へ埋め込んだ表示用ブロック。派生物であり手編集しない（DO NOT EDIT）。
 - **artifact_kind**: artifact の用途概念（`index` / `pack` / `lint_report`）
 - **file_role**: 同一 artifact_kind に属するファイルの役割（`data` / `manifest`）
 - **Contract Version**: artifact のデータ契約バージョン（互換性の単位）
@@ -108,6 +114,47 @@ status: draft # draft|review|stable|deprecated
 - `trace` の意味論・一般制約・ルールID体系は SPEC-SYS-003 を正とする（MUST）。
 - 本仕様（004）は「出力表現（shape）と決定性」を正とする（MUST）。
 - lint の exit code / CI ゲート等の運用は SPEC-SYS-005 を正とする（MUST）。
+
+## 規範成果物（Normative Artifacts: External SSOT）
+
+### 基本方針
+
+- artifact の **構造（shape）**を機械的に検証するための validation schema（JSON Schema 等）は、外部ファイルとして配布してよい（MAY）。
+- これらの validation schema は、**構造（shape）に関する SSOT（Normative）**として扱ってよい（MAY）。
+  - その場合、仕様書本文（本仕様を含む）は「意図・意味論・決定性・運用」を中心とする（Informative）位置づけとなる。
+- 構造（shape）に関して **schema と本文が衝突**する場合、構造検証の観点では **schema を優先**する（MUST）。
+- 一方で、schema で表現しきれない **意味論・決定性・正規化・互換性方針**に関しては、本仕様（SPEC-SYS-004）を正とする（MUST）。
+
+### 想定する配布単位（例）
+
+（パスは例であり、実際の配置はプロジェクトで確定する。）
+
+- `schemas/artifacts/index.schema.json`
+- `schemas/artifacts/pack_manifest.schema.json`
+- `schemas/artifacts/lint_report.schema.json`
+
+## 生成スナップショット契約（Generated Snapshot Contract）
+
+### Snapshot の性質（MUST）
+
+- Snapshot は **派生物**であり、手編集してはならない（MUST NOT）。
+- Snapshot は外部 Normative Artifact から **決定的に再生成**できること（diffゼロ）を前提とする（MUST）。
+- Snapshot と外部 Normative Artifact の同期は doc-sync により検証され得る（手順は SPEC-SYS-005）。（SHOULD）
+
+### Snapshot markers（境界）（MUST）
+
+仕様書内の Snapshot ブロックは、機械的置換が可能な境界を持つ（MUST）。
+
+````md
+<!-- BEGIN: GENERATED FROM <path> -->
+
+```yaml
+# DO NOT EDIT - generated snapshot
+...
+```
+
+<!-- END: GENERATED -->
+````
 
 ## 決定性と正規化（Determinism & Normalization）
 
@@ -561,7 +608,9 @@ lint の manifest は補助であり、存在しない場合でも lint_report �
 ## スキーマ配布（Validation Schemas）
 
 - 各 artifact は検証用スキーマ（JSON Schema 等）を併設してよい（MAY）。
-- スキーマと本仕様が矛盾する場合は、本仕様（SPEC-SYS-004）を正とする（MUST）。
+- validation schema を **構造（shape）の SSOT（Normative）**として運用する場合、構造に関する衝突は schema を優先する（MUST）。
+- schema で表現しきれない **意味論・決定性・正規化・互換性方針**に関しては、本仕様（SPEC-SYS-004）を正とする（MUST）。
+- schema を仕様書内に掲示する場合は、生成スナップショット（Snapshot）として掲載し、手編集してはならない（MUST NOT）。
 
 ## USAGE
 
@@ -619,6 +668,7 @@ lint の manifest は補助であり、存在しない場合でも lint_report �
 
 ## READ_NEXT
 
+- SPEC-SYS-001 — Normative / Informative、外部SSOTと生成スナップショット（Snapshot）、衝突時優先順位の全体原則。
 - SPEC-SYS-002 — pack 抽出根拠（`include_in`）やセクション解決規約（registry/guide）の SSOT。
 - SPEC-SYS-003 — `trace` の意味論・一般制約・ルールID体系（artifact が依拠する意味論の SSOT）。
 - SPEC-SYS-005 — lint 実行/exit code/CI ゲート、および pack 運用・出力先などの運用仕様。

@@ -14,6 +14,7 @@ status: draft # draft|review|stable|deprecated
 - kind: reference（scope: spec_system）
 - 本仕様は、iori-spec ツールの **実行仕様（Run / Config / Profile / Gate / exit code）**を定義する。
 - 成果物契約は SPEC-SYS-004、`trace` の意味論・ルールID/プロファイル例は SPEC-SYS-003、セクション定義は SPEC-SYS-002 を正とし、本仕様はそれらに基づく **手順と運用（プロファイル、ゲート、exit code）**を規範化する。
+- 規範（Normative）のSSOT（ルールカタログ／プロファイル／スキーマ等）は **機械可読な外部ファイル**に外部化し、仕様書内の生成スナップショット（DO NOT EDIT）は doc-sync により同期検証できるように運用する。
 
 ## このドキュメントの役割
 
@@ -21,6 +22,7 @@ status: draft # draft|review|stable|deprecated
   - ツールの実行モデル（Run）、入力（Spec Root）、設定の解決順、既定値
   - プロファイルの指定・保管・優先順位
   - lint の実行範囲（構造lint + trace-lint）、Quality Gate（PASS/FAIL）、exit code
+  - doc-sync（外部SSOT→仕様書内 Snapshot 再生成／差分検証）と、その結果の Gate/exit code への接続
   - context pack の生成の起点（seed / lint連携）と “運用としての” 既定挙動
   - index の扱い（pack/lint の前提工程として必須）と最小の運用境界
 - 何を決めないか（他仕様へ委譲）
@@ -70,7 +72,8 @@ status: draft # draft|review|stable|deprecated
 ### 前提（必須依存）
 
 - pack の抽出根拠は SPEC-SYS-002 の `include_in: pack` を用いる（抽出対象の SSOT）。
-- lint のルールID（FM### / S### / T### 等）とプロファイル例（strict / balanced / exploratory）は、各 SSOT（SPEC-SYS-006/002/003）を正とする。
+- lint のルールID（FM### / S### / T### 等）と内蔵プロファイル（strict / balanced / exploratory）の割当は、外部SSOT（ルールカタログ／profiles）を正とする。
+  - ただし、ルールの意味論（何を違反とみなすか）と適用範囲は SPEC-SYS-006/002/003 を正とする。
 - pack / lint_report は `source_index`（index_digest / index_contract_version）を必須とする（SPEC-SYS-004 の要件）。よって **index_digest を得られること**は本仕様の前提となる。
 
 ---
@@ -88,7 +91,8 @@ status: draft # draft|review|stable|deprecated
 3. **プロファイル機構**（profile の指定・解決・未割当時の既定 severity）
 4. **Quality Gate（PASS/FAIL）**の意味論（threshold と判定規則）
 5. **exit code** の意味論（0/1/2 の固定）
-6. 成果物契約への準拠（SPEC-SYS-004）
+6. **doc-sync**（外部SSOT→仕様書内 Snapshot の再生成／差分検証）と、Gate への接続
+7. 成果物契約への準拠（SPEC-SYS-004）
    - lint_report の `run_status` 算出
    - pack/lint_report の `source_index`（index_digest / index_contract_version）の付与
 
@@ -114,7 +118,7 @@ status: draft # draft|review|stable|deprecated
 - Run は次のフェーズを持つ（MUST）:
   1. **scan**: Spec Root を走査し対象 spec を収集
   2. **index**: SPEC-SYS-004 の index（spec_index.jsonl）を生成し、`index_digest` を算出
-  3. **lint**: index（および必要な本文情報）を入力として lint を実行し、lint_report を生成
+  3. **lint**: index（および必要な本文情報）を入力として lint（構造lint + trace-lint + doc-sync（任意））を実行し、lint_report を生成
   4. **pack**（任意）: seed または lint 結果から pack を生成
 
 > NOTE: pack / lint_report が `source_index` を必須とするため、Run から index フェーズを欠落させてはならない（MUST NOT）。
@@ -172,6 +176,7 @@ status: draft # draft|review|stable|deprecated
   - `scan.include_globs` / `scan.exclude_globs`（サポートする場合）
   - 構造lintに影響する設定（例：unknown_sections policy）
   - `pack.limits` / `pack.follow.*`（サポートする場合）
+  - `doc_sync.mode`（サポートする場合）
 
 ### 既定の設定ファイル位置（SHOULD）
 
@@ -187,6 +192,7 @@ config は少なくとも次を表現できる（MUST）。
 - `output_root`（省略時は `<spec_root>/artifacts`）
 - `profile`（省略時は `balanced`）
 - `gate.threshold`（省略時はプロファイル既定に従う）
+- （任意）`doc_sync.mode`（`off|check|write`。省略時は `off`。CI では `check` を推奨）
 - `pack.limits`（max_specs / max_chars など。省略時は実装既定）
 - （任意）`pack.follow.trace_edges`（省略時は実装既定。pack manifest には必ず記録されること）
 - （任意）`scan.include_globs` / `scan.exclude_globs`
@@ -208,6 +214,8 @@ output_root: artifacts
 profile: balanced
 gate:
   threshold: error
+doc_sync:
+  mode: check
 taxonomy:
   scopes: ["spec_system", "cli", "builder"]
   variants:
@@ -225,7 +233,8 @@ pack:
 
 - プロファイルは「ルールID（FM### / S### / T### 等）→ severity（error|warn|info）」の割当を持つ運用設定である（MUST）。
 - 内蔵プロファイル名は `strict` / `balanced` / `exploratory` を提供する（MUST）。
-- 内蔵プロファイルの内容（割当）は **SPEC-SYS-003 の例と一致**しなければならない（MUST）。
+- 内蔵プロファイルの内容（割当）は、外部SSOTとして配布される **`.iori-spec/profiles/{strict,balanced,exploratory}.yaml`** を正とし、それらと一致しなければならない（MUST）。
+- SPEC-SYS-003 に記載される例は参考（Informative）であり、衝突時の正は profiles 側である。
 - 内蔵プロファイルの割当を変更することは、CI の挙動を変え得るため **互換性破壊（MAJOR）**として扱う（MUST）。
 - 内蔵プロファイルの `gate.threshold` 既定（strict=warn 等）を変更することも同様に **互換性破壊（MAJOR）**として扱う（MUST）。
 
@@ -238,6 +247,12 @@ pack:
 - カスタムプロファイル等で、既知のルールIDに割当が存在しない場合、既定 severity は `info` とする（MUST）。
 
   - 目的: ルール追加時に突然 FAIL が増えることを避け、運用者が明示的にゲートを強化できるようにする。
+
+### 規範ファイル（Normative Artifacts）の解決（SHOULD）
+
+- 内蔵プロファイル（`strict|balanced|exploratory`）は、既定で `.iori-spec/profiles/*.yaml` から解決することを推奨する（SHOULD）。
+- doc-sync（Snapshot 同期）で参照するソースは、Snapshot markers が示すパスを **`spec_root` 基準で解決**する（MUST）。
+- セキュリティと決定性のため、doc-sync は既定で `spec_root` 外への参照（`..` 等）を拒否すべきである（SHOULD）。
 
 ---
 
@@ -256,6 +271,10 @@ pack:
 3. **trace-lint**（SPEC-SYS-003 に基づく）
    - ルールID（T001..）に対応する違反検出（例：重複、自己参照、循環、最小カバレッジ 等）
 
+4. **doc-sync**（生成スナップショットの同期検証。外部SSOTと仕様書内 Snapshot の一致）
+   - Snapshot markers（BEGIN/END）に基づき、外部ソースを読み、再生成した内容と一致することを検証する
+   - 不一致は findings として報告し、Gate の対象となり得る
+
 ### front matter lint の rule_id（MUST）
 
 - front matter lint の findings は `rule_id` に `FM###` 形式を用いなければならない（MUST）。
@@ -265,7 +284,8 @@ pack:
 
 - 構造lintの findings は `rule_id` に `S###` 形式を用いなければならない（MUST）。
 
-  - 例: `S001`（必須セクション欠落）、`S002`（未知セクションの扱い違反）、`S003`（見出し重複）、`S004`（順序逸脱）
+  - 例: `S001`（必須セクション欠落）、`S002`（未知セクションの扱い違反）、`S003`（見出し重複）、`S004`（順序逸脱）、`S010`（Snapshot 不一致 / doc-sync）
+
 - `S###` の詳細定義（一覧）は、将来 SPEC-SYS-002 または別途カタログ仕様へ委譲してよい（MAY）。
 
   - ただし `S###` 形式と「構造lintも findings として出し、Gate の対象になり得る」ことは本仕様の Stable Core とする（MUST）。
@@ -451,6 +471,7 @@ pack:
   - 成熟後に `strict`（threshold=warn）へ引き上げる。
 - CI 運用（推奨）
   - CI では exit code により機械判定する（`0`: PASS / `1`: FAIL（品質ゲート違反） / `2`: 実行失敗）。
+  - 仕様書内に Snapshot（生成スナップショット）を運用する場合、CI では `doc_sync.mode=check` を有効化し、外部SSOTとの不一致を FAIL として止めることを推奨する。
   - CI の既定プロファイルは `balanced`（threshold=error）を推奨する。
   - CI とローカルの差分を減らすため、CI でも config を読み、Effective Config を固定する運用を推奨する（SHOULD）。
 - 設定運用（推奨）
@@ -474,6 +495,8 @@ pack:
   - Action: lint（trace-lint）の参照・前提（rule_id / severity / profile 既定）を更新し、CI ゲート（threshold）への影響を明記する。
 - セクション定義（SPEC-SYS-002）が変更された場合（include_in の意味変更、ordering/unknown_sections の変更など）
   - Action: 構造lint（S###）の対象・判定・既定挙動（allow/warn/error）を更新し、Gate への接続可否を点検する。
+- 規範ファイル（ルールカタログ／profiles／schemas）を更新した場合
+  - Action: doc-sync（check/write）の運用と、Snapshot の配置（SPEC-SYS-002）を点検し、CI で差分が残らないことを確認する。
 - 設定・既定値を変更した場合（新しい config key の追加、解決順の変更、既定値の変更）
   - Action: Effective Config の定義と `config_hash` の算出対象を更新し、「出力に影響する設定」が漏れていないか確認する。
 - Gate/exit code の意味論を変更した場合

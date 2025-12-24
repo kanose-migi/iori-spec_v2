@@ -13,6 +13,7 @@ status: draft # draft|review|stable|deprecated
 
 - kind: reference（scope: spec_system）として、iori-spec における仕様書群を **新規作成・修正・参照**する際の「書き方」と「運用フロー」を定義する。
 - セクションの抽出範囲は **`include_in`（特に `pack`）**を規範とし、局所コンテキストは **pack** を正として運用する。
+- 規範（Normative）の SSOT は、ルール列挙・プロファイル・スキーマ等を **機械可読な外部ファイル**に外部化し、仕様書本文は意図・解釈・運用を記述する。仕様書内には外部SSOTの **生成スナップショット（DO NOT EDIT）**を掲載し、衝突時は外部SSOTを優先する（doc-sync により同期検証）。
 - `trace` の意味論は SPEC-SYS-003、成果物契約は SPEC-SYS-004、実行/CI ゲートは SPEC-SYS-005、セクション定義は SPEC-SYS-002 を正とする
 - 本仕様はそれらの**整合性を保つための運用・編集上の不変条件**に集中する。
 
@@ -25,6 +26,7 @@ status: draft # draft|review|stable|deprecated
 - 1ファイル1ID、命名、粒度（分割）といった **編集上の不変条件**
 - セクション（H2見出し）の運用（追加・変更・未知セクションの扱い）
 - `LLM_BRIEF` / `READ_NEXT` / `trace` を使った **局所推論の導線**の作り方
+- 規範（Normative）と参考（Informative）の分離、衝突時の優先順位、および外部SSOTと生成スナップショット（Snapshot）の併用方針
 - 新規作成・修正・参照の **標準フロー**（チェックリスト含む）
 - 破壊的変更／非推奨化などの互換性に影響する変更に関する運用ルール（breaking/deprecation の分類と扱い）
 
@@ -33,6 +35,7 @@ status: draft # draft|review|stable|deprecated
 - セクション定義（registry/guide、`include_in`、ordering）: **SPEC-SYS-002**
 - `trace` の意味論・整合性ルール・ルールID体系: **SPEC-SYS-003**
 - index / pack / lint_report の成果物契約（shape・互換性・決定性）: **SPEC-SYS-004**
+- 規範（外部SSOT）ファイル（schemas / profiles / rule catalog 等）の具体仕様と互換性判断: **SPEC-SYS-004 / 005 / 006**
 - ツールの実行モデル（scan→index→lint→pack）、CIゲート・exit code・profile: **SPEC-SYS-005**
 - 物理配置（FS Layout）やコマンド名などの UX 詳細: 原則 **SPEC-SYS-004/005**（本仕様では必要最小限の指針のみ）
 
@@ -42,6 +45,7 @@ status: draft # draft|review|stable|deprecated
 - 仕様ファイルの標準セクション（H2見出し）を、どの順序で配置すべきか。
 - 標準セクションを追加・変更したい場合、どの SSOT をどの手順で更新すべきか。
 - `trace` / mentions / `READ_NEXT` を、それぞれどの役割（SSOT / 補助 / 導線）として扱うべきか。
+- 規範（外部SSOT）と仕様書本文（Informative）、仕様書内 Snapshot の衝突をどの優先順位で解決すべきか。
 - 新規作成・修正・参照の各フェーズで、どのフローに従えば破綻しにくいか。
 - PR 前に確認すべき最小チェックリストは何か。
 
@@ -64,7 +68,7 @@ status: draft # draft|review|stable|deprecated
 
 ### 前提（Assumptions）
 
-- 仕様ファイルは YAML front matter を持つ。
+- 仕様ファイルは YAML front matter を持つ（SPEC-SYS-006）。
 - `id` はグローバル一意であり、参照可能である。
 - セクション（H2見出し）の規範は `spec_sections_registry.yaml` / `spec_sections_guide.yaml`（SPEC-SYS-002）で定義される。
 - 局所コンテキストとして LLM に渡す対象は、原則として `include_in: pack` により抽出される（成果物としての pack は SPEC-SYS-004、生成運用は SPEC-SYS-005）。
@@ -76,6 +80,10 @@ status: draft # draft|review|stable|deprecated
 - **Stable Core / Edge**: 互換性・決定性・CI 安定性の観点で固定すべき領域（Core）と、改善速度優先で変化を許容する領域（Edge）。
 - **pack**: LLM に渡す局所コンテキスト束。抽出根拠は `include_in: pack`（SPEC-SYS-002）であり、成果物契約は SPEC-SYS-004。
 - **mentions**: 本文中の ID 言及。`trace`（SSOT）を補助するが、関係の規範根拠にはしない（SPEC-SYS-003）。
+- **Normative（規範）**: ツールと人が「正」とみなす規範。原則として **機械可読な外部ファイル（YAML/JSON/Schema）**を SSOT とする（例: lint rule catalog / severity profiles / schemas）。
+- **Informative（参考）**: 説明、背景、例、運用上の補足。仕様書本文は原則 Informative として扱う（衝突時に「正」とはならない）。
+- **Snapshot（生成スナップショット）**: 外部SSOTの内容を仕様書内へ埋め込んだ表示用ブロック。**派生物**であり、手編集しない（DO NOT EDIT）。
+- **doc-sync**: 外部SSOT → 仕様書内 Snapshot を再生成し、差分がないこと（diffゼロ）を検証する手順。CI ゲートへ統合され得る（詳細は SPEC-SYS-005）。
 
 ## 編集上の不変条件（Authoring Invariants）
 
@@ -110,6 +118,8 @@ status: draft # draft|review|stable|deprecated
 - **曖昧参照**（「これ」「上記」「例のやつ」等、ID によらない参照）を規範根拠として使ってはならない（MUST NOT）。
 - **本文だけで関係が分かる前提**（trace を書かずに本文で匂わせる）に依存してはならない（MUST NOT）。
 - セクション見出しの表記ゆれ（registry 定義の H2 と不一致）を放置してはならない（MUST NOT）。扱いは SPEC-SYS-002 の `policy.unknown_sections` に従う。
+- **生成スナップショットの手編集**（DO NOT EDIT ブロックの直接編集）をしてはならない（MUST NOT）。更新は外部SSOTの変更を起点に doc-sync（再生成）で行う。
+- **規範の二重定義**（外部SSOTと本文の双方で同一の列挙・スキーマ・プロファイルを手で維持する）に依存してはならない（MUST NOT）。衝突時の正は外部SSOTである。
 
 ## セクション運用（H2見出し）
 
@@ -139,6 +149,21 @@ status: draft # draft|review|stable|deprecated
 
 - ID 間の関係（実装可能性・検証可能性・依存・置換）は **`trace` に記述する**（MUST）。意味論は SPEC-SYS-003。
 - 本文中の ID 言及（mentions）は補助であり、規範根拠にはしない（SHOULD）。根拠: SPEC-SYS-003。
+
+### Normative / Informative と衝突解決（MUST）
+
+- 本リポジトリにおける「正（SSOT）」は、原則として **Normative（機械可読な外部ファイル）**に置く（MUST）。
+  - 例: lint rule catalog（FM/S/T の列挙）、severity profiles（strict/balanced/exploratory）、各種 schema（front matter / config / artifacts）。
+- 仕様書本文（Markdown）は原則 **Informative** として扱い、意図・解釈・運用・例を記述する（SHOULD）。
+- **衝突時の優先順位**は以下とする（MUST）。
+  1. 外部SSOT（Normative）
+  2. 本文中の説明（Informative）
+  3. 例・サンプル・スクリーンショット等（Informative）
+- 仕様書内に掲載する Snapshot は閲覧導線であり、規範の一次ソースではない（MUST）。
+
+### Snapshot と doc-sync（SHOULD）
+
+- 仕様書の可読性とレビュー性のため、外部SSOTの主要部分は仕様書内に **生成スナップショット（Snapshot）**として掲載してよい（SHOULD）。
 
 ### READ_NEXT の位置づけ（SHOULD）
 
@@ -188,6 +213,7 @@ status: draft # draft|review|stable|deprecated
 - registry 定義の H2 見出しが完全一致している（表記ゆれなし）
 - REQ は `trace.satisfied_by`（IF 1+）と `trace.verified_by`（TEST 1+）を満たす（DATA 必須なら coverage_hints を含む）
 - `READ_NEXT` が局所推論の導線として最低限機能する（関連IDが具体的）
+- 外部SSOT（schemas/profiles/catalog 等）を更新した場合、doc-sync により仕様書内 Snapshot が更新され、差分が残らない（diffゼロ）
 - lint が PASS（またはプロファイルの許容範囲）である
 
 ## USAGE
@@ -247,6 +273,7 @@ status: draft # draft|review|stable|deprecated
 ### ツール運用（lint / index / pack）
 
 - PR の単位で `lint`（必要に応じて trace-lint を含む）と `pack` を回し、「違反を直してから次へ進む」を基本とする（ゲート詳細は SPEC-SYS-005）。
+- 規範（外部SSOT）と仕様書内 Snapshot を併用する場合、doc-sync（再生成と一致検証）を lint/pack と同列の定常手順として扱う（SHOULD）。CI は doc-sync 不一致を失敗として扱い得る（詳細は SPEC-SYS-005）。
 - 仕様の差分レビューを安定させるため、見出し順・配列順・正規化は成果物契約（SPEC-SYS-004）の方針に寄せる。
 - CI とローカルの差分が運用事故になりやすい。可能な限り同一プロファイル/同一前提（設定）で評価できるよう運用を整える（詳細は SPEC-SYS-005）。
 

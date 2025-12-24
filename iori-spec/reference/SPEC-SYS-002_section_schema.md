@@ -28,6 +28,7 @@ status: draft # draft|review|stable|deprecated
   - registry と guide の `section_id` はどのように 1:1 対応し、違反はどう検出されるか
   - unknown section（registry 未定義の見出し）をどう扱うか（allow/warn/error）をどこで規定するか
   - `include_in`（index/render/pack）と `priority` をどう解釈し、生成物の決定性をどう担保するか
+  - 外部SSOT（規範）を参照するための `Normative References` / 外部SSOTの内容を掲載する `Generated Snapshot` を標準セクションとして扱う場合、どこで規定し、抽出方針をどう置くべきか
   - 機械可読スキーマ（Validation Schema）と本仕様の優先関係はどうなるか
 
 ## 範囲（Scope）と前提
@@ -56,6 +57,8 @@ status: draft # draft|review|stable|deprecated
 - `section_id`: セクションを同定する論理キー（template / lint / 抽出のキー）
 - `heading`: 実際の Markdown H2 見出しテキスト（`##` を除いた文字列）
 - `include_in`: 抽出用途の集合（`index` / `render` / `pack`）
+- `Normative References（規範参照）`: 当該 spec が依拠する外部SSOT（規範ファイル）への参照を列挙する共通セクション（推奨）
+- `Generated Snapshot（生成スナップショット）`: 外部SSOT内容の表示用スナップショット（DO NOT EDIT）を格納する共通セクション（推奨）
 - `variant`: front matter の kind 内一次分類（SPEC-SYS-006）。`applies_to_variants` を用いたセクション分岐の入力。
 
 ## スキーマ表現（概念モデル）
@@ -105,6 +108,11 @@ status: draft # draft|review|stable|deprecated
 
 （NOTE: CLI のコマンド名は将来変わり得るため、仕様上は「用途概念（index/render/pack）」を安定値として固定する。）
 
+### 外部SSOT参照と Snapshot の位置づけ（概念）
+
+- `Normative References（規範参照）` は、spec が依拠する外部SSOT（例: rule catalog / profiles / schemas）を列挙し、閲覧・レビュー・ツール運用の導線を与えるための共通セクションである。
+- `Generated Snapshot（生成スナップショット）` は、外部SSOTの内容を仕様書側に「書いてある状態」で提示するための表示用ブロックを収容する。内容は派生物であり、手編集しない（DO NOT EDIT）。
+
 ## セクションの並び順（Ordering）
 
 - 本仕様が定義する priority は、テンプレ生成・表示・抽出の決定性を担保するための基準である。人間が読む仕様書の可読性と差分の安定性を高めるため、各ファイルは原則として以下の順序で H2 見出しを配置する。
@@ -118,7 +126,9 @@ status: draft # draft|review|stable|deprecated
    - 当該 kind に適用されるセクションを priority 昇順で並べる（registry の定義が正）。
 5. **USAGE**（どう使うか：人間向け運用/参照方法）
 6. **運用上の目安（LLM / SDD 観点）**（LLM運用・分割・更新ルール）
-7. **READ_NEXT**
+7. **Normative References（規範参照）**（外部SSOTの参照先。推奨）
+8. **Generated Snapshot（生成スナップショット）**（外部SSOTの表示用スナップショット。推奨）
+9. **READ_NEXT**
 
 ## 定義ファイル仕様（Registry / Guide）
 
@@ -224,6 +234,13 @@ status: draft # draft|review|stable|deprecated
 - `## 運用上の目安（LLM / SDD 観点）`
 - `## READ_NEXT`
 
+## 全 kind 共通（core SHOULD）
+
+`stability`: core を持つ spec で推奨される H2 見出し：
+
+- `## Normative References（規範参照）`
+- `## Generated Snapshot（生成スナップショット）`
+
 ### include_in の推奨デフォルト（非規範）
 
 - `LLM_BRIEF`: `[index, render, pack]`
@@ -232,6 +249,8 @@ status: draft # draft|review|stable|deprecated
 - `USAGE`: `[render]`
 - `運用上の目安（LLM / SDD 観点）`: `[render]`
 - `READ_NEXT`: `[index, render, pack]`
+- `Normative References（規範参照）`: `[index, render, pack]`
+- `Generated Snapshot（生成スナップショット）`: `[render]`（NOTE: 大容量化し得るため、既定では index/pack から除外することを推奨）
 
 ## 追加セクション（自由拡張）の扱い
 

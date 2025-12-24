@@ -23,7 +23,7 @@ status: draft # draft|review|stable|deprecated
 - `trace` を「ID 間の関係（Edge）」の **SSOT** として定義し、仕様ファイル群を **グラフ**として扱えるようにする。
 - `trace` の **意味論（Semantics）・記法（Syntax）・最小整合性ルール** を定義し、ツールが機械的に点検できる最小核（core）を与える。
 - REQ が IF/DATA/TEST により **実装可能・検証可能** な形に落ちているかを、最小カバレッジ条件として定義する。
-- lint が指摘するための **標準ルール ID（Lint Rule Catalog）** を定義する（重大度や CI ゲートは別管理）。
+- lint が指摘するための **標準ルール ID（T###）の意味（検出対象）**を定義する（重大度や CI ゲートは別管理）。ルール一覧・メッセージ等の機械可読な SSOT は、外部ファイル（rule catalog）に外部化し得る。
 
 ### 何を決めないか（委譲先）
 
@@ -54,7 +54,7 @@ status: draft # draft|review|stable|deprecated
 
 ### 前提（Assumptions）
 
-- 仕様ファイルは YAML front matter を持つ。
+- 仕様ファイルは YAML front matter を持つ（SPEC-SYS-006）。
 - `id` はグローバル一意で、参照可能である。
 - `trace` は YAML front matter に記載される。
 
@@ -323,8 +323,12 @@ trace:
 
 ## ルールID体系（Lint Rule Catalog）
 
-本仕様は、lint が指摘するための標準ルール ID を定義する。
+本仕様は、trace-lint が指摘するための **標準ルール ID（T###）**の意味（検出対象）を定義する。
 重大度（ERROR/WARN/INFO）と CI ゲートは「プロファイル」で定義する。
+
+- ルールの **機械可読なカタログ（rule_id 一覧・メッセージ・説明等）**を外部ファイルとして管理する場合、それを **Normative（規範）SSOT**として扱ってよい（例: `docs/spec_system/lint_rule_catalog.yaml` 等）。
+- 本節に掲載する一覧は、人間の閲覧性のために保持してよいが、外部カタログを SSOT とする場合は **生成スナップショット（DO NOT EDIT）**として再生成可能であること（doc-sync）を前提とする（手順は SPEC-SYS-005）。
+- 構造（rule_id の存在・名称・メッセージ等）に関して衝突がある場合は外部カタログを優先し、`trace` の意味論・最小整合性ルール（何を違反とみなすか）の規範は本仕様（SPEC-SYS-003）を優先する（SPEC-SYS-001 の原則に従う）。
 
 - **T001**: REQ が `satisfied_by` に IF を含まない（Missing IF satisfaction）
 - **T002**: REQ が `verified_by` に TEST を含まない（Missing verification）
@@ -344,7 +348,11 @@ trace:
 ## 重大度プロファイル（Severity Profiles）
 
 プロファイルは運用設定であり、具体の格納場所・指定方法は SPEC-SYS-005 が規定する。
-本仕様では代表的なプロファイル例を示す。
+
+- **Normative（規範）**: 内蔵プロファイル（`strict/balanced/exploratory`）を外部SSOTとして配布する場合、その内容は `.iori-spec/profiles/{strict,balanced,exploratory}.yaml` を正とする（SPEC-SYS-005）。
+- 本節は **説明用の例（Informative）**である。衝突時の正は profiles 側である。
+
+本仕様では代表的なプロファイル例を示す（参考）。
 
 ### Profile: strict（厳格）
 

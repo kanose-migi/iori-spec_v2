@@ -13,7 +13,8 @@ status: draft # draft|review|stable|deprecated
 
 - kind: reference
 - 本仕様は、iori-spec の各 spec ファイル先頭に置く **YAML front matter** の「必須キー・型・記法・拡張方針」を SSOT として定義する。
-- 本仕様は **front matter としての配置・必須性・型制約**を規範化する。
+- 本仕様は **front matter としての配置・必須性・型制約**を規範化する（意味論・運用上の制約を含む）。
+- 併せて、構造検証のための **front matter schema（JSON Schema 等）**や、FM ルール列挙の **rule catalog** を外部ファイル（Normative SSOT）として配布し、仕様書側には **生成スナップショット（DO NOT EDIT）**を掲載できる前提で、衝突時の優先順位と doc-sync（同期検証）を定義する。
 - `trace` の意味論・記法は SPEC-SYS-003、ツール成果物（index/pack/lint_report）の契約は SPEC-SYS-004、設定解決と profile/gate は SPEC-SYS-005 を正とする。
 - `variant`（kind 内一次分類）を追加し、テンプレ生成・lint の分岐を **`kind + variant`** で決定的に行えるようにする（ADR-SPEC-001）。
 
@@ -26,6 +27,7 @@ status: draft # draft|review|stable|deprecated
 - `kind`（グローバル enum）と `scope`（プロジェクト taxonomy）の **設計と検査方針**
 - 追加メタデータの **拡張方針**（既存 Consumer を壊さない拡張の作法）
 - front matter 由来の **lint ルール（ルールID）**の定義
+- 構造検証（schema）・ルール列挙（rule catalog）を外部SSOT化する場合の **優先順位（衝突解決）**と、仕様書内スナップショット（Snapshot）の位置づけ
 
 ### 何を決めないか（委譲先）
 
@@ -98,6 +100,9 @@ status: draft
 - **kind（グローバル enum）**: iori-spec が「ファイルをどう扱うか」を決める分類キー。
 - **scope（project taxonomy）**: プロジェクト内の分類軸。`root` は enum で検査し、`.subpath` は自由分類。
 - **Taxonomy**: `kind`/`scope` の許容語彙を列挙した一覧（config 経由で供給され得る）。
+- **Normative Artifact**: ツールと人が「正」とみなす規範（SSOT）として運用される外部ファイル（例: front matter schema / lint rule catalog / severity profiles）。
+- **Snapshot（生成スナップショット）**: Normative Artifact の内容を仕様書内へ埋め込んだ表示用ブロック。派生物であり手編集しない（DO NOT EDIT）。
+- **doc-sync**: 外部SSOT → 仕様書内 Snapshot を再生成し、差分がないこと（diffゼロ）を検証する手順（手順は SPEC-SYS-005）。
 
 ## YAML front matter の記法（Syntax）
 
@@ -150,6 +155,26 @@ status: draft
 
 > NOTE: front matter はツール都合のメタ情報であるため、「人間に意味がある」軸は主に `kind/scope/spec_title/status` に集約される。
 > 一方で iori-spec の運用不変条件（1ファイル1ID、Stable Core 境界）を満たすため、`id/stability` も必須とする。
+
+## Front Matter Validation Schema（External SSOT）
+
+### 基本方針
+
+- front matter の **構造（shape）**を機械的に検証するための schema（JSON Schema 等）は、外部ファイルとして配布してよい（MAY）。
+- schema を **構造（shape）の SSOT（Normative）**として運用する場合、構造に関する衝突は schema を優先する（MUST）。
+  - 例: 必須キーの有無、型、enum（`status`/`stability` など）、`kind/scope` の書式（正規表現）など
+- 一方で、schema で表現しきれない／表現しないことがある **運用上の制約（例: YAML サブセット制約、taxonomy の供給と例外許容、段階導入の方針）**は本仕様を正とする（MUST）。
+
+### 想定する配布単位（例）
+
+（パスは例であり、実際の配置はプロジェクトで確定する。）
+
+- `schemas/front_matter.schema.json`
+
+### 仕様書内掲示（Snapshot）
+
+- schema を仕様書側に掲載する場合は Snapshot（生成スナップショット）として掲示し、手編集してはならない（MUST NOT）。
+- Snapshot は外部 schema から決定的に再生成可能（diffゼロ）であることを前提とし、doc-sync（SPEC-SYS-005）で同期検証され得る（SHOULD）。
 
 ## `kind`（MUST, global enum）
 
@@ -348,8 +373,12 @@ taxonomy:
 
 ## lint 観点（本仕様から導ける検査）
 
-本仕様は、lint が指摘するための標準ルール ID を定義する。
+本仕様は、lint が指摘するための標準ルール ID（FM###）の **意味（検出対象）**を定義する。
 重大度（error/warn/info）と CI ゲートはプロファイルで定義する（SPEC-SYS-005）。
+
+- ルールの **機械可読なカタログ（rule_id 一覧・メッセージ等）**を外部ファイルとして管理する場合、それを **Normative（規範）SSOT**として扱ってよい（例: `docs/spec_system/lint_rule_catalog.yaml` 等）。
+- 本節に掲載する一覧は、人間の閲覧性のために保持してよいが、外部カタログを SSOT とする場合は **生成スナップショット（DO NOT EDIT）**として再生成可能であること（doc-sync）を前提とする（手順は SPEC-SYS-005）。
+- 構造（rule_id の存在・名称・メッセージ等）に関して衝突がある場合は外部カタログを優先し、本仕様は「何を違反とみなすか（検出対象）」の意味論を正として維持する（SPEC-SYS-001 の原則に従う）。
 
 ### ルールID体系（Front Matter）
 
@@ -461,6 +490,7 @@ status: draft
 
 - PR 時: front matter 由来の lint 指摘（FM***）を早期に解消し、`kind/scope/id` の揺れを放置しない（index の探索性・影響分析が崩れるため）。
 - taxonomy 導入時: 未定義 scope_root を “即 ERROR 固定” にしない運用（warning 想定）を取る場合は、プロファイルと Gate 閾値の組み合わせで段階導入する。
+- front matter schema / rule catalog を外部SSOTとして運用する場合、仕様書内 Snapshot は doc-sync で同期し、差分が残らない（diffゼロ）ことを CI で担保する（推奨。詳細は SPEC-SYS-005）。
 
 ### 更新時の作法（どう更新するか）
 
