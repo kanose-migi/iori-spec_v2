@@ -1,7 +1,7 @@
 version: "0.1"
 policy:
   # 追加の自由なセクション（layer3）は許可する
-  unknown_sections: allow   # allow|warn|error（省略時 allow）
+  unknown_sections: allow # allow|warn|error（省略時 allow）
 sections:
   # ===== layer1: 全 core spec 共通 =====
   - section_id: llm_brief

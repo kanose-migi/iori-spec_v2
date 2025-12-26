@@ -46,7 +46,7 @@ sections:
   #     - 「抽象度/責務として扱わない」→ doc_role（例: UI 詳細は扱わない）
   #     - 「適用境界として今回の対象外」→ scope_and_assumptions（例: 定期便は除外）
   #     - requirements の “非ゴール(Backlog含む)” は req_nongoals を優先（重複は最小化）
-  
+
   - section_id: doc_role
     purpose: |
       この spec の責務（何を決める／何を決めない）を明示するセクション。
@@ -226,7 +226,7 @@ sections:
           - `data_contracts/DATA-201_order_and_payment.md` — 契約と互換性方針（破壊的変更の回避）
           - `architecture/order_domain_overview.md` — ドメイン境界と責務分割（例外系の理解補助）
           - `tests/TEST-201_order_creation_integration.md` — 統合テスト観点（外部依存・回帰の防止）
-          
+
   - section_id: operation_guidelines
     purpose: |
       この spec を継続的に正しく保つための運用ルールを記録するセクション。
