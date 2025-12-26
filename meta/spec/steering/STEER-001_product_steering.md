@@ -11,7 +11,8 @@ status: draft # draft|review|stable|deprecated
 
 ## LLM_BRIEF
 
-- kind: steering（scope: spec_system）として、iori-spec の**プロダクト指針（目的・非目的・成功指標）**を定義する。
+- kind: steering（scope: spec_system）
+- iori-spec の**プロダクト指針（目的・非目的・成功指標）**を定義する。
 - 本仕様は、要件（REQ）や境界（IF/DATA/TEST）を設計する際の意思決定の“上位基準”を提供する（詳細は各 REQ に委譲）。
 - 技術方針（設計原則・互換性方針）は STEER-002 を正とし、本仕様は **「何のために作るか／何を作らないか／どう成功を測るか」** に集中する。
 
@@ -46,7 +47,7 @@ status: draft # draft|review|stable|deprecated
 - 仕様体系（REQ/IF/DATA/TEST）を増やすとき、何を優先するか（優先順位の原則）
 - 主要ユースケースは何で、どの REQ 群に分解されるべきか（導線）
 
-## 範囲（Scope）と前提
+## 範囲（Scope）と前提（Assumptions）
 
 ### 対象（In scope）
 

@@ -3,7 +3,7 @@ kind: steering
 scope: spec_system
 id: STEER-002
 spec_title: "Technical Steering (Stable Core Boundary / Compatibility Policy)"
-stability: core # core|extensionstatus
+stability: core # core|extension
 status: draft # draft|review|stable|deprecated
 ---
 
@@ -11,7 +11,8 @@ status: draft # draft|review|stable|deprecated
 
 ## LLM_BRIEF
 
-- kind: steering（scope: spec_system）として、iori-spec の技術指針（Stable Core 境界、依存方向、互換性・決定性の方針）を定義する。
+- kind: steering（scope: spec_system）
+- iori-spec の技術指針（Stable Core 境界、依存方向、互換性・決定性の方針）を定義する。
 - 本仕様は「どこを安定させ、どこを拡張に任せるか」「互換性に影響する変更をどう分類し、どう扱うか」の上位基準を提供する。
 - プロダクト目的・非目的・成功指標は STEER-001 を正とし、本仕様はそれを実現するための技術的ガードレールに集中する。
 
@@ -45,7 +46,7 @@ status: draft # draft|review|stable|deprecated
 - ツール成果物に必要な決定性を、どのレベルで担保するべきか（再現性・順序・正規化）
 - “仕様が増えても迷わない” 状態を維持するために、どの情報をどこに残すべきか（ARCH/ADR/trace/pack）
 
-## 範囲（Scope）と前提
+## 範囲（Scope）と前提（Assumptions）
 
 ### 対象（In scope）
 

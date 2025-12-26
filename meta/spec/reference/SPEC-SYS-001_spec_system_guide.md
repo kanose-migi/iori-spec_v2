@@ -200,6 +200,29 @@ iori-spec 自身の実装用 SYS-SPEC（SPEC-SYS / ADR-SPEC 等）を指さな�
   3. 例・サンプル・スクリーンショット等（Informative）
 - 仕様書内に掲載する Snapshot は閲覧導線であり、規範の一次ソースではない（MUST）。
 
+### 外部SSOTファイルの拡張子規約（MUST）
+
+- 本節は、SSOT（Normative）系ファイルの **拡張子選定を統一**し、仕様の分散（同一規範の再掲）による修正漏れ・矛盾を抑制するための一次根拠とする（MUST）。
+- 同一内容を他仕様書へ再掲しない（MUST NOT）。他仕様書からは **本節への参照のみ**を置く（SHOULD）。
+- 拡張子の選定は以下の決定木に従う（MUST）。
+
+#### 決定木（最小）
+
+1. “構造（shape）” を検証するための **validation schema** か？ → `.schema.json`
+2. 人が継続運用する **規範データ（設定/プロファイル/ルール列挙/辞書）**か？ → `.yaml`（`.yml` は使用しない（SHOULD））
+3. 生成物（artifacts）か？ → 行指向/追記・ストリーム処理向けは `.jsonl`、それ以外は `.json`
+
+#### カテゴリ別の推奨
+
+- 人が編集する外部SSOT（設定・プロファイル・カタログ等）: `.yaml`
+  - 例: `<spec_root>/.iori-spec/config.yaml`、`<spec_root>/.iori-spec/profiles/*.yaml`、`<spec_root>/docs/spec_system/lint_rule_catalog.yaml`
+- validation schema（front matter / artifacts / config 等）: `.schema.json`
+  - 例: `<spec_root>/schemas/front_matter.schema.json`、`<spec_root>/schemas/artifacts/*.schema.json`
+- 生成物（artifacts）: `.jsonl` / `.json`
+  - 例: `<output_root>/artifacts/index/spec_index.jsonl`、`<output_root>/artifacts/pack/manifest.json`、`<output_root>/artifacts/lint/lint_report.json`
+
+- 拡張子に関する記述が他文書と矛盾する場合は、本節を正とし、他は Informative として扱う（MUST）。
+
 ### Snapshot と doc-sync（SHOULD）
 
 - 仕様書の可読性とレビュー性のため、外部SSOTの主要部分は仕様書内に **生成スナップショット（Snapshot）**として掲載してよい（SHOULD）。

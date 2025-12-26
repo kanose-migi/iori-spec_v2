@@ -95,7 +95,6 @@ taxonomy:
     data_contracts: [batch, event]
 ```
 
-````
 ### 4.3 Section registry（最小拡張）
 
 必要な場合のみ、セクションに `applies_to_variants` を追加できる。
@@ -146,4 +145,3 @@ taxonomy:
 - `variant` taxonomy を SPEC-SYS-006 に完全内包するか、プロジェクト config を SSOT として参照するか（推奨は config SSOT）。
 - `data_contracts` の `variant` をいつ必須化するか（運用開始後の実態に合わせて判断）。
 - `SPEC-SYS-004` の index/pack に `variant` を含めるか（optional 追加の可否と互換方針）。
-````
