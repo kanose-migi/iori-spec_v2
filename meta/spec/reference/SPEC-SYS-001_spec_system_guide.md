@@ -73,6 +73,45 @@ status: draft # draft|review|stable|deprecated
 - セクション（H2見出し）の規範は `spec_sections_registry.yaml` / `spec_sections_guide.yaml`（SPEC-SYS-002）で定義される。
 - 局所コンテキストとして LLM に渡す対象は、原則として `include_in: pack` により抽出される（成果物としての pack は SPEC-SYS-004、生成運用は SPEC-SYS-005）。
 
+### 利用側プロジェクトの spec_root と推奨ディレクトリ構成
+
+本節は、iori-spec を「利用する側プロジェクト」における、仕様書（Markdown）配置の推奨構成を定義する。
+ここでいう仕様書は、requirements / interfaces / data_contracts / tests / dev_tasks 等の **プロジェクト仕様**であり、
+iori-spec 自身の実装用 SYS-SPEC（SPEC-SYS / ADR-SPEC 等）を指さない。
+
+#### 推奨（デフォルト）レイアウト
+
+利用側プロジェクトは `spec_root` を1つ持ち、配下を **kind ごとのディレクトリ**で分割することを推奨する。
+（ツール実装上も探索規則が単純になり、index/lint/pack の決定性が高い。）
+
+```text
+<project>/
+  spec/                                # ← spec_root（推奨デフォルト）
+    steering/                           # STEER-xxx_*.md
+    requirements/                       # REQ-xxx_*.md
+    architecture/                       # ARCH-xxx_*.md（任意）
+    interfaces/                         # IF-xxx_*.md
+    data_contracts/                     # DATA-xxx_*.md
+    tests/                              # TEST-xxx_*.md
+    dev_tasks/                          # TASK-xxx_*.md または README.md
+    reference/                          # 補助資料（任意・プロジェクト固有）
+    impl_notes/                         # 実装メモ（任意）
+```
+
+#### 配置ルール（運用上の不変条件）
+
+- iori-spec が生成する仕様書（例: IF/DATA/TEST/TASK の md）は、原則 `spec_root/<kind>/` に配置する。
+- kind とディレクトリ名の対応は「推奨デフォルト」を持つが、必要に応じて config で上書きできる設計としてよい。
+  - ただし、プロジェクト内での **混在（同一kindが複数ディレクトリに散る）**は避ける。
+- `reference/` は「利用側プロジェクトの補助資料」置き場であり、i
+  ori-spec の SYS-SPEC（SPEC-SYS/ADR-SPEC）をここへ置くことは想定しない。
+
+#### `spec_root` / `output_root` の関係（概要）
+
+- `spec_root` は入力（仕様書群）のルートであり、index/lint/pack の探索起点となる。
+- `output_root` はツール生成物（index/pack/lint_report 等）の出力先であり、仕様書配置とは分離する。
+  - 典型: `<project>/artifacts/`（詳細は tooling 仕様および stable artifact contract を参照）
+
 ### 用語/定義（Definitions）
 
 - **規範キーワード**: 本仕様は RFC 2119 の意味で MUST / MUST NOT / SHOULD / MAY を用いる。
