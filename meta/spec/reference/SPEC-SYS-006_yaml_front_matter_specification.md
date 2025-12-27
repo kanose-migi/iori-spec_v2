@@ -169,7 +169,7 @@ status: draft
 
 （パスは例であり、実際の配置はプロジェクトで確定する。）
 
-- `schemas/front_matter.schema.json`
+- `.iori-spec/schemas/front_matter.schema.json`
 
 ### 仕様書内掲示（Snapshot）
 
@@ -338,30 +338,23 @@ extensions:
 
 project taxonomy は、既定の config 位置（SPEC-SYS-005）に含めることを推奨する（SHOULD）。
 
-- `<spec_root>/.iori-spec/config.yaml`
+- `<project_root>/.iori-spec/config.yaml`
 
 ### 最小スキーマ（本仕様が追加する部分）
 
-config の最小スキーマは SPEC-SYS-005 を正とし、本仕様は以下の `taxonomy` を追加で定義する。
+config の最小スキーマは SPEC-SYS-005 を正とし、本仕様は front matter 検査に必要な語彙（taxonomy）を`vocab` として供給する形を推奨する。
 
 ```yaml
-taxonomy:
-  kinds: # 任意（MAY）。追加 kind（Effective Kinds の拡張）として扱う
-    - dev_tasks
-    - impl_notes
-  scopes: # 推奨（SHOULD）。scope_root の推奨語彙（project enum）
-    - spec_system
-    - functional
-    - nonfunctional
-    - traceability
-    - cli
-    - builder
-    - docs
+vocab:
+  kinds: # 任意（MAY）。Effective Kinds の追加語彙（ツール既定 + 追加）
+    - id: "dev_tasks"
+      label: "Dev Tasks"
+      dir: "dev_tasks"
+  scopes: # 推奨（SHOULD）。scope_root の語彙（project enum）。".subpath" は自由
+    - id: "spec_system"
+      label: "Spec System"
   variants: # 任意（MAY）。kind 内一次分類（kind-local enum）
     requirements: ["functional", "nonfunctional"]
-    interfaces: ["external", "internal"]
-    tests: ["unit", "integration", "contract"]
-    data_contracts: ["batch", "event"]
 ```
 
 ### 検査規約
@@ -377,6 +370,7 @@ taxonomy:
 重大度（error/warn/info）と CI ゲートはプロファイルで定義する（SPEC-SYS-005）。
 
 - ルールの **機械可読なカタログ（rule_id 一覧・メッセージ等）**を外部ファイルとして管理する場合、それを **Normative（規範）SSOT**として扱ってよい（例: `docs/spec_system/lint_rule_catalog.yaml` 等）。
+  - 推奨配置（標準）: `.iori-spec/lint/lint_rule_catalog.yaml`
 - 本節に掲載する一覧は、人間の閲覧性のために保持してよいが、外部カタログを SSOT とする場合は **生成スナップショット（DO NOT EDIT）**として再生成可能であること（doc-sync）を前提とする（手順は SPEC-SYS-005）。
 - 構造（rule_id の存在・名称・メッセージ等）に関して衝突がある場合は外部カタログを優先し、本仕様は「何を違反とみなすか（検出対象）」の意味論を正として維持する（SPEC-SYS-001 の原則に従う）。
 

@@ -127,11 +127,9 @@ status: draft # draft|review|stable|deprecated
 
 ### 想定する配布単位（例）
 
-（パスは例であり、実際の配置はプロジェクトで確定する。）
-
-- `schemas/artifacts/index.schema.json`
-- `schemas/artifacts/pack_manifest.schema.json`
-- `schemas/artifacts/lint_report.schema.json`
+- `.iori-spec/schemas/artifacts/index.schema.json`
+- `.iori-spec/schemas/artifacts/pack_manifest.schema.json`
+- `.iori-spec/schemas/artifacts/lint_report.schema.json`
 
 ## 生成スナップショット契約（Generated Snapshot Contract）
 
@@ -402,7 +400,7 @@ index の manifest は補助であり、存在しない場合でも index 利用
   "complete": true,
   "diagnostics": { "errors": [] },
   "index_digest": "sha256:...",
-  "locations": { "spec_index_jsonl": "artifacts/index/spec_index.jsonl" },
+  "locations": { "spec_index_jsonl": "artifacts/spec_index.jsonl" },
   "extensions": {}
 }
 ```
@@ -582,7 +580,7 @@ lint の manifest は補助であり、存在しない場合でも lint_report �
   "profile": "balanced",
   "run_status": "warning",
   "counts": { "findings": 7 },
-  "locations": { "lint_report_json": "artifacts/lint/lint_report.json" },
+  "locations": { "lint_report_json": "artifacts/reports/lint_report.json" },
   "complete": true,
   "diagnostics": { "errors": [] },
   "extensions": {}
@@ -598,12 +596,12 @@ lint の manifest は補助であり、存在しない場合でも lint_report �
 
 推奨（例）:
 
-- `artifacts/index/spec_index.jsonl`
-- `artifacts/index/manifest.json`（任意）
-- `artifacts/pack/manifest.json`（必須）
-- `artifacts/pack/pack.md`（任意）
-- `artifacts/lint/lint_report.json`
-- `artifacts/lint/manifest.json`（任意）
+- `artifacts/spec_index.jsonl`
+- `artifacts/spec_index.manifest.json`（任意）
+- `artifacts/packs/<pack_id>/manifest.json`（必須）
+- `artifacts/packs/<pack_id>/pack.md`（任意）
+- `artifacts/reports/lint_report.json`
+- `artifacts/reports/lint.manifest.json`（任意）
 
 ## スキーマ配布（Validation Schemas）
 

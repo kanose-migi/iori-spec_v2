@@ -103,14 +103,33 @@ iori-spec 自身の実装用 SYS-SPEC（SPEC-SYS / ADR-SPEC 等）を指さな�
 - iori-spec が生成する仕様書（例: IF/DATA/TEST/TASK の md）は、原則 `spec_root/<kind>/` に配置する。
 - kind とディレクトリ名の対応は「推奨デフォルト」を持つが、必要に応じて config で上書きできる設計としてよい。
   - ただし、プロジェクト内での **混在（同一kindが複数ディレクトリに散る）**は避ける。
-- `reference/` は「利用側プロジェクトの補助資料」置き場であり、i
-  ori-spec の SYS-SPEC（SPEC-SYS/ADR-SPEC）をここへ置くことは想定しない。
+- `reference/` は「利用側プロジェクトの補助資料」置き場であり、iori-spec の SYS-SPEC（SPEC-SYS/ADR-SPEC）をここへ置くことは想定しない。
 
 #### `spec_root` / `output_root` の関係（概要）
 
 - `spec_root` は入力（仕様書群）のルートであり、index/lint/pack の探索起点となる。
 - `output_root` はツール生成物（index/pack/lint_report 等）の出力先であり、仕様書配置とは分離する。
   - 典型: `<project>/artifacts/`（詳細は tooling 仕様および stable artifact contract を参照）
+
+#### プロジェクト運用SSOTの標準配置（.iori-spec/）
+
+本プロジェクトでは、運用・lint・テンプレ生成・doc-sync の根拠となる **Normative SSOT** を、
+リポジトリ直下の **`.iori-spec/`** に一元配置する（SHOULD）。
+
+- `.iori-spec/` は **コミット対象**（規範・運用のSSOT）とする（SHOULD）。
+- `artifacts/` は **生成物**のため、既定ではコミットしない（SHOULD）。運用上は `.gitignore` を推奨する。
+- 旧来の `spec_root/ssot/` や `iori-spec/ssot/` のように **spec_root 配下へ SSOT を分散配置する運用は採用しない**（混乱防止のため）。ツールはそれらを暗黙探索してはならない（MUST NOT）。
+
+標準の SSOT ファイル一覧（例）：
+
+| 区分              | 標準パス（例）                                           |     推奨拡張子 |  手作業 | 判断理由（要点）                                 |
+| ----------------- | -------------------------------------------------------- | -------------: | ------: | ------------------------------------------------ |
+| Project config    | `.iori-spec/config.yaml`                                 |        `.yaml` |     Yes | 人間が編集しやすく、差分が読みやすい。           |
+| Severity profiles | `.iori-spec/profiles/{strict,balanced,exploratory}.yaml` |        `.yaml` |     Yes | ルールID→severity は YAML が自然。               |
+| Section registry  | `.iori-spec/sections/spec_sections_registry.yaml`        |        `.yaml` |     Yes | “定義（辞書）”は YAML が適合。                   |
+| Section guide     | `.iori-spec/sections/spec_sections_guide.yaml`           |        `.yaml` |     Yes | ガイド文（複数行）も YAML が扱いやすい。         |
+| Lint rule catalog | `.iori-spec/lint/lint_rule_catalog.yaml`                 |        `.yaml` |     Yes | ルール一覧（配列）を素直に表現できる。           |
+| JSON Schemas      | `.iori-spec/schemas/**/*.schema.json`                    | `.schema.json` | Yes/Gen | ツール互換性が高く、機械可読の一次根拠に適する。 |
 
 ### 用語/定義（Definitions）
 

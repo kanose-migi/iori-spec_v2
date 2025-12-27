@@ -113,6 +113,7 @@ status: draft # draft|review|stable|deprecated
 ### 優先順位の原則
 
 - **正（SSOT）の明確さ**と**変更容易性**を最優先する（“どこが正か分からない”状態を許容しない）。
+- SSOT は分散させず、プロジェクト運用SSOT（config / profiles / registry / schemas / catalogs）は `.iori-spec/` に一元配置する（迷子・更新漏れの削減）。
 - 仕様の **決定性（determinism）** と **互換性（compatibility）** を損なう変更は慎重に扱う（詳細は STEER-002 / SPEC-SYS-004）。
 - 仕様は「読む人/LLMが迷わない導線」を持つべきであり、網羅性よりも **局所推論可能性** を優先する。
 

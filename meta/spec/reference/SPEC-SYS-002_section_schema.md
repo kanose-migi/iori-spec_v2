@@ -137,6 +137,8 @@ status: draft # draft|review|stable|deprecated
 ### `spec_sections_registry.yaml`（構造定義）
 
 - 目的：仕様書群で使用可能なセクションをカタログ化し、各 `kind` に対する「必須/任意」「抽出対象」「並び順」を決定する。
+- 推奨配置（標準）：
+  - `<project_root>/.iori-spec/sections/spec_sections_registry.yaml`
 
 - ルート構造：
   - `version: string`（例: `0.1`）
@@ -186,6 +188,8 @@ status: draft # draft|review|stable|deprecated
 ### `spec_sections_guide.yaml`（記載ガイド）
 
 - 目的：registry の `section_id` に対し、「何を書くべきか」を一貫して提示できるようにする。
+- 推奨配置（標準）：
+  - `<project_root>/.iori-spec/sections/spec_sections_guide.yaml`
 
 - ルート構造：
   - `version: string`（例: `0.1`）
@@ -220,8 +224,8 @@ status: draft # draft|review|stable|deprecated
 - スキーマは SPEC-SYS-002 の規範を機械的に表現したものであり、両者が不一致の場合は SPEC-SYS-002 を正とする。
 - 推奨配置（例）：
 
-  - `reference/schemas/spec_sections_registry.schema.yaml`
-  - `reference/schemas/spec_sections_guide.schema.yaml`
+  - `.iori-spec/schemas/sections/spec_sections_registry.schema.yaml`
+  - `.iori-spec/schemas/sections/spec_sections_guide.schema.yaml`
 
 ## 全 kind 共通（core MUST）
 

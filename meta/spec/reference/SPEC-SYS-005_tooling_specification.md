@@ -126,7 +126,7 @@ status: draft # draft|review|stable|deprecated
 ### scan（対象 spec の探索）既定規則（SHOULD）
 
 - 既定では `spec_root` 配下の `**/*.md` を探索対象とする（SHOULD）。
-- `output_root`（既定: `<spec_root>/artifacts`）配下は探索対象から除外しなければならない（MUST）。
+- `output_root`（既定: `<project_root>/artifacts`）配下は探索対象から除外しなければならない（MUST）。
 - `.git/**` や `node_modules/**` 等の一般的なビルド/依存ディレクトリは除外することが望ましい（SHOULD）。
 
 > NOTE: 探索規則の差は index_digest / files_hash / lint 結果の差に直結するため、探索規則は Effective Config に含め、`config_hash` の対象とする（MUST）。
@@ -182,20 +182,47 @@ status: draft # draft|review|stable|deprecated
 
 中小規模での運用安定のため、既定の config パスを固定する（SHOULD）。
 
-- 例: `<spec_root>/.iori-spec/config.yaml`
+- 例: `<project_root>/.iori-spec/config.yaml`
 
 ### config の最小スキーマ（MUST）
 
 config は少なくとも次を表現できる（MUST）。
 
-- `spec_root`（省略時はカレントディレクトリ）
-- `output_root`（省略時は `<spec_root>/artifacts`）
-- `profile`（省略時は `balanced`）
-- `gate.threshold`（省略時はプロファイル既定に従う）
-- （任意）`doc_sync.mode`（`off|check|write`。省略時は `off`。CI では `check` を推奨）
-- `pack.limits`（max_specs / max_chars など。省略時は実装既定）
-- （任意）`pack.follow.trace_edges`（省略時は実装既定。pack manifest には必ず記録されること）
-- （任意）`scan.include_globs` / `scan.exclude_globs`
+- 設定ファイルは `<project_root>/.iori-spec/config.yaml` を既定とし、**暗黙に他パスを探索しない**（MUST NOT）。
+- config は `version` を持つ（MUST）。後方互換のため、未知キーは無視できる実装を推奨（SHOULD）。
+
+推奨の最小 shape（v1）：
+
+```yaml
+version: 1
+
+paths:
+  spec_root: "spec" # project_root 基準の相対パス（MUST）
+  spec_glob: "spec/**/*.md" # 探索対象（MAY）。未指定時は "**/*.md" を既定としてよい
+  artifacts_dir: "artifacts" # output_root（MUST）
+  ignore_paths: # spec_root 基準の ignore（MAY）
+    - "README.md"
+
+runtime:
+  profile: "balanced" # strict|balanced|exploratory（MUST）
+
+gate:
+  threshold: "error" # error|warn|info（MUST）。未指定時は profile 既定でもよい
+
+doc_sync:
+  mode: "off" # off|check|write（MAY）。CI では check を推奨
+
+vocab:
+  kinds: # kind の語彙（MAY）。ツール既定 + 追加語彙 = Effective Kinds
+    - id: "requirements"
+      label: "Requirements"
+      dir: "requirements"
+  scopes: # scope_root の語彙（SHOULD）。root は enum 検査し、".subpath" は自由
+    - id: "spec_system"
+      label: "Spec System"
+  variants: # kind 内一次分類（MAY）
+    requirements: ["functional", "nonfunctional"]
+```
 
 #### project taxonomy（MAY）
 
@@ -438,12 +465,12 @@ pack:
 
 ## 既定の出力配置（推奨）
 
-- 既定の `output_root` は `<spec_root>/artifacts`（SHOULD）。
+- 既定の `output_root` は `<project_root>/artifacts`（SHOULD）。
 - 既定の出力レイアウトは SPEC-SYS-004 の FS Layout v1（SHOULD）。
 
-  - `artifacts/index/spec_index.jsonl`
-  - `artifacts/pack/manifest.json`（必須）
-  - `artifacts/lint/lint_report.json`
+  - `artifacts/spec_index.jsonl`
+  - `artifacts/packs/<pack_id>/manifest.json`（必須）
+  - `artifacts/reports/lint_report.json`
 
 ---
 
