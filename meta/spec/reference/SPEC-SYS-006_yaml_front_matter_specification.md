@@ -24,7 +24,7 @@ status: draft # draft|review|stable|deprecated
 
 - YAML front matter の **構文上の制約**（位置、区切り、許容する YAML 機能の範囲）
 - 必須キー（`kind/scope/id/spec_title/status/stability`）の **一覧・型・許容値**
-- `kind`（グローバル enum）と `scope`（プロジェクト taxonomy）の **設計と検査方針**
+- `kind`（グローバル enum）と `scope`（プロジェクト vocabulary（vocab））の **設計と検査方針**
 - 追加メタデータの **拡張方針**（既存 Consumer を壊さない拡張の作法）
 - front matter 由来の **lint ルール（ルールID）**の定義
 - 構造検証（schema）・ルール列挙（rule catalog）を外部SSOT化する場合の **優先順位（衝突解決）**と、仕様書内スナップショット（Snapshot）の位置づけ
@@ -76,9 +76,9 @@ status: draft
 ```yaml
 ---
 kind: requirements
-scope: cli.index
+scope: tooling.cli.index
 id: REQ-010
-spec_title: "CLI: index コマンド要件"
+spec_title: "Tooling: CLI index コマンド要件"
 stability: core
 status: draft
 ---
@@ -98,8 +98,8 @@ status: draft
 - **Front matter**: Markdown ファイル先頭に置かれる `---` で囲まれた YAML ブロック。
 - **必須キー（Required keys）**: 全 spec が必ず持つべき front matter キー集合。
 - **kind（グローバル enum）**: iori-spec が「ファイルをどう扱うか」を決める分類キー。
-- **scope（project taxonomy）**: プロジェクト内の分類軸。`root` は enum で検査し、`.subpath` は自由分類。
-- **Taxonomy**: `kind`/`scope` の許容語彙を列挙した一覧（config 経由で供給され得る）。
+- **scope（project vocabulary）**: プロジェクト内の分類軸。`scope_root` は enum で検査し、`.subpath` は自由分類。供給元は config の `vocab.scope_roots` を推奨する。
+- **Project Vocabulary（vocab）**: `kind`/`scope_root`/`variant` の許容語彙を列挙した一覧（config 経由で供給され得る）。
 - **Normative Artifact**: ツールと人が「正」とみなす規範（SSOT）として運用される外部ファイル（例: front matter schema / lint rule catalog / severity profiles）。
 - **Snapshot（生成スナップショット）**: Normative Artifact の内容を仕様書内へ埋め込んだ表示用ブロック。派生物であり手編集しない（DO NOT EDIT）。
 - **doc-sync**: 外部SSOT → 仕様書内 Snapshot を再生成し、差分がないこと（diffゼロ）を検証する手順（手順は SPEC-SYS-005）。
@@ -228,21 +228,21 @@ status: draft
 例:
 
 - `functional` → scope_root=`functional`
-- `cli.index` → scope_root=`cli`, scope_subpath=`index`
+- `tooling.cli.index` → scope_root=`tooling`, scope_subpath=`cli.index`
 - `builder.pipeline.v2` → scope_root=`builder`, scope_subpath=`pipeline.v2`
 
 ### Taxonomy による検査（root のみ）
 
 `scope` はプロジェクトごとに語彙が異なるため、**project taxonomy（enum）**に基づいて scope_root を検査する。
 
-- ツールは、project taxonomy（`taxonomy.scopes`）が提供されている場合、
+- ツールは、project vocabulary（`vocab.scope_roots`）が提供されている場合、
 
   - `scope_root` がその一覧に含まれるかを検査しなければならない（MUST）。
 - `scope_subpath` の内容はプロジェクト/人間側の自由分類であり、ツールは原則として検査しない（MAY）。
 
 ### 例外許容（warning）
 
-- `scope_root` が taxonomy に存在しない場合、lint は **「未定義 scope_root」**として報告する（MUST）。
+- `scope_root` が vocab に存在しない場合、lint は **「未定義 scope_root」**として報告する（MUST）。
 - ただし v1 の既定運用として、これは **即エラーに固定しない**（warning 想定）。
 
   - 重大度はプロファイルで制御できる（SPEC-SYS-005）。
@@ -290,14 +290,14 @@ status: draft
 - 書式: `^[a-z][a-z0-9_]*$`（MUST）
 - 役割: `kind` を維持したまま、当該 kind 内の一次分類（例: `requirements` の `functional|nonfunctional`）を表す。
 - 検査・意味論:
-  - `taxonomy.variants` が提供され、かつ `taxonomy.variants[kind]` が定義されている場合、
+  - `vocab.variants` が提供され、かつ `vocab.variants[kind]` が定義されている場合、
     - `variant` は **必須**（MUST）である（未指定は違反）。
     - `variant` はその enum に含まれなければならない（MUST）。
-  - `taxonomy.variants[kind]` が定義されていない場合、
+  - `vocab.variants[kind]` が定義されていない場合、
     - `variant` は省略してよい（MAY）。
     - `variant` が指定されている場合、ツールは「未定義 variant（taxonomy 未提供）」として info/warn を出してよい（MAY）。
 - `variant` の列挙・供給元:
-  - `variant` の許容値（kind ごとの enum）は project taxonomy（config 経由）で定義する（後述）。
+  - `variant` の許容値（kind ごとの enum）は project vocabulary（config 経由）で定義する（後述）。
 
 > NOTE: `variant` は kind の細分化（例: `nonfunctional_requirements` のような新 kind 追加）を避けつつ、テンプレ生成・lint の決定性を得るための最小拡張である。
 
@@ -332,11 +332,11 @@ extensions:
 ---
 ```
 
-## Project Taxonomy（config 経由）
+## Project Vocabulary（config 経由）
 
 ### 位置（推奨）
 
-project taxonomy は、既定の config 位置（SPEC-SYS-005）に含めることを推奨する（SHOULD）。
+project vocabulary は、既定の config 位置（SPEC-SYS-005）に含めることを推奨する（SHOULD）。
 
 - `<project_root>/.iori-spec/config.yaml`
 
@@ -350,7 +350,7 @@ vocab:
     - id: "dev_tasks"
       label: "Dev Tasks"
       dir: "dev_tasks"
-  scopes: # 推奨（SHOULD）。scope_root の語彙（project enum）。".subpath" は自由
+  scope_roots: # 推奨（SHOULD）。scope_root の語彙（project enum）。".subpath" は自由
     - id: "spec_system"
       label: "Spec System"
   variants: # 任意（MAY）。kind 内一次分類（kind-local enum）
@@ -359,10 +359,10 @@ vocab:
 
 ### 検査規約
 
-- `taxonomy.scopes` が存在する場合、`scope_root` の未定義は報告対象（MUST）。
-- `taxonomy.scopes` が存在しない場合、ツールは scope_root の enum 検査を行わない（MAY）。
+- `vocab.scope_roots` が存在する場合、`scope_root` の未定義は報告対象（MUST）。
+- `vocab.scope_roots` が存在しない場合、ツールは scope_root の enum 検査を行わない（MAY）。
 
-  - ただし、プロジェクトに taxonomy 導入を促す目的で info を出してよい（MAY）。
+  - ただし、プロジェクトに vocab 導入を促す目的で info を出してよい（MAY）。
 
 ## lint 観点（本仕様から導ける検査）
 
@@ -383,11 +383,11 @@ vocab:
 - **FM011**: 必須キーの型不正（例: `id` が配列）
 - **FM012**: `kind` が Effective Kinds に含まれない（未知 kind）
 - **FM013**: `scope` の書式不正（ドット階層/トークン規則違反）
-- **FM014**: `scope_root` が taxonomy.scopes に存在しない（未定義 scope_root）
+- **FM014**: `scope_root` が vocab.scope_roots に存在しない（未定義 scope_root）
 - **FM015**: `status` が許容値でない
 - **FM016**: `stability` が許容値でない
-- **FM017**: `variant` が許容値でない（taxonomy.variants[kind] に含まれない / kind に対し未定義）
-- **FM018**: `variant` が必須の kind で未指定（taxonomy.variants[kind] が定義されているのに variant が無い）
+- **FM017**: `variant` が許容値でない（vocab.variants[kind] に含まれない / kind に対し未定義）
+- **FM018**: `variant` が必須の kind で未指定（vocab.variants[kind] が定義されているのに variant が無い）
 - **FM020**: top-level に未知キーがある（許可キー: 必須6キー + variant/trace/extensions。それ以外は `extensions` へ移すべき）※推奨違反（SHOULD）
 
 ## 記載例（Examples）
@@ -410,9 +410,9 @@ status: draft
 ```yaml
 ---
 kind: requirements
-scope: cli.index
+scope: tooling.cli.index
 id: REQ-010
-spec_title: "CLI: index コマンド要件"
+spec_title: "Tooling: CLI index コマンド要件"
 stability: core
 status: draft
 ---
@@ -443,7 +443,7 @@ status: draft
 
 - 新規 spec 作成時（front matter を先に確定し、1ファイル1IDの前提を満たす）
 - lint で front matter 由来の指摘（FM***）が出たとき（原因特定と是正）
-- taxonomy（kinds/scopes）を導入・更新するとき（Effective Kinds / scope_root 検査の整合）
+- vocab（kinds/scope_roots）を導入・更新するとき（Effective Kinds / scope_root 検査の整合）
 - YAML front matter の許容サブセット（禁止機能・書式）を見直すとき（互換性・決定性への影響があるため）
 
 ### 使い方（How）
@@ -466,8 +466,8 @@ status: draft
 - 必須キーの追加/削除、必須キーの型変更、`status`/`stability`/`kind` の許容値変更:
   - Action: **Breaking になり得る**ため、STEER-002 の互換性方針（deprecation 推奨）に従い、移行期間・lint 指摘（WARN→ERROR 等）の段階導入を設計する。
   - Action: SPEC-SYS-004（index へ出す front_matter shape）と SPEC-SYS-005（lint/CI ゲート運用）を点検し、必要なら同一 PR で追随させる。
-- `scope` taxonomy の検査方針変更（taxonomy 必須化、未定義 scope_root の重大度変更など）:
-  - Action: taxonomy の供給元（config）と lint ルール（FM014 等）の期待挙動を揃え、CI での Gate 影響を明記する（運用は SPEC-SYS-005）。
+- `scope` vocab の検査方針変更（vocab 必須化、未定義 scope_root の重大度変更など）:
+  - Action: vocab の供給元（config）と lint ルール（FM014 等）の期待挙動を揃え、CI での Gate 影響を明記する（運用は SPEC-SYS-005）。
 - YAML front matter の許容サブセット変更（アンカー禁止などの範囲変更）:
   - Action: パーサ互換性・実装容易性・決定性への影響を評価し、scan/index の継続可否（可能な限り継続）と `complete=false` の扱い（SPEC-SYS-004）を含めて整合を取る。
 - front matter 由来の lint ルール ID（FM***）の追加/変更:
@@ -476,14 +476,14 @@ status: draft
 ### LLM 連携の原則（貼り方・渡し方）
 
 - 最小セット: 本仕様の LLM_BRIEF + 変更対象（front matter の差分 or 違反箇所）+ 期待成果物（例: 正しい front matter 提案、FM 指摘の修正案）
-- 拡張セット: taxonomy（config の該当部分）+ 関連 SSOT（SPEC-SYS-003/004/005 の該当箇所）
+- 拡張セット: vocab（config の該当部分）+ 関連 SSOT（SPEC-SYS-003/004/005 の該当箇所）
 - 実務上のコツ:
   - spec 新規作成は、本文より先に front matter（6キー）を確定させると、後工程（index/lint/pack）が安定する。
 
 ### ツール運用（lint / index 連携 / CI）
 
 - PR 時: front matter 由来の lint 指摘（FM***）を早期に解消し、`kind/scope/id` の揺れを放置しない（index の探索性・影響分析が崩れるため）。
-- taxonomy 導入時: 未定義 scope_root を “即 ERROR 固定” にしない運用（warning 想定）を取る場合は、プロファイルと Gate 閾値の組み合わせで段階導入する。
+- vocab 導入時: 未定義 scope_root を “即 ERROR 固定” にしない運用（warning 想定）を取る場合は、プロファイルと Gate 閾値の組み合わせで段階導入する。
 - front matter schema / rule catalog を外部SSOTとして運用する場合、仕様書内 Snapshot は doc-sync で同期し、差分が残らない（diffゼロ）ことを CI で担保する（推奨。詳細は SPEC-SYS-005）。
 
 ### 更新時の作法（どう更新するか）

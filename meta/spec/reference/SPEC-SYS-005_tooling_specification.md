@@ -125,18 +125,17 @@ status: draft # draft|review|stable|deprecated
 
 ### scan（対象 spec の探索）既定規則（SHOULD）
 
-- 既定では `spec_root` 配下の `**/*.md` を探索対象とする（SHOULD）。
-- `output_root`（既定: `<project_root>/artifacts`）配下は探索対象から除外しなければならない（MUST）。
-- `.git/**` や `node_modules/**` 等の一般的なビルド/依存ディレクトリは除外することが望ましい（SHOULD）。
+- 既定では Effective Config の `inputs.spec_roots` に列挙された各 `root` を探索起点とする（MUST）。
+- 各 `root` について、`include_globs` が未指定の場合は `["**/*.md"]` を既定としてよい（SHOULD）。
+- `exclude_globs` は **各 `root` 基準**で適用しなければならない（MUST）。
+- `outputs.artifacts_dir`（既定: `<project_root>/artifacts`）配下は探索対象から除外しなければならない（MUST）。
 
 > NOTE: 探索規則の差は index_digest / files_hash / lint 結果の差に直結するため、探索規則は Effective Config に含め、`config_hash` の対象とする（MUST）。
 
-### scan の上書き（MAY）
+### scan の上書き（config による指定, MUST）
 
-- 実装は以下の config をサポートしてよい（MAY）。
-  - `scan.include_globs`
-  - `scan.exclude_globs`
-- サポートする場合、これらは Effective Config に含め、`config_hash` の対象としなければならない（MUST）。
+- ツールは config による探索指定として、少なくとも `inputs.spec_roots[*].root/include_globs/exclude_globs` をサポートしなければならない（MUST）。
+- CLI が `--spec-root` 等で探索起点を上書きする場合、Effective Config 上は `inputs.spec_roots` の差し替えとして表現しなければならない（MUST）。
 
 ### index_digest の一貫性（MUST）
 
@@ -169,11 +168,12 @@ status: draft # draft|review|stable|deprecated
 - 正規化は少なくとも以下を満たす（MUST）。
   - キー順は辞書順
   - 文字コードは UTF-8、改行は LF
-  - パスは `spec_root` 基準の相対表現（区切りは `/` を推奨）
+  - パスは `project_root` 基準の相対表現（repo-root 相対。区切りは `/` を推奨）
 - `config_hash` は少なくとも次の要素を含む（MUST）。
-  - `spec_root` / `output_root`
+  - `inputs.spec_roots`（各 entry の `root/include_globs/exclude_globs` を含む）
+  - `outputs.artifacts_dir`
   - `profile` / `gate.threshold`（profile 既定適用後）
-  - `scan.include_globs` / `scan.exclude_globs`（サポートする場合）
+  - `inputs.spec_roots[*].include_globs` / `inputs.spec_roots[*].exclude_globs`
   - 構造lintに影響する設定（例：unknown_sections policy）
   - `pack.limits` / `pack.follow.*`（サポートする場合）
   - `doc_sync.mode`（サポートする場合）
@@ -191,69 +191,82 @@ config は少なくとも次を表現できる（MUST）。
 - 設定ファイルは `<project_root>/.iori-spec/config.yaml` を既定とし、**暗黙に他パスを探索しない**（MUST NOT）。
 - config は `version` を持つ（MUST）。後方互換のため、未知キーは無視できる実装を推奨（SHOULD）。
 
+#### `paths.spec_glob` の解釈（MUST）
+
+- `paths.spec_glob` は **`paths.spec_root` 基準**の glob として解釈する（MUST）。
+- 既定値は `"**/*.md"` としてよい（SHOULD）。
+
 推奨の最小 shape（v1）：
 
 ```yaml
 version: 1
 
-paths:
-  spec_root: "spec" # project_root 基準の相対パス（MUST）
-  spec_glob: "spec/**/*.md" # 探索対象（MAY）。未指定時は "**/*.md" を既定としてよい
-  artifacts_dir: "artifacts" # output_root（MUST）
-  ignore_paths: # spec_root 基準の ignore（MAY）
-    - "README.md"
+project:
+  name: "my-project" # 表示/識別用（MAY）
+  description: "..." # 表示用（MAY）
+
+inputs:
+  # 仕様書（Markdown）入力の探索指定（MUST）
+  # - すべて project_root 基準の相対パス
+  # - include/exclude は各 root 基準で評価する（MUST）
+  spec_roots:
+    - root: "meta/spec"
+      include_globs: ["**/*.md"] # 省略時は既定 ["**/*.md"]（SHOULD）
+      exclude_globs:
+        - "impl_notes/**"
+        - "**/sample/**"
+
+outputs:
+  artifacts_dir: "artifacts" # 生成物出力先（MUST）
 
 runtime:
   profile: "balanced" # strict|balanced|exploratory（MUST）
 
+# gate は省略してよい（MAY）。省略時は profile の既定 threshold を適用する（MUST）
 gate:
-  threshold: "error" # error|warn|info（MUST）。未指定時は profile 既定でもよい
+  threshold: "error" # error|warn|info（MAY）
 
 doc_sync:
   mode: "off" # off|check|write（MAY）。CI では check を推奨
 
 vocab:
-  kinds: # kind の語彙（MAY）。ツール既定 + 追加語彙 = Effective Kinds
+  kinds: # kind の追加語彙（MAY）。ツール既定 + 追加語彙 = Effective Kinds
     - id: "requirements"
       label: "Requirements"
       dir: "requirements"
-  scopes: # scope_root の語彙（SHOULD）。root は enum 検査し、".subpath" は自由
+  scope_roots: # scope_root の語彙（SHOULD）。root は enum 検査し、".subpath" は自由
     - id: "spec_system"
       label: "Spec System"
   variants: # kind 内一次分類（MAY）
     requirements: ["functional", "nonfunctional"]
 ```
 
-#### project taxonomy（MAY）
-
-front matter の検査・テンプレ生成の決定性のため、config は project taxonomy を含めてよい（MAY）。
-
-- `taxonomy.kinds`（MAY）: Effective Kinds の追加語彙（SPEC-SYS-006）
-- `taxonomy.scopes`（SHOULD）: `scope_root` の推奨語彙（SPEC-SYS-006）
-- `taxonomy.variants`（MAY）: kind 内一次分類（`variant`）の enum（SPEC-SYS-006 / ADR-SPEC-001）
-  - `taxonomy.variants[kind]` が存在する kind では、front matter の `variant` を必須（MUST）として lint できる。
-
 #### config 例（参考）
 
 ```yaml
-spec_root: .
-output_root: artifacts
-profile: balanced
-gate:
-  threshold: error
+version: 1
+inputs:
+  spec_roots:
+    - root: "meta/spec"
+      include_globs: ["**/*.md"]
+      exclude_globs:
+        - "impl_notes/**"
+        - "**/sample/**"
+        - "../**" # 禁止（MUST NOT）: project_root 外
+outputs:
+  artifacts_dir: "artifacts"
+runtime:
+  profile: "balanced"
 doc_sync:
-  mode: check
-taxonomy:
-  scopes: ["spec_system", "cli", "builder"]
+  mode: "check"
+vocab:
+  scope_roots:
+    - id: "spec_system"
+      label: "Spec System"
+    - id: "tooling"
+      label: "Tooling"
   variants:
     requirements: ["functional", "nonfunctional"]
-scan:
-  include_globs: ["**/*.md"]
-  exclude_globs: ["artifacts/**", ".git/**", "node_modules/**"]
-pack:
-  limits:
-    max_specs: 50
-    max_chars: 200000
 ```
 
 ### プロファイル（重大度プロファイル）の定義
@@ -278,7 +291,7 @@ pack:
 ### 規範ファイル（Normative Artifacts）の解決（SHOULD）
 
 - 内蔵プロファイル（`strict|balanced|exploratory`）は、既定で `.iori-spec/profiles/*.yaml` から解決することを推奨する（SHOULD）。
-- doc-sync（Snapshot 同期）で参照するソースは、Snapshot markers が示すパスを **`spec_root` 基準で解決**する（MUST）。
+- doc-sync（Snapshot 同期）で参照するソースは、Snapshot markers が示すパスを **`project_root` 基準で解決**する（MUST）。
 - セキュリティと決定性のため、doc-sync は既定で `spec_root` 外への参照（`..` 等）を拒否すべきである（SHOULD）。
 
 ---
@@ -422,7 +435,7 @@ pack:
 - `kind`（MUST）
 - `variant`（MAY / kind により MUST）
 
-  - `taxonomy.variants[kind]` が定義されている場合、`variant` は必須（MUST）。
+  - `vocab.variants[kind]` が定義されている場合、`variant` は必須（MUST）。
 - セクション定義 SSOT:
   - `spec_sections_registry.yaml` / `spec_sections_guide.yaml`（SPEC-SYS-002）
 
@@ -508,7 +521,7 @@ pack:
 ### セット読み（With）
 
 - SPEC-SYS-004 — 成果物（index / pack / lint_report）の形・決定性・互換性
-- SPEC-SYS-006 — YAML front matter（`variant`/taxonomy を含む）
+- SPEC-SYS-006 — YAML front matter（`variant`/vocab を含む）
 - SPEC-SYS-003 — `trace` の意味論・ルールID（T001..）・プロファイル例
 - SPEC-SYS-002 — セクション定義（include_in / ordering / unknown_sections 等）
 
