@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://iori-spec.dev/schemas/config/project.schema.json",
+  "title": "iori-spec project config schema",
+  "description": "Schema for iori-spec project configuration file (.iori-spec/config.yaml).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "project", "inputs", "outputs", "runtime", "vocab"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Config schema version. Bump on breaking changes."
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spec_roots"],
+      "properties": {
+        "spec_roots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["root"],
+            "properties": {
+              "root": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Repository-relative path to a spec root directory."
+              },
+              "include_globs": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "description": "Glob patterns (relative to root) to include."
+              },
+              "exclude_globs": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "description": "Glob patterns (relative to root) to exclude."
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifacts_dir"],
+      "properties": {
+        "artifacts_dir": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative directory for generated artifacts (index/pack/reports)."
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile"],
+      "properties": {
+        "profile": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Selected severity profile name (e.g., strict/balanced/exploratory)."
+        }
+      }
+    },
+    "doc_sync": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["off", "check", "write"],
+          "default": "off",
+          "description": "doc-sync mode."
+        }
+      }
+    },
+    "vocab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kinds", "scope_roots"],
+      "properties": {
+        "kinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "dir"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Kind id used in front matter."
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "dir": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Primary directory name under a spec_root for this kind."
+              }
+            }
+          }
+        },
+        "variants": {
+          "type": "object",
+          "description": "Kind-specific variant vocabulary (e.g., requirements: [functional, nonfunctional]).",
+          "propertyNames": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" }
+          },
+          "default": {}
+        },
+        "scope_roots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Allowed root token of scope (e.g., tooling, spec_system)."
+              },
+              "label": { "type": "string", "minLength": 1, "maxLength": 100 }
+            }
+          }
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_language": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 16
+        },
+        "presets": {
+          "type": "object",
+          "description": "Prompt preset registry (optional).",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["description", "language"],
+            "properties": {
+              "description": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "language": { "type": "string", "minLength": 2, "maxLength": 16 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^(x-|x_)[A-Za-z0-9_.-]+$": {
+      "description": "Project-specific extensions. Keys must start with 'x-' or 'x_'."
+    }
+  }
+}
