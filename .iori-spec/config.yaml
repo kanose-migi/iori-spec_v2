@@ -1,0 +1,111 @@
+# iori-spec project config (SSOT)
+# - このファイルはリポジトリの運用SSOTのひとつ（人が編集する一次根拠）
+# - ここに書くのは「場所」「探索条件」「語彙（enum）」「実行時に選ぶプロファイル」までに限定する
+# - ルール本体（lint/sections/profile 内容）は別SSOTに分離し、二重定義を避ける
+
+version: 1 # config schema version（破壊的変更時はここを上げる）
+
+project:
+  # ツールのレポート表示・識別用メタデータ（実行ロジックには原則影響させない）
+  name: "iori-spec"
+  description: "Specification static analysis toolkit for specs"
+
+inputs:
+  # 仕様書（Markdown）をどこから読むか（暗黙探索をしないため、必ず明示する）
+  # すべて repo_root（= .iori-spec の親ディレクトリ）基準の相対パスとして解釈する
+  spec_roots:
+    - root: "meta/spec"
+      # include/exclude は常に root 基準で評価する（「どこ基準か」を迷わせない）
+      include_globs:
+        - "**/*.md"
+      exclude_globs:
+        # “仕様書ではないMD” を確実に除外（結果の決定性、ユーザー/LLMの期待安定性）
+        - "impl_notes/**"
+        - "**/sample/**"
+
+outputs:
+  # 生成物（artifacts）の出力先
+  # Stable Artifact Contract（ファイル名・構造）は仕様側で固定し、
+  # config では「出力先ディレクトリ」だけを可変にするのが事故が少ない
+  artifacts_dir: "artifacts"
+
+runtime:
+  # 実行時に選ぶ「プロファイル名」だけを指定する
+  # 中身（strict/balanced/exploratory）は .iori-spec/profiles/*.yaml が正
+  profile: "balanced"
+
+doc_sync:
+  # SPEC-SYS-005: doc-sync（生成スナップショットの同期検証/更新）
+  # - 現時点では未運用でも、既定 off を明示しておくと将来のCI導入時に事故が減る
+  mode: "off" # off|check|write（MAY）
+
+vocab:
+  # プロジェクト語彙（enum）SSOT
+  # - front matter の kind/scope_root/variant の lint に使う
+  # - LLMが迷いやすいので、キー名は "vocab" に統一する（taxonomy などに揺らさない）
+  kinds:
+    # kind.id: front matter の kind に入る enum
+    # dir: spec_root 配下の一次配置ディレクトリ（人間にもLLMにも直感的な対応表）
+    - id: "steering"
+      label: "Steering (Why / Where)"
+      dir: "steering"
+    - id: "requirements"
+      label: "Requirements (What)"
+      dir: "requirements"
+    - id: "architecture"
+      label: "Architecture (How, system level)"
+      dir: "architecture"
+    - id: "interfaces"
+      label: "Interfaces / Modules"
+      dir: "interfaces"
+    - id: "data_contracts"
+      label: "Data Contracts"
+      dir: "data_contracts"
+    - id: "tests"
+      label: "Test Specs"
+      dir: "tests"
+    - id: "dev_tasks"
+      label: "Dev Tasks / Work Items"
+      dir: "dev_tasks"
+    - id: "impl_notes"
+      label: "Implementation Notes"
+      dir: "impl_notes"
+    - id: "reference"
+      label: "Reference / Guides"
+      dir: "reference"
+
+  variants:
+    # requirements は functional/nonfunctional を variant で表現する（kind は増やさない）
+    requirements:
+      - functional
+      - nonfunctional
+
+  scope_roots:
+    # scope_root: scope の先頭トークン（例: tooling.lint.trace の "tooling"）
+    # - scope_root だけを enum で検査し、".subpath" は自由にする（拡張容易性と運用耐性）
+    - id: "spec_system"
+      label: "Spec System"
+    - id: "tooling"
+      label: "Tooling"
+    - id: "client"
+      label: "Client"
+    - id: "builder"
+      label: "Builder"
+    - id: "glossary"
+      label: "Glossary / Naming"
+    - id: "docs"
+      label: "Documentation"
+    - id: "meta"
+      label: "Meta / Process"
+
+prompt:
+  # LLM向けの「推奨言語」およびプリセット名の定義
+  # - 実装で使わないなら削ってよい（ただし将来 prompt-bundle で使うならここをSSOTにする価値が高い）
+  default_language: "ja"
+  presets:
+    default.codegen:
+      description: "仕様からコード生成を行うデフォルトプリセット"
+      language: "ja"
+    default.review:
+      description: "仕様・コードレビュー用プリセット"
+      language: "ja"

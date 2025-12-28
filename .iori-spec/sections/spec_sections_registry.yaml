@@ -1,0 +1,419 @@
+version: 1
+policy:
+  # 追加の自由なセクション（layer3）は許可する
+  unknown_sections: allow # allow|warn|error（省略時 allow）
+sections:
+  # ===== layer1: 全 core spec 共通 =====
+  - section_id: llm_brief
+    heading: LLM_BRIEF
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 10
+  - section_id: doc_role
+    heading: このドキュメントの役割
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+    priority: 20
+  - section_id: scope_and_assumptions
+    heading: 範囲（Scope）と前提（Assumptions）
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+    priority: 30
+  - section_id: req_summary
+    heading: Summary
+    applies_to_kinds:
+      - requirements
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 100
+  - section_id: req_background
+    heading: Background
+    applies_to_kinds:
+      - requirements
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 110
+  - section_id: req_nongoals
+    heading: Non-goals
+    applies_to_kinds:
+      - requirements
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 120
+  - section_id: req_invariants
+    heading: Invariants
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - functional
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 130
+  - section_id: req_edge_cases
+    heading: Edge Cases
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - functional
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 140
+  - section_id: req_acceptance
+    heading: Acceptance Criteria
+    applies_to_kinds:
+      - requirements
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 150
+  - section_id: nfr_quality_attribute
+    heading: Quality Attribute
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - nonfunctional
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 111
+  - section_id: nfr_measurement
+    heading: Measurement
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - nonfunctional
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 112
+  - section_id: nfr_capacity_bounds
+    heading: Capacity / Bounds
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - nonfunctional
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 113
+  - section_id: nfr_operational_notes
+    heading: Operational Notes
+    applies_to_kinds:
+      - requirements
+    applies_to_variants:
+      - nonfunctional
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 114
+  - section_id: if_summary
+    heading: Summary
+    applies_to_kinds:
+      - interfaces
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 100
+  - section_id: if_inputs
+    heading: Inputs
+    applies_to_kinds:
+      - interfaces
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 110
+  - section_id: if_outputs
+    heading: Outputs
+    applies_to_kinds:
+      - interfaces
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 120
+  - section_id: if_errors
+    heading: Errors
+    applies_to_kinds:
+      - interfaces
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 130
+  - section_id: if_compatibility
+    heading: Compatibility
+    applies_to_kinds:
+      - interfaces
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 140
+  - section_id: if_examples
+    heading: Examples
+    applies_to_kinds:
+      - interfaces
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 150
+  - section_id: if_invariants
+    heading: Invariants
+    applies_to_kinds:
+      - interfaces
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 160
+  - section_id: data_summary
+    heading: Summary
+    applies_to_kinds:
+      - data_contracts
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 100
+  - section_id: data_schema
+    heading: Schema
+    applies_to_kinds:
+      - data_contracts
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 110
+  - section_id: data_compatibility
+    heading: Compatibility
+    applies_to_kinds:
+      - data_contracts
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 120
+  - section_id: data_constraints
+    heading: Constraints
+    applies_to_kinds:
+      - data_contracts
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 130
+  - section_id: data_semantics
+    heading: Semantics
+    applies_to_kinds:
+      - data_contracts
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 140
+  - section_id: data_examples
+    heading: Examples
+    applies_to_kinds:
+      - data_contracts
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 150
+  - section_id: data_usage
+    heading: Usage
+    applies_to_kinds:
+      - data_contracts
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 160
+  - section_id: test_summary
+    heading: Summary
+    applies_to_kinds:
+      - tests
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 100
+  - section_id: test_preconditions
+    heading: Preconditions
+    applies_to_kinds:
+      - tests
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 110
+  - section_id: test_steps
+    heading: Steps
+    applies_to_kinds:
+      - tests
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 120
+  - section_id: test_expected
+    heading: Expected Results
+    applies_to_kinds:
+      - tests
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 130
+  - section_id: task_summary
+    heading: Summary
+    applies_to_kinds:
+      - dev_tasks
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 100
+  - section_id: task_steps
+    heading: Steps
+    applies_to_kinds:
+      - dev_tasks
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 110
+  - section_id: task_done_criteria
+    heading: Done Criteria
+    applies_to_kinds:
+      - dev_tasks
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 120
+  - section_id: usage
+    heading: USAGE
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - render
+    priority: 900
+  - section_id: operation_guidelines
+    heading: 運用上の目安（LLM / SDD 観点）
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - render
+    priority: 910
+  - section_id: read_next
+    heading: READ_NEXT
+    applies_to_kinds:
+      - "*"
+    required: true
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 920
