@@ -1,0 +1,55 @@
+# iori-spec lint profile: balanced (SSOT)
+# - Purpose: safe default for daily development (local + PR)
+# - Severity mapping lives here (catalog defines rule registry only)
+
+profile_id: balanced
+version: "1"
+
+description: |
+  Balanced default profile.
+  Errors for determinism/safety issues; warnings for guidance and gradual hardening.
+
+settings:
+  # Balanced: allow extension but surface potential typos.
+  unknown_sections: warn
+
+rules:
+  # --- Front matter ---
+  - rule_id: FM001
+    severity: error
+  - rule_id: FM002
+    severity: error
+  - rule_id: FM003
+    severity: error
+  - rule_id: FM004
+    severity: warn
+
+  # --- Structure ---
+  - rule_id: S001
+    severity: error
+  - rule_id: S002
+    severity: error
+  - rule_id: S003
+    severity: warn
+  - rule_id: S004
+    severity: warn
+  - rule_id: S005
+    severity: error
+
+  # --- Traceability ---
+  - rule_id: T001
+    severity: warn
+  - rule_id: T002
+    severity: error
+  - rule_id: T003
+    severity: warn
+  - rule_id: T004
+    severity: warn
+
+  # --- External SSOT (YAML/JSON) ---
+  - rule_id: YJ001
+    severity: error
+  - rule_id: YJ002
+    severity: error
+  - rule_id: YJ003
+    severity: warn

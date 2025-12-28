@@ -1,0 +1,55 @@
+# iori-spec lint profile: exploratory (SSOT)
+# - Purpose: early-stage adoption / migration / rapid iteration
+# - Keep running and produce actionable warnings; still fail on truly fatal issues.
+
+profile_id: exploratory
+version: "1"
+
+description: |
+  Exploratory profile for initial rollout and rapid iteration.
+  Prefer warnings over errors to keep feedback flowing, while still failing fast on fatal issues.
+
+settings:
+  # Exploratory: allow extension and avoid blocking on unknown headings.
+  unknown_sections: allow
+
+rules:
+  # --- Front matter ---
+  - rule_id: FM001
+    severity: warn
+  - rule_id: FM002
+    severity: warn
+  - rule_id: FM003
+    severity: warn
+  - rule_id: FM004
+    severity: ignore
+
+  # --- Structure ---
+  - rule_id: S001
+    severity: warn
+  - rule_id: S002
+    severity: warn
+  - rule_id: S003
+    severity: ignore
+  - rule_id: S004
+    severity: ignore
+  - rule_id: S005
+    severity: error
+
+  # --- Traceability ---
+  - rule_id: T001
+    severity: warn
+  - rule_id: T002
+    severity: error
+  - rule_id: T003
+    severity: warn
+  - rule_id: T004
+    severity: warn
+
+  # --- External SSOT (YAML/JSON) ---
+  - rule_id: YJ001
+    severity: error
+  - rule_id: YJ002
+    severity: warn
+  - rule_id: YJ003
+    severity: warn

@@ -1,0 +1,56 @@
+.iori-spec/profiles/balanced.yaml# iori-spec lint profile: strict (SSOT)
+# - Purpose: fail-fast / maximum determinism for CI and release gates
+# - Severity mapping lives here (catalog defines rule registry only)
+
+profile_id: strict
+version: "1"
+
+description: |
+  Strict profile for CI/release gates.
+  Treats most violations as errors and minimizes "unknown/implicit" behaviors.
+
+settings:
+  # Structure policy override (align with spec_sections_registry policy)
+  # - When strict, unknown sections are treated as errors (unless explicitly registered).
+  unknown_sections: error
+
+rules:
+  # --- Front matter ---
+  - rule_id: FM001
+    severity: error
+  - rule_id: FM002
+    severity: error
+  - rule_id: FM003
+    severity: error
+  - rule_id: FM004
+    severity: error
+
+  # --- Structure ---
+  - rule_id: S001
+    severity: error
+  - rule_id: S002
+    severity: error
+  - rule_id: S003
+    severity: error
+  - rule_id: S004
+    severity: warn
+  - rule_id: S005
+    severity: error
+
+  # --- Traceability ---
+  - rule_id: T001
+    severity: error
+  - rule_id: T002
+    severity: error
+  - rule_id: T003
+    severity: error
+  - rule_id: T004
+    severity: error
+
+  # --- External SSOT (YAML/JSON) ---
+  - rule_id: YJ001
+    severity: error
+  - rule_id: YJ002
+    severity: error
+  - rule_id: YJ003
+    severity: warn
