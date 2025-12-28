@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://iori-spec.dev/schemas/artifacts/lint_report.schema.json",
+  "title": "iori-spec lint_report.json schema",
+  "description": "Schema for iori-spec lint report artifact produced by `iori-spec lint` / `iori-spec trace-lint`.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "profile",
+    "run",
+    "summary",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9.-]+)?$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 / ISO-8601 timestamp."
+    },
+    "profile": {
+      "type": "string",
+      "description": "Severity profile used (e.g., strict/balanced/exploratory).",
+      "minLength": 1
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "const": "iori-spec" },
+        "version": { "type": "string", "minLength": 1 },
+        "build": { "type": "string", "minLength": 1 }
+      }
+    },
+    "engines": {
+      "type": "array",
+      "description": "Lint engines used to produce findings (native / spectral / other).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "version": { "type": "string", "minLength": 1 },
+          "ruleset_id": { "type": "string" },
+          "ruleset_version": { "type": "string" }
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "description": "Discovery and gate settings used for this run (for reproducibility).",
+      "additionalProperties": false,
+      "required": ["spec_roots", "fail_severity"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Command that produced this report.",
+          "enum": ["lint", "trace-lint", "index-lint", "ssot-lint"]
+        },
+        "spec_roots": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Discovery roots and filters used for linting (repo-relative preferred).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["root"],
+            "properties": {
+              "root": { "type": "string", "minLength": 1 },
+              "include_globs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "exclude_globs": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            }
+          }
+        },
+        "fail_severity": {
+          "type": "string",
+          "description": "Minimum severity that fails the command / CI gate.",
+          "enum": ["error", "warn", "info", "off"]
+        },
+        "resolved_profile": {
+          "type": "object",
+          "description": "Optional resolved severity mapping snapshot for reproducibility (rule_id -> severity/off).",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["error", "warn", "info", "off"]
+          }
+        },
+        "profile_fingerprint": {
+          "type": "object",
+          "description": "Optional profile identity (when resolved_profile is omitted).",
+          "additionalProperties": false,
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["errors", "warnings", "infos"],
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "infos": { "type": "integer", "minimum": 0 },
+        "files_checked": { "type": "integer", "minimum": 0 },
+        "rules_triggered": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/definitions/finding" }
+    }
+  },
+  "definitions": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "severity", "message", "location"],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "description": "Rule identifier (e.g., FM001, S010, T003).",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warn", "info"],
+          "description": "Normalized effective severity after applying profile (off findings should be omitted)."
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "engine": {
+          "type": "string",
+          "description": "Engine that produced the finding (e.g., native, spectral).",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "description": "Category aligned with lint_rule_catalog.yaml (front_matter / structure / traceability / ssot_yaml_json).",
+          "minLength": 1
+        },
+        "location": { "$ref": "#/definitions/location" },
+        "fix": { "$ref": "#/definitions/fix" },
+        "details": {
+          "type": "object",
+          "description": "Engine-specific payload. Prefer x- keys for forward compatibility.",
+          "patternProperties": {
+            "^(x-|x_)[A-Za-z0-9_.-]+$": {}
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-[0-9]{3}$",
+          "description": "Optional spec id if resolvable."
+        },
+        "range": { "$ref": "#/definitions/range" },
+        "snippet": { "type": "string", "description": "Optional short snippet for display." }
+      }
+    },
+    "range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" }
+      }
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line", "character"],
+      "properties": {
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based line number."
+        },
+        "character": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based character/column index."
+        }
+      }
+    },
+    "fix": {
+      "description": "Optional fix hint. Conditional requirements are encoded via oneOf.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "description"],
+          "properties": {
+            "kind": { "type": "string", "const": "manual" },
+            "description": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "description", "patch"],
+          "properties": {
+            "kind": { "type": "string", "const": "apply_patch" },
+            "description": { "type": "string", "minLength": 1 },
+            "patch": { "type": "string", "minLength": 1, "description": "Unified diff patch." }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "description"],
+          "properties": {
+            "kind": { "type": "string", "const": "regen_snapshot" },
+            "description": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  }
+}
