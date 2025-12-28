@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://iori-spec.dev/schemas/front_matter.schema.json",
+  "title": "iori-spec YAML Front Matter Schema",
+  "description": "JSON Schema for the YAML front matter block (--- ... ---) used by iori-spec specs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "scope",
+    "id",
+    "spec_title",
+    "stability",
+    "status"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "description": "Document kind. Determines section schema and tooling behavior.",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Project-defined scope taxonomy key. Dot-separated scope is allowed (e.g., tooling.lint.trace).",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_-]*(?:\\.[a-z][a-z0-9_-]*)*$"
+    },
+    "id": {
+      "type": "string",
+      "description": "Stable document identifier. Convention: uppercase segments separated by '-', ending with 3 digits (e.g., SPEC-SYS-006, REQ-810).",
+      "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-[0-9]{3}$"
+    },
+    "spec_title": {
+      "type": "string",
+      "description": "Human-readable title of the spec.",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "variant": {
+      "type": "string",
+      "description": "Optional variant within a kind (project vocabulary). Example: functional / nonfunctional for requirements.",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "stability": {
+      "type": "string",
+      "description": "Stability tier for the spec.",
+      "enum": [
+        "core",
+        "edge"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status of the spec.",
+      "enum": [
+        "draft",
+        "active",
+        "deprecated"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "Optional semantic/document version. Not required by tooling unless explicitly configured.",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "allOf_placeholder_removed": true
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "kind": { "const": "requirements" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "required": ["variant"]
+      }
+    }
+  ],
+  "patternProperties": {
+    "^(x-|x_)[A-Za-z0-9_.-]+$": {
+      "description": "Project-specific extensions. Keys must start with 'x-' or 'x_'."
+    }
+  }
+}
