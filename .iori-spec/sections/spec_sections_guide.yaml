@@ -1,4 +1,4 @@
-version: "0.1"
+version: "1"
 
 # NOTE:
 # - spec_sections_registry.yaml がセクション構造（kinds / heading / required 等）の SSOT。
@@ -7,6 +7,7 @@ version: "0.1"
 # - examples は常に 2 本立てを推奨:
 #     - HabitLog（個人〜中規模向け習慣トラッカー）
 #     - BookMart（大規模オンライン書店／EC サイト）
+#   ※原則は 2 本立て。variant（functional/nonfunctional）などの都合で追加してもよい。
 
 sections:
   # ===== layer1: 全 core spec 共通 =====
@@ -540,25 +541,6 @@ sections:
           - 決済連携の障害時はサーキットブレーカ等で影響範囲を限定する。
           - 障害時のリカバリ手順（再処理、整合性チェック、返金フロー）を運用手順として残す。
 
-  - section_id: nfr_acceptance
-    purpose: |
-      非機能要件が満たされたと判断するための受け入れ条件（観測可能な判定条件）を列挙するセクション。
-    guidelines: |
-      - 測定指標・測定環境に依存するため、Measurement と矛盾しない形で書く。
-      - リリース判定に使えるよう、可能な限り数値と閾値で定義する。
-    examples:
-      - app: "HabitLog（個人〜中規模向け習慣トラッカー）"
-        title: "HabitLog の NFR Acceptance"
-        content: |
-          - 主要 API の応答時間がステージング計測で p95 1.0s 以内である。
-          - 重大なセキュリティ脆弱性（高/重大）が未解決でない。
-          - 主要メトリクスの監視とアラートが設定済みである。
-      - app: "BookMart（大規模オンライン書店／EC サイト）"
-        title: "BookMart の NFR Acceptance"
-        content: |
-          - 注文確定 API がピーク相当負荷試験で p95 800ms 以内、失敗率 0.5% 未満である。
-          - 冪等性（重複リクエスト時の二重請求防止）がテストで確認されている。
-          - 障害対応手順（再処理/返金/整合性チェック）が運用ドキュメントとして整備されている。
 
   # ===== kind: interfaces（IF-xxx） =====
 
@@ -715,7 +697,7 @@ sections:
               "coupon_code": "SPRING20"
             }'
 
-  # ===== kind: data_contracts（DATA-xxx） =====
+  # ===== kind: interfaces（IF-xxx） =====（続き: Invariants） =====
 
   - section_id: if_invariants
     purpose: |
@@ -738,6 +720,7 @@ sections:
           - 認可：顧客は自分のカート/注文のみ操作できる。
           - 注文確定は「在庫引当成功」かつ「決済成功」のときのみ成立する。
 
+  # ===== kind: data_contracts（DATA-xxx） =====
   - section_id: data_summary
     purpose: |
       このデータ構造が何のために存在するかを説明するセクション。

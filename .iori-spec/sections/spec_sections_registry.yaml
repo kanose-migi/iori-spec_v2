@@ -1,4 +1,4 @@
-version: 1
+version: "1"
 policy:
   # 追加の自由なセクション（layer3）は許可する
   unknown_sections: allow # allow|warn|error（省略時 allow）
@@ -406,6 +406,26 @@ sections:
     include_in:
       - render
     priority: 910
+  - section_id: normative_references
+    heading: Normative References（規範参照）
+    applies_to_kinds:
+      - "*"
+    required: false
+    multiple: false
+    include_in:
+      - index
+      - render
+      - pack
+    priority: 915
+  - section_id: generated_snapshot
+    heading: Generated Snapshot（生成スナップショット）
+    applies_to_kinds:
+      - "*"
+    required: false
+    multiple: false
+    include_in:
+      - render
+    priority: 916
   - section_id: read_next
     heading: READ_NEXT
     applies_to_kinds:

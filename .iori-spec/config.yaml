@@ -1,6 +1,6 @@
 # iori-spec project config (SSOT)
 # - このファイルはリポジトリの運用SSOTのひとつ（人が編集する一次根拠）
-# - ここに書くのは「場所」「探索条件」「語彙（enum）」「実行時に選ぶプロファイル」までに限定する
+# - ここに書くのは「場所」「探索条件」「語彙（enum）」「実行時に選ぶプロファイル」までに限定する（それ以外は別SSOTへ）
 # - ルール本体（lint/sections/profile 内容）は別SSOTに分離し、二重定義を避ける
 
 version: 1 # config schema version（破壊的変更時はここを上げる）
@@ -33,6 +33,10 @@ runtime:
   # 実行時に選ぶ「プロファイル名」だけを指定する
   # 中身（strict/balanced/exploratory）は .iori-spec/profiles/*.yaml が正
   profile: "balanced"
+
+gate:
+  # SPEC-SYS-005: Quality Gate の閾値（明示して誤解を減らす）
+  threshold: "error" # error|warn|info
 
 doc_sync:
   # SPEC-SYS-005: doc-sync（生成スナップショットの同期検証/更新）
@@ -97,15 +101,3 @@ vocab:
       label: "Documentation"
     - id: "meta"
       label: "Meta / Process"
-
-prompt:
-  # LLM向けの「推奨言語」およびプリセット名の定義
-  # - 実装で使わないなら削ってよい（ただし将来 prompt-bundle で使うならここをSSOTにする価値が高い）
-  default_language: "ja"
-  presets:
-    default.codegen:
-      description: "仕様からコード生成を行うデフォルトプリセット"
-      language: "ja"
-    default.review:
-      description: "仕様・コードレビュー用プリセット"
-      language: "ja"
