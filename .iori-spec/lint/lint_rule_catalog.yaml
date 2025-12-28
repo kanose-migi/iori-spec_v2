@@ -1,0 +1,243 @@
+# iori-spec lint rule catalog (normative SSOT)
+# This file is intended to be consumed by tooling (lint engines, report normalizers, doc generators).
+# DO NOT embed timestamps here; keep changes explicit and reviewable.
+
+catalog_id: iori-spec-lint-rule-catalog
+version: "0.1.0"
+
+description: |
+  Canonical catalog of lint rules used by iori-spec.
+  - Severities are assigned by profiles (e.g., strict/balanced/exploratory), not here.
+  - Engines (native/spectral/other) MAY use this catalog as a shared rule registry.
+
+rule_id_namespaces:
+  - namespace: front_matter
+    prefix: FM
+    pattern: "^FM[0-9]{3}$"
+  - namespace: structure
+    prefix: S
+    pattern: "^S[0-9]{3}$"
+  - namespace: traceability
+    prefix: T
+    pattern: "^T[0-9]{3}$"
+  - namespace: ssot_yaml_json
+    prefix: YJ
+    pattern: "^YJ[0-9]{3}$"
+
+categories:
+  front_matter:
+    purpose: "Validate YAML front matter parsing, required keys, enums, and allowed extensions."
+    primary_spec: "SPEC-SYS-006"
+  structure:
+    purpose: "Validate section structure (required sections, ordering, duplicates) and snapshot boundaries."
+    primary_spec: "SPEC-SYS-002"
+  traceability:
+    purpose: "Validate trace graph rules and minimum coverage requirements."
+    primary_spec: "SPEC-SYS-003"
+  ssot_yaml_json:
+    purpose: "Validate external SSOT (YAML/JSON) and related schemas/rulesets."
+    primary_spec: "ADR-SPEC-002"
+
+placeholders:
+  # Common message placeholders used by rules (for consistent lint_report formatting)
+  - name: path
+    meaning: "File path (spec_root-relative preferred)."
+  - name: id
+    meaning: "Spec ID if resolvable (e.g., SPEC-SYS-006)."
+  - name: kind
+    meaning: "Front matter kind."
+  - name: scope
+    meaning: "Front matter scope."
+  - name: section_id
+    meaning: "Canonical section id (e.g., llm_brief)."
+  - name: missing_keys
+    meaning: "Comma-separated list of missing keys."
+  - name: missing_sections
+    meaning: "Comma-separated list of missing section ids or headings."
+  - name: invalid_value
+    meaning: "Invalid value observed."
+  - name: expected
+    meaning: "Expected value or constraint."
+  - name: rule_context
+    meaning: "Additional rule-specific context."
+
+rules:
+  # --- Front matter (FM) ---
+  - rule_id: FM001
+    category: front_matter
+    title: "Missing required front matter keys"
+    description: "YAML front matter is present but missing one or more required keys."
+    rationale: "Indexing and linting depend on stable metadata (kind/scope/id/spec_title/stability/status)."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Missing required front matter keys: {missing_keys} (path={path})."
+    references:
+      - spec_id: "SPEC-SYS-006"
+
+  - rule_id: FM002
+    category: front_matter
+    title: "Invalid kind enum"
+    description: "Front matter 'kind' is not one of the allowed enum values."
+    rationale: "kind controls applicable section schema and tooling behavior."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Invalid kind '{invalid_value}' (expected one of enum; path={path})."
+    references:
+      - spec_id: "SPEC-SYS-006"
+
+  - rule_id: FM003
+    category: front_matter
+    title: "Invalid id format"
+    description: "Front matter 'id' does not match the project ID convention."
+    rationale: "Stable IDs are required for traceability and cross-file references."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Invalid id '{invalid_value}' (expected pattern; path={path})."
+    references:
+      - spec_id: "SPEC-SYS-006"
+
+  - rule_id: FM004
+    category: front_matter
+    title: "Unknown front matter key"
+    description: "Front matter contains an unknown key not permitted by schema/extension policy."
+    rationale: "Uncontrolled keys reduce determinism and make tooling behavior ambiguous."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Unknown front matter key '{invalid_value}' (path={path})."
+    references:
+      - spec_id: "SPEC-SYS-006"
+
+  # --- Structure (S) ---
+  - rule_id: S001
+    category: structure
+    title: "Missing required section"
+    description: "One or more required sections are missing for this kind."
+    rationale: "Required sections ensure minimum completeness and predictable tooling extraction."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Missing required section(s): {missing_sections} (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-002"
+
+  - rule_id: S002
+    category: structure
+    title: "Duplicate section heading"
+    description: "A section heading that should be unique appears multiple times."
+    rationale: "Duplicate sections make extraction ambiguous and can break doc-sync operations."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Duplicate section '{section_id}' (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-002"
+
+  - rule_id: S003
+    category: structure
+    title: "Unknown section id"
+    description: "A heading maps to a section id that is not registered."
+    rationale: "Unknown sections may be typos; policy may vary by profile (warn/error)."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Unknown section '{invalid_value}' (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-002"
+
+  - rule_id: S004
+    category: structure
+    title: "Section ordering violation"
+    description: "Sections are not in the recommended/required order for the kind."
+    rationale: "Consistent ordering improves readability and supports deterministic extraction."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Section ordering violation at '{section_id}' (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-002"
+
+  - rule_id: S005
+    category: structure
+    title: "Snapshot marker mismatch"
+    description: "Generated snapshot markers (BEGIN/END) are missing, mismatched, or nested incorrectly."
+    rationale: "Doc-sync relies on stable, machine-replaceable snapshot boundaries."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Snapshot marker mismatch (id={id}, path={path})."
+    references:
+      - spec_id: "ADR-SPEC-002"
+
+  # --- Traceability (T) ---
+  - rule_id: T001
+    category: traceability
+    title: "Missing minimum trace coverage"
+    description: "A required trace edge (e.g., REQ->IF, REQ->TEST) is missing."
+    rationale: "Minimum coverage prevents orphan requirements and improves testability."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Missing required trace coverage: {rule_context} (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-003"
+
+  - rule_id: T002
+    category: traceability
+    title: "Duplicate spec id"
+    description: "Two or more files declare the same front matter 'id'."
+    rationale: "IDs must be unique to keep references resolvable and index deterministic."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Duplicate id '{invalid_value}' detected (path={path})."
+    references:
+      - spec_id: "SPEC-SYS-003"
+
+  - rule_id: T003
+    category: traceability
+    title: "Trace cycle detected"
+    description: "Trace graph contains a cycle that violates policy."
+    rationale: "Cycles can make impact analysis ambiguous and complicate dependency reasoning."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Trace cycle detected: {rule_context} (path={path})."
+    references:
+      - spec_id: "SPEC-SYS-003"
+
+  - rule_id: T004
+    category: traceability
+    title: "Self reference detected"
+    description: "A document references itself in a trace edge or explicit reference."
+    rationale: "Self-references are usually mistakes and can hide missing coverage."
+    applies_to:
+      globs: ["**/*.md"]
+    message: "Self reference detected (id={id}, path={path})."
+    references:
+      - spec_id: "SPEC-SYS-003"
+
+  # --- External SSOT YAML/JSON (YJ) ---
+  - rule_id: YJ001
+    category: ssot_yaml_json
+    title: "YAML/JSON parse error"
+    description: "A YAML/JSON SSOT file cannot be parsed."
+    rationale: "SSOT files must be machine-readable to act as normative sources."
+    applies_to:
+      globs: [".iori-spec/**/*.yaml", ".iori-spec/**/*.yml", ".iori-spec/**/*.json"]
+    message: "Parse error (path={path})."
+    references:
+      - spec_id: "ADR-SPEC-002"
+
+  - rule_id: YJ002
+    category: ssot_yaml_json
+    title: "SSOT schema validation failure"
+    description: "A YAML/JSON SSOT file fails validation against its schema."
+    rationale: "Schemas define the stable contract for SSOT formats."
+    applies_to:
+      globs: [".iori-spec/**/*.yaml", ".iori-spec/**/*.yml", ".iori-spec/**/*.json"]
+    message: "Schema validation failed (path={path})."
+    references:
+      - spec_id: "ADR-SPEC-002"
+
+  - rule_id: YJ003
+    category: ssot_yaml_json
+    title: "Ruleset violation"
+    description: "A YAML/JSON SSOT file violates a ruleset (e.g., Spectral rules)."
+    rationale: "Rulesets enforce additional conventions beyond schemas."
+    applies_to:
+      globs: [".iori-spec/**/*.yaml", ".iori-spec/**/*.yml", ".iori-spec/**/*.json"]
+    message: "Ruleset violation (path={path})."
+    references:
+      - spec_id: "ADR-SPEC-002"
