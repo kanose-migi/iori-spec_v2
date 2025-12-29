@@ -3,7 +3,7 @@ kind: steering
 scope: spec_system
 id: STEER-002
 spec_title: "Technical Steering (Stable Core Boundary / Compatibility Policy)"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 

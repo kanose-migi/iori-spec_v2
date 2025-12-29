@@ -3,7 +3,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-002
 spec_title: "iori-spec Section Schema"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 

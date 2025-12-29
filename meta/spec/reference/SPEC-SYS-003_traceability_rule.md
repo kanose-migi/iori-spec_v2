@@ -3,7 +3,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-003
 spec_title: "iori-spec Traceability Specification (Ruleset)"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 

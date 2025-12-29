@@ -3,7 +3,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-004
 spec_title: "iori-spec Stable Artifact Contract (index / pack / lint report)"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 

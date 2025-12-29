@@ -3,7 +3,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-005
 spec_title: "iori-spec Tooling Specification (Index / Lint / Context Pack / CI Gate)"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 

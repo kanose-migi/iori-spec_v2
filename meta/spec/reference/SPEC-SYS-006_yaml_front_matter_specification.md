@@ -3,7 +3,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-006
 spec_title: "iori-spec YAML Front Matter Specification (Schema & Rules)"
-stability: core # core|extension
+stability: core # core|edge
 status: draft # draft|review|stable|deprecated
 ---
 
@@ -279,7 +279,7 @@ status: draft
 - 型: string（MUST）
 - 許容値（Stable Core）:
 
-  - `core` / `extension`（MUST）
+  - `core` / `edge`（MUST）
 - 上記以外は禁止（MUST NOT）
 
 ## 任意キー（Optional Keys）
@@ -321,7 +321,7 @@ kind: reference
 scope: spec_system
 id: SPEC-SYS-999
 spec_title: "Example with extensions"
-stability: extension
+stability: edge
 status: draft
 extensions:
   project:
@@ -426,7 +426,7 @@ kind: requirements
 scope: weird.experimental
 id: REQ-999
 spec_title: "実験: 新しい分類の検討"
-stability: extension
+stability: edge
 status: draft
 ---
 ```
