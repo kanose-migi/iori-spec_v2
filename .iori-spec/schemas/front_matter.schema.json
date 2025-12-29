@@ -57,7 +57,8 @@
       "description": "Lifecycle status of the spec.",
       "enum": [
         "draft",
-        "active",
+        "review",
+        "stable",
         "deprecated"
       ]
     },
@@ -66,8 +67,7 @@
       "description": "Optional semantic/document version. Not required by tooling unless explicitly configured.",
       "minLength": 1,
       "maxLength": 64
-    },
-    "allOf_placeholder_removed": true
+    }
   },
   "allOf": [
     {
