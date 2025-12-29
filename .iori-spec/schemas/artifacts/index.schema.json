@@ -122,8 +122,8 @@
         },
         "status": {
           "type": "string",
-          "enum": ["draft", "active", "deprecated"],
-          "description": "Lifecycle status."
+          "enum": ["draft", "review", "stable", "deprecated"],
+          "description": "Lifecycle status (aligned with front matter vocabulary)."
         },
         "path": {
           "type": "string",
